@@ -9,7 +9,7 @@ using System.Data.SqlClient;
 
 namespace Postulate
 {
-    public class SqlServerDb : SqlDb
+    public class SqlServerDb<TKey> : SqlDb<TKey>
     {
         public SqlServerDb(string connectionName, string userName = null) : base(connectionName)
         {
