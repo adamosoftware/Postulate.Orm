@@ -61,9 +61,9 @@ namespace Postulate.Abstract
         }
 
         /// <summary>
-        /// Use this to set any properties that should update every time a record is saved, for example DateModified or ModifiedBy
+        /// Use this to set any properties that should update every time a record is saved, for example user and datestamps
         /// </summary>
-        public virtual void BeforeSave(IDbConnection connection, SaveAction action)
+        public virtual void BeforeSave(IDbConnection connection, string userName, SaveAction action)
         {
             // do nothing by default
         }
