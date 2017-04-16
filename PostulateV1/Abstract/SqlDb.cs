@@ -86,51 +86,56 @@ namespace Postulate.Abstract
         {
             var row = ExecuteFindWhere<TRecord, TKey>(connection, critieria);
             return FindInner<TRecord, TKey>(connection, row);
-        }        
+        }
 
-        public void Delete<TRecord, TKey>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        public void Delete<TRecord, TKey>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
         {
-            TRecord row = Find<TRecord, TKey>(connection, id);
             string message;
-            if (row.AllowDelete(connection, UserName, out message))
+            if (record.AllowDelete(connection, UserName, out message))
             {
-                ExecuteDelete<TRecord, TKey>(connection, id);
-                row.AfterDelete(connection);
+                ExecuteDelete<TRecord, TKey>(connection, record.Id);
+                record.AfterDelete(connection);
             }
             else
             {
                 throw new PermissionDeniedException(message);
             }
-        }        
-        
-        public void Save<TRecord, TKey>(IDbConnection connection, TRecord row) where TRecord : Record<TKey>
-        {
-            SaveAction action;
-            Save<TRecord, TKey>(connection, row, out action);
         }
 
-        public void Save<TRecord, TKey>(IDbConnection connection, TRecord row, out SaveAction action) where TRecord : Record<TKey>
+        public void Delete<TRecord, TKey>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        {
+            TRecord record = Find<TRecord, TKey>(connection, id);
+            Delete<TRecord, TKey>(connection, record);
+        }
+        
+        public void Save<TRecord, TKey>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
+        {
+            SaveAction action;
+            Save<TRecord, TKey>(connection, record, out action);
+        }
+
+        public void Save<TRecord, TKey>(IDbConnection connection, TRecord record, out SaveAction action) where TRecord : Record<TKey>
         {
             action = SaveAction.NotSet;
             string message;
-            if (row.IsValid(connection, out message))
+            if (record.IsValid(connection, out message))
             {
-                if (row.AllowSave(connection, UserName, out message))
+                if (record.AllowSave(connection, UserName, out message))
                 {
-                    action = (row.IsNewRow()) ? SaveAction.Insert : SaveAction.Update;
+                    action = (record.IsNewRow()) ? SaveAction.Insert : SaveAction.Update;
 
-                    row.BeforeSave(connection, UserName, action);
+                    record.BeforeSave(connection, UserName, action);
 
-                    if (row.IsNewRow())
+                    if (record.IsNewRow())
                     {
-                        row.Id = ExecuteInsert<TRecord, TKey>(connection, row);
+                        record.Id = ExecuteInsert<TRecord, TKey>(connection, record);
                     }
                     else
                     {
-                        ExecuteUpdate<TRecord, TKey>(connection, row);
+                        ExecuteUpdate<TRecord, TKey>(connection, record);
                     }
 
-                    row.AfterSave(connection, action);
+                    record.AfterSave(connection, action);
                 }
                 else
                 {
@@ -180,7 +185,7 @@ namespace Postulate.Abstract
             var columns = GetColumnNames<TRecord, TKey>(pi => pi.HasColumnAccess(Access.InsertOnly));
 
             return 
-                $@"INSERT {GetTableName<TRecord, TKey>()} (
+                $@"INSERT INTO {GetTableName<TRecord, TKey>()} (
                     {string.Join(", ", columns.Select(s => DelimitName(s)))}
                 ) OUTPUT [inserted].[{typeof(TRecord).IdentityColumnName()}] VALUES (
                     {string.Join(", ", columns.Select(s => $"@{s}"))}
@@ -203,15 +208,17 @@ namespace Postulate.Abstract
             return $"DELETE {GetTableName<TRecord, TKey>()} WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
-        protected IEnumerable<PropertyInfo> GetColumns<TRecord, TKey>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
+        protected IEnumerable<PropertyInfo> GetEditableColumns<TRecord, TKey>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
         {            
             return typeof(TRecord).GetProperties().Where(pi =>
-                !pi.Name.Equals(IdentityColumnName) && (!pi.HasAttribute<ColumnAccessAttribute>() || (predicate?.Invoke(pi) ?? true)));
+                !pi.Name.Equals(IdentityColumnName) && 
+                !pi.HasAttribute<CalculatedAttribute>() &&
+                (!pi.HasAttribute<ColumnAccessAttribute>() || (predicate?.Invoke(pi) ?? true)));
         }
 
         protected IEnumerable<string> GetColumnNames<TRecord, TKey>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
         {
-            return GetColumns<TRecord, TKey>(predicate).Select(pi =>
+            return GetEditableColumns<TRecord, TKey>(predicate).Select(pi =>
             {
                 ColumnAttribute colAttr;
                 return (pi.HasAttribute(out colAttr)) ? colAttr.Name : pi.Name;                

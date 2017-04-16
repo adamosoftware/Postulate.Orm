@@ -50,9 +50,14 @@
     <Compile Include="Abstract\SqlDb.cs" />
     <Compile Include="Abstract\Record.cs" />
     <Compile Include="Abstract\SqlGenerator.cs" />
+    <Compile Include="Attributes\CalculatedAttribute.cs" />
+    <Compile Include="Attributes\CollateAttribute.cs" />
     <Compile Include="Attributes\ColumnAccessAttribute.cs" />
+    <Compile Include="Attributes\DecimalPrecisionAttribute.cs" />
     <Compile Include="Attributes\IdentityColumnAttribute.cs" />
     <Compile Include="Attributes\InsertPositionAttribute.cs" />
+    <Compile Include="Attributes\PrimaryKeyAttribute.cs" />
+    <Compile Include="Attributes\UniqueKeyAttribute.cs" />
     <Compile Include="ConnectionStringReference.cs" />
     <Compile Include="Enums\PositionEnum.cs" />
     <Compile Include="Enums\SaveAction.cs" />
