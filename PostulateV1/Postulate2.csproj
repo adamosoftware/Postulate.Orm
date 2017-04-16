@@ -36,7 +36,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -51,6 +53,7 @@
     <Compile Include="Attributes\ColumnAccessAttribute.cs" />
     <Compile Include="Attributes\IdentityColumnAttribute.cs" />
     <Compile Include="Attributes\InsertPositionAttribute.cs" />
+    <Compile Include="ConnectionStringReference.cs" />
     <Compile Include="Enums\PositionEnum.cs" />
     <Compile Include="Enums\SaveAction.cs" />
     <Compile Include="Exceptions\SaveException.cs" />

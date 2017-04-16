@@ -9,6 +9,7 @@ using Postulate.Extensions;
 using System.ComponentModel.DataAnnotations.Schema;
 using Postulate.Exceptions;
 using Dapper;
+using System.Configuration;
 
 namespace Postulate.Abstract
 {
@@ -18,11 +19,50 @@ namespace Postulate.Abstract
 
         public string UserName { get; protected set; }
 
+        private readonly string _connectionString;
+
+        public SqlDb(string connectionName)
+        {
+            try
+            {
+                _connectionString = ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
+            }
+            catch (NullReferenceException)
+            {
+                string fileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+                string allConnections = AllConnectionNames();
+                throw new NullReferenceException($"Connection string named {connectionName} was not found in {fileName}. These connection names are defined: {allConnections}");
+            }
+
+            if (_connectionString.StartsWith("@"))
+            {
+                string name = _connectionString.Substring(1);
+                _connectionString = ConnectionStringReference.Resolve(name);
+            }
+        }
+
+        private string AllConnectionNames()
+        {
+            var connections = ConfigurationManager.ConnectionStrings;
+            List<string> results = new List<string>();
+            foreach (ConnectionStringSettings css in connections)
+            {
+                results.Add(css.Name);
+            }
+            return string.Join(", ", results);
+        }
+
+        protected string ConnectionString
+        {
+            get { return _connectionString; }
+        }
+
         public abstract IDbConnection GetConnection();
 
         private Dictionary<string, string> _insertCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _updateCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _findCommands = new Dictionary<string, string>();
+        private Dictionary<string, string> _deleteCommands = new Dictionary<string, string>();
 
         public bool Exists<TRecord, TKey>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
@@ -54,7 +94,7 @@ namespace Postulate.Abstract
             string message;
             if (row.AllowDelete(connection, UserName, out message))
             {
-                ExecuteDelete(connection, id);
+                ExecuteDelete<TRecord, TKey>(connection, id);
                 row.AfterDelete(connection);
             }
             else
@@ -101,54 +141,7 @@ namespace Postulate.Abstract
             {
                 throw new ValidationException(message);
             }
-        }
-
-        protected TKey ExecuteInsert<TRecord, TKey>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
-        {
-            string cmd = GetCommand<TRecord>(_insertCommands, () => GetInsertStatement<TRecord, TKey>());
-            try
-            {
-                return connection.QuerySingle<TKey>(cmd, record);
-            }
-            catch (Exception exc)
-            {
-                throw new SaveException(exc.Message, cmd, record);
-            }            
-        }
-
-        protected void ExecuteUpdate<TRecord, TKey>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
-        {
-            string cmd = GetCommand<TRecord>(_updateCommands, () => GetUpdateStatement<TRecord, TKey>());
-            try
-            {
-                connection.Execute(cmd, record);
-            }
-            catch (Exception exc)
-            {
-                throw new SaveException(exc.Message, cmd, record);
-            }
-        }
-
-        protected TRecord ExecuteFind<TRecord, TKey>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
-        {
-            string cmd = GetCommand<TRecord>(_findCommands, () => GetFindStatement<TRecord, TKey>());
-            return connection.QueryFirstOrDefault<TRecord>(cmd, new { id = id });
-        }
-
-        protected TRecord ExecuteFindWhere<TRecord, TKey>(IDbConnection connection, string criteria) where TRecord : Record<TKey>
-        {
-            string cmd = GetFindStatementBase<TRecord, TKey>() + $" WHERE {criteria}";
-            return connection.QuerySingleOrDefault<TRecord>(cmd);
-        }
-
-        protected abstract void ExecuteDelete<TKey>(IDbConnection connection, TKey id);
-
-        private string GetCommand<TRecord>(Dictionary<string, string> dictionary, Func<string> commandBuilder)
-        {
-            string modelTypeName = typeof(TRecord).Name;
-            if (!dictionary.ContainsKey(modelTypeName)) dictionary.Add(modelTypeName, commandBuilder.Invoke());
-            return dictionary[modelTypeName];
-        }
+        }        
 
         protected string GetTableName<TRecord, TKey>() where TRecord : Record<TKey>
         {
@@ -238,6 +231,57 @@ namespace Postulate.Abstract
             {
                 throw new PermissionDeniedException(message);
             }
+        }
+
+        private TKey ExecuteInsert<TRecord, TKey>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
+        {
+            string cmd = GetCommand<TRecord>(_insertCommands, () => GetInsertStatement<TRecord, TKey>());
+            try
+            {
+                return connection.QuerySingle<TKey>(cmd, record);
+            }
+            catch (Exception exc)
+            {
+                throw new SaveException(exc.Message, cmd, record);
+            }
+        }
+
+        private void ExecuteUpdate<TRecord, TKey>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
+        {
+            string cmd = GetCommand<TRecord>(_updateCommands, () => GetUpdateStatement<TRecord, TKey>());
+            try
+            {
+                connection.Execute(cmd, record);
+            }
+            catch (Exception exc)
+            {
+                throw new SaveException(exc.Message, cmd, record);
+            }
+        }
+
+        private TRecord ExecuteFind<TRecord, TKey>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        {
+            string cmd = GetCommand<TRecord>(_findCommands, () => GetFindStatement<TRecord, TKey>());
+            return connection.QueryFirstOrDefault<TRecord>(cmd, new { id = id });
+        }
+
+        private TRecord ExecuteFindWhere<TRecord, TKey>(IDbConnection connection, string criteria) where TRecord : Record<TKey>
+        {
+            string cmd = GetFindStatementBase<TRecord, TKey>() + $" WHERE {criteria}";
+            return connection.QuerySingleOrDefault<TRecord>(cmd);
+        }
+
+        private void ExecuteDelete<TRecord, TKey>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        {
+            string cmd = GetCommand<TRecord>(_deleteCommands, () => GetDeleteStatement<TRecord, TKey>());
+            connection.Execute(cmd, new { id = id });
+        }
+
+        private string GetCommand<TRecord>(Dictionary<string, string> dictionary, Func<string> commandBuilder)
+        {
+            string modelTypeName = typeof(TRecord).Name;
+            if (!dictionary.ContainsKey(modelTypeName)) dictionary.Add(modelTypeName, commandBuilder.Invoke());
+            return dictionary[modelTypeName];
         }
     }
 }
