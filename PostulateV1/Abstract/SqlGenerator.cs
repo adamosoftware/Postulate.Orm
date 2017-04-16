@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PostulateV1
+namespace Postulate.Abstract
 {
-    public class Class1
+    public abstract class SqlGenerator<TRecord, TKey> where TRecord : Record<TKey>
     {
     }
 }
