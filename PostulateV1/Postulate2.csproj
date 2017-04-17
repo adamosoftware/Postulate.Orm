@@ -49,7 +49,6 @@
   <ItemGroup>
     <Compile Include="Abstract\SqlDb.cs" />
     <Compile Include="Abstract\Record.cs" />
-    <Compile Include="Abstract\SqlGenerator.cs" />
     <Compile Include="Attributes\CalculatedAttribute.cs" />
     <Compile Include="Attributes\CollateAttribute.cs" />
     <Compile Include="Attributes\ColumnAccessAttribute.cs" />
@@ -68,6 +67,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlServerDb.cs" />
     <Compile Include="Exceptions\ValidationException.cs" />
+    <Compile Include="Validation\RegexAttribute.cs" />
+    <Compile Include="Validation\ValidationAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

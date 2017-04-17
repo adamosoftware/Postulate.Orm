@@ -110,16 +110,14 @@ namespace Postulate.Abstract
 
         public void Save<TRecord>(IDbConnection connection, TRecord record, out SaveAction action) where TRecord : Record<TKey>
         {
-            action = SaveAction.NotSet;
+            action = (record.IsNewRow()) ? SaveAction.Insert : SaveAction.Update;
+            record.BeforeSave(connection, UserName, action);
+
             string message;
-            if (record.IsValid(connection, out message))
+            if (record.IsValid(connection, action, out message))
             {
                 if (record.AllowSave(connection, UserName, out message))
-                {
-                    action = (record.IsNewRow()) ? SaveAction.Insert : SaveAction.Update;
-
-                    record.BeforeSave(connection, UserName, action);
-
+                {                                        
                     if (record.IsNewRow())
                     {
                         record.Id = ExecuteInsert(connection, record);

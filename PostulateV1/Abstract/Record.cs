@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Postulate.Extensions;
 
 namespace Postulate.Abstract
 {
@@ -27,11 +29,60 @@ namespace Postulate.Abstract
             return (Id.Equals(default(TKey)));
         }
 
-        public virtual bool IsValid(IDbConnection connection, out string message)
+        /// <summary>
+        /// Returns true if the record passes all validation rules
+        /// </summary>
+        public bool IsValid(IDbConnection connection, SaveAction action, out string message)
         {
-            // todo: check required fields, etc
-            message = null;
-            return true;
+            var messages = GetValidationErrors(connection, action);
+            if (!messages.Any())
+            {
+                message = null;
+                return true;
+            }
+            else
+            {
+                message = string.Join("\r\n", messages);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns any validation errors on the record
+        /// </summary>
+        public virtual IEnumerable<string> GetValidationErrors(IDbConnection connection, SaveAction action)
+        {
+            foreach (var prop in GetType().GetProperties().Where(pi => pi.IsForSaveAction(action)))
+            {
+                if (RequiredDateNotSet(prop))
+                {
+                    yield return $"The {prop.Name} date field requires a value.";
+                }
+
+                var postulateAttr = prop.GetCustomAttributes<Validation.ValidationAttribute>();
+                foreach (var attr in postulateAttr)
+                {
+                    object value = prop.GetValue(this);
+                    if (!attr.IsValid(prop, value, connection)) yield return attr.ErrorMessage;
+                }
+
+                var validationAttr = prop.GetCustomAttributes<System.ComponentModel.DataAnnotations.ValidationAttribute>();
+                foreach (var attr in validationAttr)
+                {                    
+                    object value = prop.GetValue(this);
+                    if (!attr.IsValid(value)) yield return attr.FormatErrorMessage(prop.Name);                    
+                }
+            }
+        }
+
+        private bool RequiredDateNotSet(PropertyInfo prop)
+        {
+            if (prop.PropertyType.Equals(typeof(DateTime)))
+            {
+                DateTime value = (DateTime)prop.GetValue(this);
+                if (value.Equals(DateTime.MinValue)) return true;
+            }
+            return false;
         }
 
         /// <summary>
