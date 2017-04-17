@@ -13,6 +13,16 @@ using System.Configuration;
 
 namespace Postulate.Abstract
 {
+    public enum ConnectionSource
+    {
+        ConfigFile,
+        Literal
+    }
+
+    /// <summary>
+    /// Supports CRUD actions for model classes
+    /// </summary>
+    /// <typeparam name="TKey">Data type of unique keys used on all model classes for this database</typeparam>
     public abstract class SqlDb<TKey>
     {
         public const string IdentityColumnName = "Id";        
@@ -21,17 +31,26 @@ namespace Postulate.Abstract
 
         private readonly string _connectionString;
 
-        public SqlDb(string connectionName)
+        public SqlDb(string connection, ConnectionSource connectionSource = ConnectionSource.ConfigFile)
         {
-            try
+            switch (connectionSource)
             {
-                _connectionString = ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
-            }
-            catch (NullReferenceException)
-            {
-                string fileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-                string allConnections = AllConnectionNames();
-                throw new NullReferenceException($"Connection string named {connectionName} was not found in {fileName}. These connection names are defined: {allConnections}");
+                case ConnectionSource.ConfigFile:
+                    try
+                    {
+                        _connectionString = ConfigurationManager.ConnectionStrings[connection].ConnectionString;
+                    }
+                    catch (NullReferenceException)
+                    {
+                        string fileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+                        string allConnections = AllConnectionNames();
+                        throw new NullReferenceException($"Connection string named {connection} was not found in {fileName}. These connection names are defined: {allConnections}");
+                    }
+                    break;
+
+                case ConnectionSource.Literal:
+                    _connectionString = connection;
+                    break;
             }
 
             if (_connectionString.StartsWith("@"))
@@ -105,7 +124,7 @@ namespace Postulate.Abstract
         public void Save<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
         {
             SaveAction action;
-            Save<TRecord>(connection, record, out action);
+            Save(connection, record, out action);
         }
 
         public void Save<TRecord>(IDbConnection connection, TRecord record, out SaveAction action) where TRecord : Record<TKey>
