@@ -64,15 +64,9 @@ namespace Postulate.Abstract
         private Dictionary<string, string> _findCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _deleteCommands = new Dictionary<string, string>();
 
-        public bool Exists<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        public bool ExistsWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
-            TRecord record = Find<TRecord>(connection, id);
-            return (record != null);
-        }
-
-        public bool ExistsWhere<TRecord>(IDbConnection connection, string criteria) where TRecord : Record<TKey>
-        {
-            TRecord record = FindWhere<TRecord>(connection, criteria);
+            TRecord record = FindWhere<TRecord>(connection, criteria, parameters);
             return (record != null);
         }
 
@@ -82,10 +76,10 @@ namespace Postulate.Abstract
             return FindInner<TRecord>(connection, row);
         }        
 
-        public TRecord FindWhere<TRecord>(IDbConnection connection, string critieria) where TRecord : Record<TKey>
+        public TRecord FindWhere<TRecord>(IDbConnection connection, string critieria, object parameters) where TRecord : Record<TKey>
         {
-            var row = ExecuteFindWhere<TRecord>(connection, critieria);
-            return FindInner<TRecord>(connection, row);
+            var row = ExecuteFindWhere<TRecord>(connection, critieria, parameters);
+            return FindInner(connection, row);
         }
 
         public void Delete<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
@@ -148,7 +142,7 @@ namespace Postulate.Abstract
             }
         }        
 
-        protected string GetTableName<TRecord>() where TRecord : Record<TKey>
+        private string GetTableName<TRecord>() where TRecord : Record<TKey>
         {
             Type modelType = typeof(TRecord);            
             string result = modelType.Name;
@@ -163,10 +157,10 @@ namespace Postulate.Abstract
                 }
             }
 
-            return DelimitName(result);
+            return ApplyDelimiter(result);
         }
-            
-        protected string GetFindStatement<TRecord>() where TRecord : Record<TKey>
+
+        private string GetFindStatement<TRecord>() where TRecord : Record<TKey>
         {
             return GetFindStatementBase<TRecord>() + $" WHERE [{typeof(TRecord).IdentityColumnName<TKey>()}]=@id";
         }
@@ -175,40 +169,40 @@ namespace Postulate.Abstract
         {
             return
                 $@"SELECT 
-                    {string.Join(", ", GetColumnNames<TRecord>().Select(name => DelimitName(name)))} 
+                    {string.Join(", ", GetColumnNames<TRecord>().Select(name => ApplyDelimiter(name)))} 
                 FROM 
                     {GetTableName<TRecord>()}";
         }
 
-        protected string GetInsertStatement<TRecord>() where TRecord : Record<TKey>
+        private string GetInsertStatement<TRecord>() where TRecord : Record<TKey>
         {
             var columns = GetColumnNames<TRecord>(pi => pi.HasColumnAccess(Access.InsertOnly));
 
             return 
                 $@"INSERT INTO {GetTableName<TRecord>()} (
-                    {string.Join(", ", columns.Select(s => DelimitName(s)))}
+                    {string.Join(", ", columns.Select(s => ApplyDelimiter(s)))}
                 ) OUTPUT [inserted].[{typeof(TRecord).IdentityColumnName<TKey>()}] VALUES (
                     {string.Join(", ", columns.Select(s => $"@{s}"))}
                 )";
         }
 
-        protected string GetUpdateStatement<TRecord>() where TRecord : Record<TKey>
+        private string GetUpdateStatement<TRecord>() where TRecord : Record<TKey>
         {
             var columns = GetColumnNames<TRecord>(pi => pi.HasColumnAccess(Access.UpdateOnly));
 
             return 
                 $@"UPDATE {GetTableName<TRecord>()} SET
-                    {string.Join(", ", columns.Select(s => $"{DelimitName(s)} = @{s}"))}
+                    {string.Join(", ", columns.Select(s => $"{ApplyDelimiter(s)} = @{s}"))}
                 WHERE 
                     [{typeof(TRecord).IdentityColumnName<TKey>()}]=@id";
         }
 
-        protected string GetDeleteStatement<TRecord>() where TRecord : Record<TKey>
+        private string GetDeleteStatement<TRecord>() where TRecord : Record<TKey>
         {
             return $"DELETE {GetTableName<TRecord>()} WHERE [{typeof(TRecord).IdentityColumnName<TKey>()}]=@id";
         }
 
-        protected IEnumerable<PropertyInfo> GetEditableColumns<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
+        private IEnumerable<PropertyInfo> GetEditableColumns<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
         {            
             return typeof(TRecord).GetProperties().Where(pi =>
                 !pi.Name.Equals(IdentityColumnName) && 
@@ -216,16 +210,16 @@ namespace Postulate.Abstract
                 (!pi.HasAttribute<ColumnAccessAttribute>() || (predicate?.Invoke(pi) ?? true)));
         }
 
-        protected IEnumerable<string> GetColumnNames<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
+        private IEnumerable<string> GetColumnNames<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
         {
             return GetEditableColumns<TRecord>(predicate).Select(pi =>
             {
                 ColumnAttribute colAttr;
                 return (pi.HasAttribute(out colAttr)) ? colAttr.Name : pi.Name;                
             });
-        }        
+        }
 
-        protected abstract string DelimitName(string name);
+        protected abstract string ApplyDelimiter(string name);
 
         private TRecord FindInner<TRecord>(IDbConnection connection, TRecord row) where TRecord : Record<TKey>
         {
@@ -272,10 +266,10 @@ namespace Postulate.Abstract
             return connection.QueryFirstOrDefault<TRecord>(cmd, new { id = id });
         }
 
-        private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria) where TRecord : Record<TKey>
+        private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
             string cmd = GetFindStatementBase<TRecord>() + $" WHERE {criteria}";
-            return connection.QuerySingleOrDefault<TRecord>(cmd);
+            return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);
         }
 
         private void ExecuteDelete<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
