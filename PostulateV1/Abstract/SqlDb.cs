@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Postulate.Exceptions;
 using Dapper;
 using System.Configuration;
+using System.Linq.Expressions;
 
 namespace Postulate.Abstract
 {
@@ -130,22 +131,29 @@ namespace Postulate.Abstract
         public void Save<TRecord>(IDbConnection connection, TRecord record, out SaveAction action) where TRecord : Record<TKey>
         {
             action = (record.IsNewRow()) ? SaveAction.Insert : SaveAction.Update;
+            SaveInner(connection, record, action, (r) =>
+            {
+                if (r.IsNewRow())
+                {
+                    r.Id = ExecuteInsert(connection, r);
+                }
+                else
+                {
+                    ExecuteUpdate(connection, r);
+                }
+            });
+        }
+
+        private void SaveInner<TRecord>(IDbConnection connection, TRecord record, SaveAction action, Action<TRecord> saveAction) where TRecord : Record<TKey>
+        {
             record.BeforeSave(connection, UserName, action);
 
             string message;
             if (record.IsValid(connection, action, out message))
             {
                 if (record.AllowSave(connection, UserName, out message))
-                {                                        
-                    if (record.IsNewRow())
-                    {
-                        record.Id = ExecuteInsert(connection, record);
-                    }
-                    else
-                    {
-                        ExecuteUpdate(connection, record);
-                    }
-
+                {
+                    saveAction.Invoke(record);
                     record.AfterSave(connection, action);
                 }
                 else
@@ -157,7 +165,58 @@ namespace Postulate.Abstract
             {
                 throw new ValidationException(message);
             }
-        }        
+        }
+
+        public void Update<TRecord>(IDbConnection connection, TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>
+        {
+            Type modelType = typeof(TRecord);
+            IdentityColumnAttribute idAttr;
+            string identityCol = (modelType.HasAttribute(out idAttr)) ? idAttr.ColumnName : IdentityColumnName;
+            bool useAltIdentity = (!identityCol.Equals(IdentityColumnName));
+            PropertyInfo piIdentity = null;
+            if (useAltIdentity) piIdentity = modelType.GetProperty(identityCol);
+
+            DynamicParameters dp = new DynamicParameters();
+            dp.Add(identityCol, (!useAltIdentity) ? record.Id : piIdentity.GetValue(record));
+
+            string setClause = string.Join(", ", setColumns.Select(expr =>
+            {
+                string propName = PropertyNameFromLambda(expr);
+                PropertyInfo pi = typeof(TRecord).GetProperty(propName);
+                dp.Add(propName, expr.Compile().Invoke(record));
+                return $"[{pi.SqlColumnName()}]=@{propName}";
+            }));
+
+            string cmd = $"UPDATE {GetTableName<TRecord>()} SET {setClause} WHERE [{identityCol}]=@{identityCol}";
+
+            SaveInner(connection, record, SaveAction.Update, (r) =>
+            {
+                connection.Execute(cmd, r);
+            });            
+        }
+
+        protected string PropertyNameFromLambda(Expression expression)
+        {
+            // thanks to http://odetocode.com/blogs/scott/archive/2012/11/26/why-all-the-lambdas.aspx
+            // thanks to http://stackoverflow.com/questions/671968/retrieving-property-name-from-lambda-expression
+
+            LambdaExpression le = expression as LambdaExpression;
+            if (le == null) throw new ArgumentException("expression");
+
+            MemberExpression me = null;
+            if (le.Body.NodeType == ExpressionType.Convert)
+            {
+                me = ((UnaryExpression)le.Body).Operand as MemberExpression;
+            }
+            else if (le.Body.NodeType == ExpressionType.MemberAccess)
+            {
+                me = le.Body as MemberExpression;
+            }
+
+            if (me == null) throw new ArgumentException("expression");
+
+            return me.Member.Name;
+        }
 
         private string GetTableName<TRecord>() where TRecord : Record<TKey>
         {

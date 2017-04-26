@@ -44,6 +44,5 @@ namespace Postulate.Extensions
             TAttribute attr;
             return HasAttribute(provider, out attr, predicate);
         }
-
     }
 }

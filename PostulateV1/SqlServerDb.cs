@@ -1,12 +1,10 @@
 ﻿using Postulate.Abstract;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using Postulate.Enums;
+using System.Linq.Expressions;
 
 namespace Postulate
 {
@@ -25,6 +23,15 @@ namespace Postulate
         public override IDbConnection GetConnection()
         {
             return new SqlConnection(ConnectionString);
+        }
+
+        public TRecord Find<TRecord>(TKey id) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                return Find<TRecord>(cn, id);
+            }
         }
 
         public bool ExistsWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
@@ -79,6 +86,15 @@ namespace Postulate
                 cn.Open();
                 SaveAction action;
                 Save(cn, record, out action);
+            }
+        }
+
+        public void Update<TRecord>(TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                Update(cn, record, setColumns);
             }
         }
     }

@@ -62,6 +62,7 @@
     <Compile Include="Enums\SaveAction.cs" />
     <Compile Include="Exceptions\SaveException.cs" />
     <Compile Include="Extensions\PropertyInfoExtensions.cs" />
+    <Compile Include="Extensions\PropertyInfoSqlExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Exceptions\PermissionDeniedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
