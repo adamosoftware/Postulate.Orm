@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Merge\CreateForeignKeys.cs" />
+    <Compile Include="Merge\CreateTables.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Abstract\SqlDb.cs" />
     <Compile Include="Abstract\Record.cs" />
@@ -67,6 +69,7 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Exceptions\PermissionDeniedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Merge\SchemaMerge.cs" />
     <Compile Include="SqlServerDb.cs" />
     <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="Validation\RegexAttribute.cs" />
@@ -75,5 +78,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

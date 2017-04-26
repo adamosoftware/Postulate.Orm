@@ -30,6 +30,8 @@ namespace Postulate.Abstract
 
         public string UserName { get; protected set; }
 
+        public int Version { get; protected set; }
+
         private readonly string _connectionString;
 
         public SqlDb(string connection, ConnectionSource connectionSource = ConnectionSource.ConfigFile)
