@@ -119,7 +119,7 @@ namespace Postulate.Abstract
         public void Delete<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
             TRecord record = Find<TRecord>(connection, id);
-            Delete<TRecord>(connection, record);
+            Delete(connection, record);
         }
         
         public void Save<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
