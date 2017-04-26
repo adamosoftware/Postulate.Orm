@@ -8,6 +8,10 @@ using Dapper;
 
 namespace Postulate
 {
+    /// <summary>
+    /// Defines a SQL query with a fixed parameter set
+    /// </summary>
+    /// <typeparam name="TResult">Type of result</typeparam>
     public class Query<TResult>
     {
         private readonly string _sql;
@@ -39,6 +43,36 @@ namespace Postulate
             return connection.Query<TResult>(_sql, this, commandType: CommandType);
         }
 
+        public IEnumerable<TResult> Execute(string orderBy, int pageSize, int pageNumber)
+        {
+            using (IDbConnection cn = _connectionGetter.Invoke())
+            {
+                cn.Open();
+                return Execute(cn, orderBy, pageSize, pageNumber);
+            }
+        }
+
+        public IEnumerable<TResult> Execute(IDbConnection connection, string orderBy, int pageSize, int pageNumber)
+        {
+            string query = BuildPagedQuery(_sql, orderBy, pageSize, pageNumber);
+            return connection.Query<TResult>(query, this);
+        }
+
+        public static string BuildPagedQuery(string query, string orderBy, int pageSize, int pageNumber)
+        {
+            int startRecord = (pageNumber * pageSize) + 1;
+            int endRecord = (pageNumber * pageSize) + pageSize;
+            return $"WITH [source] AS ({InsertRowNumberColumn(query, orderBy)}) SELECT * FROM [source] WHERE [RowNumber] BETWEEN {startRecord} AND {endRecord};";
+        }
+
+        public static string InsertRowNumberColumn(string query, string orderBy)
+        {
+            StringBuilder sb = new StringBuilder(query);
+            int insertPoint = query.ToLower().IndexOf("select ") + "select ".Length;
+            sb.Insert(insertPoint, $"ROW_NUMBER() OVER(ORDER BY {orderBy}) AS [RowNumber], ");
+            return sb.ToString();
+        }
+
         public async Task<IEnumerable<TResult>> ExecuteAsync()
         {
             using (IDbConnection cn = _connectionGetter.Invoke())
@@ -51,6 +85,21 @@ namespace Postulate
         public async Task<IEnumerable<TResult>> ExecuteAsync(IDbConnection connection)
         {
             return await connection.QueryAsync<TResult>(_sql, this, commandType: CommandType);
+        }
+
+        public async Task<IEnumerable<TResult>> ExecuteAsync(IDbConnection connection, string orderBy, int pageSize, int pageNumber)
+        {
+            string query = BuildPagedQuery(_sql, orderBy, pageSize, pageNumber);
+            return await connection.QueryAsync<TResult>(query, this);
+        }
+
+        public async Task<IEnumerable<TResult>> ExecuteAsync(string orderBy, int pageSize, int pageNumber)
+        {
+            using (IDbConnection cn = _connectionGetter.Invoke())
+            {
+                cn.Open();
+                return await ExecuteAsync(cn, orderBy, pageSize, pageNumber);
+            }
         }
 
         public TResult ExecuteSingle()

@@ -25,6 +25,18 @@ namespace Testing
             var orgs = new OrgsWithName("sample").Execute();
             Assert.IsTrue(orgs.Any());
         }
+
+        [TestMethod]
+        public void OrgsPaged()
+        {
+            IEnumerable<Organization> orgs = null;
+            int page = 0;
+            do
+            {
+                orgs = new AllOrgs().Execute("[Name]", 3, page);
+                page++;
+            } while (orgs.Any());
+        }
     }
 
     public class PostulateQuery<TResult> : Query<TResult>
