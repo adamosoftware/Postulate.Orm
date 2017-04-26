@@ -29,13 +29,19 @@ namespace Testing
         [TestMethod]
         public void OrgsPaged()
         {
+            int totalRecordCount = new PostulateQuery<int>("SELECT COUNT(1) FROM [dbo].[Organization]").ExecuteSingle();
+            int testRecords = 0;
+
             IEnumerable<Organization> orgs = null;
             int page = 0;
             do
             {
                 orgs = new AllOrgs().Execute("[Name]", 3, page);
+                testRecords += orgs.Count();
                 page++;
             } while (orgs.Any());
+
+            Assert.IsTrue(testRecords == totalRecordCount);
         }
     }
 
