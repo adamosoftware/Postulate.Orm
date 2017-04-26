@@ -1,10 +1,6 @@
 ﻿using Postulate.Abstract;
 using Postulate.Attributes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Postulate.Extensions
 {
@@ -19,6 +15,5 @@ namespace Postulate.Extensions
 
             return result;
         }
-
     }
 }
