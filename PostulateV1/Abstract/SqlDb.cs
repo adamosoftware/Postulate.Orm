@@ -179,13 +179,22 @@ namespace Postulate.Abstract
             DynamicParameters dp = new DynamicParameters();
             dp.Add(identityCol, (!useAltIdentity) ? record.Id : piIdentity.GetValue(record));
 
+            List<string> columnNames = new List<string>();
             string setClause = string.Join(", ", setColumns.Select(expr =>
             {
                 string propName = PropertyNameFromLambda(expr);
+                columnNames.Add(propName);
                 PropertyInfo pi = typeof(TRecord).GetProperty(propName);
                 dp.Add(propName, expr.Compile().Invoke(record));
                 return $"[{pi.SqlColumnName()}]=@{propName}";
-            }));
+            }).Concat(
+                modelType.GetProperties().Where(pi => 
+                    pi.HasAttribute<ColumnAccessAttribute>(a => a.Access == Access.UpdateOnly))
+                        .Select(pi =>
+                        {
+                            if (columnNames.Contains(pi.SqlColumnName())) throw new InvalidOperationException($"Can't set column {pi.SqlColumnName()} with the Update method because it has a ColumnAccess(UpdateOnly) attribute.");
+                            return $"[{pi.SqlColumnName()}]=@{pi.SqlColumnName()}";
+                        })));
 
             string cmd = $"UPDATE {GetTableName<TRecord>()} SET {setClause} WHERE [{identityCol}]=@{identityCol}";
 

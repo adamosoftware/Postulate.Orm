@@ -100,10 +100,30 @@ namespace Testing
             db.Update(org, r => r.BillingRate);
 
             org = db.Find<Organization>(orgId);
-
             db.Delete<Organization>(orgId);
 
             Assert.IsTrue(org.BillingRate == 11);
+        }
+
+        [TestMethod]
+        public void UpdateSetDateModified()
+        {
+            Organization org = new Organization();
+            org.Name = DefaultOrgName();
+            org.BillingRate = 10;
+
+            var db = new PostulateDb();
+            db.Save(org);
+
+            int orgId = org.Id;
+
+            org.BillingRate = 11;            
+            db.Update(org, r => r.BillingRate);
+
+            org = db.Find<Organization>(orgId);
+            db.Delete<Organization>(orgId);
+
+            Assert.IsTrue(org.DateModified != null && org.ModifiedBy != null);
         }
     }
 }
