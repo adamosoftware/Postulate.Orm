@@ -3,17 +3,28 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Testing.Models;
 using System.Data.SqlClient;
 using System.Data;
+using Dapper;
 
 namespace Testing
 {
     [TestClass]
     public class CrudOperations
     {
+        private int MaxOrgId()
+        {
+            int result = 0;
+            using (IDbConnection cn = new PostulateDb().GetConnection())
+            {
+                result = cn.QuerySingleOrDefault<int?>("SELECT MAX([Id]) FROM [Organization]") ?? 0;
+            }
+            return result;
+        }
+
         [TestMethod]
         public void CreateDeleteOrg()
         {
             Organization org = new Organization();
-            org.Name = $"Sample Org {DateTime.Now}";
+            org.Name = DefaultOrgName();
             org.BillingRate = 10;
 
             PostulateDb db = new PostulateDb();
@@ -25,11 +36,16 @@ namespace Testing
             }
         }
 
+        private string DefaultOrgName()
+        {
+            return $"Sample Org {DateTime.Now} {MaxOrgId()}";
+        }
+
         [TestMethod]
         public void FindAndUpdateOrg()
         {
             Organization org = new Organization();
-            org.Name = $"Sample Org {DateTime.Now}";
+            org.Name = DefaultOrgName();
             org.BillingRate = 10;
 
             PostulateDb db = new PostulateDb();
@@ -43,6 +59,30 @@ namespace Testing
                 org.BillingRate = 11;
                 db.Save(cn, org);
             }
+        }
+
+        [TestMethod]
+        public void CreateDeleteOrgFromIdNoConnection()
+        {
+            Organization org = new Organization();
+            org.Name = DefaultOrgName();
+            org.BillingRate = 10;
+
+            PostulateDb db = new PostulateDb();
+            db.Save(org);
+            db.Delete<Organization>(org.Id);
+        }
+
+        [TestMethod]
+        public void CreateDeleteOrgFromRecordNoConnection()
+        {
+            Organization org = new Organization();
+            org.Name = DefaultOrgName();
+            org.BillingRate = 10;
+
+            PostulateDb db = new PostulateDb();
+            db.Save(org);
+            db.Delete(org);
         }
     }
 }
