@@ -11,9 +11,9 @@ namespace Postulate.Merge
     public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
     {
         /// <summary>
-        /// Creates foreign keys that exist in the model but not in the schema
+        /// Adds the model version number and change info to the meta.Version table
         /// </summary>
-        private IEnumerable<Diff> CreateForeignKeys(IDbConnection connection)
+        private Diff ScriptVersionInfo(IEnumerable<Diff> changes)
         {
             throw new NotImplementedException();
         }

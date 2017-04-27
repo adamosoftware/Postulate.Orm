@@ -11,9 +11,9 @@ namespace Postulate.Merge
     public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
     {
         /// <summary>
-        /// Creates foreign keys that exist in the model but not in the schema
+        /// Drops and rebuilds primary keys when the columns or types of included columns have changed
         /// </summary>
-        private IEnumerable<Diff> CreateForeignKeys(IDbConnection connection)
+        private IEnumerable<Diff> AlterPrimaryKeys(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

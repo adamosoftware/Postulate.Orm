@@ -10,10 +10,7 @@ namespace Postulate.Merge
 {
     public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
     {
-        /// <summary>
-        /// Creates foreign keys that exist in the model but not in the schema
-        /// </summary>
-        private IEnumerable<Diff> CreateForeignKeys(IDbConnection connection)
+        private IEnumerable<Diff> AlterNonKeyColumnTypes(IDbConnection connection)
         {
             throw new NotImplementedException();
         }
