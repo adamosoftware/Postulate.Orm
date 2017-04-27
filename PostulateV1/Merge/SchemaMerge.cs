@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.IO;
 using Dapper;
+using Postulate.Exceptions;
 
 namespace Postulate.Merge
 {
@@ -21,7 +22,7 @@ namespace Postulate.Merge
     public enum MergeObjectType
     {
         Table,
-        NonKeyColumn,
+        Column,
         Key,
         Index,
         ForeignKey
@@ -81,16 +82,20 @@ namespace Postulate.Merge
 
         public void SaveScriptAs(string fileName)
         {
-            var diffs = Compare();
-
-            using (var file = File.CreateText(fileName))
+            var db = new TDb();
+            using (IDbConnection cn = db.GetConnection())
             {
-                foreach (var diff in diffs)
+                cn.Open();
+                var diffs = Compare(cn);
+                using (var file = File.CreateText(fileName))
                 {
-                    foreach (var cmd in diff.SqlCommands())
+                    foreach (var diff in diffs)
                     {
-                        file.WriteLine(cmd);
-                        file.WriteLine("\r\nGO\r\n");
+                        foreach (var cmd in diff.SqlCommands(cn))
+                        {
+                            file.WriteLine(cmd);
+                            file.WriteLine("\r\nGO\r\n");
+                        }
                     }
                 }
             }
@@ -123,9 +128,15 @@ namespace Postulate.Merge
 
         public void Execute(IDbConnection connection, IEnumerable<Diff> diffs)
         {
+            if (diffs.Any(a => !a.IsValid(connection)))
+            {
+                string message = string.Join("\r\n", ValidationErrors(diffs));
+                throw new ValidationException($"The model has one or more validation errors:\r\n{message}");
+            }
+
             foreach (var diff in diffs)
             {
-                foreach (var cmd in diff.SqlCommands())
+                foreach (var cmd in diff.SqlCommands(connection))
                 {
                     // add to command queue somewhere
                     // enable setting command timeout?
@@ -177,5 +188,53 @@ namespace Postulate.Merge
             }
         }
 
+        public static Dictionary<Type, string> SupportedTypes(string length = null, byte precision = 0, byte scale = 0)
+        {
+            return new Dictionary<Type, string>()
+            {
+                { typeof(string), $"nvarchar({length})" },
+                { typeof(bool), "bit" },
+                { typeof(int), "int" },
+                { typeof(decimal), $"decimal({precision}, {scale})" },
+                { typeof(double), "float" },
+                { typeof(float), "float" },
+                { typeof(long), "bigint" },
+                { typeof(short), "smallint" },
+                { typeof(byte), "tinyint" },
+                { typeof(Guid), "uniqueidentifier" },
+                { typeof(DateTime), "datetime" },
+                { typeof(TimeSpan), "time" },
+                { typeof(char), "nchar(1)" },
+                { typeof(byte[]), $"varbinary({length})" }
+            };
+        }
+
+        public static bool IsSupportedType(Type type)
+        {
+            return
+                SupportedTypes().ContainsKey(type) ||
+                (type.IsEnum && type.GetEnumUnderlyingType().Equals(typeof(int))) ||
+                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
+        }
+
+        private static IEnumerable<ColumnRef> GetSchemaColumns(IDbConnection connection)
+        {
+            return connection.Query<ColumnRef>(
+                @"SELECT SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [c].[Name] AS [ColumnName], 
+					[t].[object_id] AS [ObjectID], TYPE_NAME([c].[system_type_id]) AS [DataType], 
+					[c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
+					[c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation]
+				FROM 
+					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]", null);
+        }
+
+        private static IEnumerable<DbObject> GetSchemaTables(IDbConnection connection)
+        {
+            return connection.Query<DbObject>(
+                @"SELECT 
+                    SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [t].[object_id] AS [ObjectId]
+                FROM 
+                    [sys].[tables] [t]");
+        }
     }
 }

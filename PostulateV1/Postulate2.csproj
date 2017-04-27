@@ -47,17 +47,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\ClusterAttribute.cs" />
     <Compile Include="Attributes\ForeignKeyAttribute.cs" />
+    <Compile Include="Attributes\SchemaAttribute.cs" />
     <Compile Include="Extensions\ConnectionExtensions.cs" />
+    <Compile Include="Merge\AddColumn.cs" />
     <Compile Include="Merge\AddVersion.cs" />
     <Compile Include="Merge\AlterIndexes.cs" />
     <Compile Include="Merge\AlterForeignKeys.cs" />
     <Compile Include="Merge\AlterNonKeyColumnTypes.cs" />
     <Compile Include="Merge\AlterPrimaryKeys.cs" />
     <Compile Include="Merge\AlterUniqueKeys.cs" />
+    <Compile Include="Merge\ColumnRef.cs" />
     <Compile Include="Merge\CreateIndexes.cs" />
     <Compile Include="Merge\CreatePrimaryKeys.cs" />
+    <Compile Include="Merge\CreateTable.cs" />
     <Compile Include="Merge\CreateUniqueKeys.cs" />
+    <Compile Include="Merge\DbObject.cs" />
     <Compile Include="Merge\DropIndexes.cs" />
     <Compile Include="Merge\CreateForeignKeys.cs" />
     <Compile Include="Merge\CreateTablesAndColumns.cs" />
@@ -66,6 +72,7 @@
     <Compile Include="Merge\DropPrimaryKeys.cs" />
     <Compile Include="Merge\DropTables.cs" />
     <Compile Include="Merge\DropUniqueKeys.cs" />
+    <Compile Include="Merge\ForeignKeyRef.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Abstract\SqlDb.cs" />
     <Compile Include="Abstract\Record.cs" />

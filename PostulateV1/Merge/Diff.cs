@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,13 +23,13 @@ namespace Postulate.Merge
         public MergeObjectType ObjectType { get { return _objectType; } }
         public MergeActionType ActionType { get { return _actionType; } }
 
-        public abstract IEnumerable<string> ValidationErrors();
+        public abstract IEnumerable<string> ValidationErrors(IDbConnection connection);
 
-        public bool IsValid()
+        public bool IsValid(IDbConnection connection)
         {
-            return !ValidationErrors().Any();
+            return !ValidationErrors(connection).Any();
         }
 
-        public abstract IEnumerable<string> SqlCommands();
+        public abstract IEnumerable<string> SqlCommands(IDbConnection connection);
     }
 }
