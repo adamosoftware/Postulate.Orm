@@ -1,10 +1,11 @@
 ﻿using Postulate.Attributes;
 using Postulate.Merge;
-using Postulate.Merge.Diff;
+using Postulate.Merge.Action;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -150,6 +151,11 @@ namespace Postulate.Extensions
         public static bool InPrimaryKey(this PropertyInfo propertyInfo)
         {
             return propertyInfo.HasAttribute<PrimaryKeyAttribute>();
+        }
+
+        public static DbObject GetDbObject(this PropertyInfo propertyInfo, IDbConnection connection = null)
+        {
+            return DbObject.FromType(propertyInfo.DeclaringType, connection);
         }
     }
 }

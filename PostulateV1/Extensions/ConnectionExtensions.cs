@@ -1,5 +1,10 @@
 ﻿using System.Data;
 using Dapper;
+using System.Reflection;
+using Postulate.Attributes;
+using Postulate.Merge;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Postulate.Extensions
 {
@@ -15,6 +20,11 @@ namespace Postulate.Extensions
 			return connection.Exists("[sys].[foreign_keys] WHERE [name]=@name", new { name = name });
 		}
 
+        public static bool ForeignKeyExists(this IDbConnection connection, PropertyInfo propertyInfo)
+        {
+            return ForeignKeyExists(connection, propertyInfo.ForeignKeyName());
+        }
+
 		public static bool ColumnExists(this IDbConnection connection, string schema, string tableName, string columnName)
 		{
 			return connection.Exists(
@@ -27,5 +37,10 @@ namespace Postulate.Extensions
         {
             return connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = schema, name = tableName });
         }
-	}
+
+        public static bool IsTableEmpty(this IDbConnection connection, string schema, string tableName)
+        {
+            return ((connection.QueryFirstOrDefault<int?>($"SELECT COUNT(1) FROM [{schema}].[{tableName}]", null) ?? 0) == 0);
+        }
+    }
 }

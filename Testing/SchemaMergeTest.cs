@@ -20,12 +20,14 @@ namespace Testing
             using (IDbConnection cn = db.GetConnection())
             {
                 cn.Open();
-                DropTablesIfExists(cn, "TableA", "TableB");
+                DropTablesIfExists(cn, "TableA", "TableB", "TableC");
             }
         }
 
         private void DropTablesIfExists(IDbConnection cn, params string[] tableNames)
         {
+            // note the tables must be in safe FK drop order
+
             foreach (var tbl in tableNames)
             {
                 DbObject obj = DbObject.Parse(tbl);
@@ -42,6 +44,15 @@ namespace Testing
             {
                 DbObject obj = DbObject.Parse(item, cn);
                 return cn.TableExists(obj.Schema, obj.Name);
+            });
+        }
+
+        private bool AllColumnsExist(IDbConnection cn, string tableName, params string[] columnNames)
+        {
+            return columnNames.All(item =>
+            {
+                DbObject obj = DbObject.Parse(item);
+                return cn.ColumnExists(obj.Schema, obj.Name, item);
             });
         }
 
@@ -69,8 +80,27 @@ namespace Testing
 
             using (IDbConnection cn = sm.GetConnection())
             {
+                cn.Open();
                 sm.Execute(cn);
-                Assert.IsTrue(AllTablesExist(cn, "TableA", "TableB"));
+                Assert.IsTrue(AllTablesExist(cn, "TableA", "TableB", "TableC"));
+            }
+        }
+
+        [TestMethod]
+        public void CreateNewNonKeyColumns()
+        {
+            var sm = new SchemaMerge<PostulateDb>();
+            using (IDbConnection cn = sm.GetConnection())
+            {
+                cn.Open();
+                sm.Execute(cn);
+
+                cn.Execute("ALTER TABLE [dbo].[TableC] DROP COLUMN [SomeDate]");
+                cn.Execute("ALTER TABLE [dbo].[TableC] DROP COLUMN [SomeDouble]");
+
+                sm.Execute(cn);
+
+                Assert.IsTrue(AllColumnsExist(cn, "TableC", "SomeDate", "SomeDouble"));
             }
         }
     }

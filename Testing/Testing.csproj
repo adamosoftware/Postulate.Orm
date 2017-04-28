@@ -63,6 +63,7 @@
     <Compile Include="CrudOperations.cs" />
     <Compile Include="Models\TableA.cs" />
     <Compile Include="Models\TableB.cs" />
+    <Compile Include="Models\TableC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries.cs" />
     <Compile Include="SchemaMergeTest.cs" />

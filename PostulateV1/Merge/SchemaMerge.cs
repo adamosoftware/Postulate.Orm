@@ -8,8 +8,10 @@ using System.Data;
 using System.IO;
 using Dapper;
 using Postulate.Exceptions;
-using Postulate.Merge.Diff;
+using Postulate.Merge.Action;
 using Postulate.Interfaces;
+using System.Reflection;
+using Postulate.Attributes;
 
 namespace Postulate.Merge
 {
@@ -18,7 +20,8 @@ namespace Postulate.Merge
         Create,
         Alter,
         Rename,
-        Drop
+        Drop,
+        DropAndCreate
     }
 
     public enum MergeObjectType

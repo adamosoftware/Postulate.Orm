@@ -1,6 +1,6 @@
 ﻿using Postulate.Abstract;
 using Postulate.Attributes;
-using Postulate.Merge.Diff;
+using Postulate.Merge.Action;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 

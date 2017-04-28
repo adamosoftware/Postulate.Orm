@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Data;
 using Dapper;
 using Postulate.Attributes;
-using Postulate.Merge.Diff;
+using Postulate.Merge.Action;
 
 namespace Postulate.Merge
 {
@@ -73,7 +73,12 @@ namespace Postulate.Merge
 			return $"{Schema}.{Name}";
 		}
 
-		public override string ToString()
+        public bool IsEmpty(IDbConnection connection)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ToString()
 		{			
 			return (SquareBraces) ? $"[{Schema}].[{Name}]" : $"{Schema}.{Name}";
 		}

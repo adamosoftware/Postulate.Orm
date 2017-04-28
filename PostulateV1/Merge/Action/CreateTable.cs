@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Merge.Diff
+namespace Postulate.Merge.Action
 {
     public class CreateTable : MergeAction
     {
@@ -128,11 +128,6 @@ namespace Postulate.Merge.Diff
             if (pkColumns.Any() || markedOnly) return pkColumns;
 
             return new string[] { modelType.IdentityColumnName() };
-        }
-
-        public static bool HasColumnName(Type modelType, string columnName)
-        {
-            return modelType.GetProperties().Any(pi => pi.SqlColumnName().ToLower().Equals(columnName.ToLower()));
         }
 
         private string[] CreateTableMembers(bool withForeignKeys = false)

@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Merge.Diff
+namespace Postulate.Merge.Action
 {
     public class AddColumn : MergeAction
     {

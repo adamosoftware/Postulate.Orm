@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Merge
+namespace Postulate.Merge.Action
 {
     public abstract class MergeAction
     {
