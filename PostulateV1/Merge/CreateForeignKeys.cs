@@ -13,7 +13,7 @@ namespace Postulate.Merge
         /// <summary>
         /// Creates foreign keys that exist in the model but not in the schema
         /// </summary>
-        private IEnumerable<SchemaDiff> CreateForeignKeys(IDbConnection connection)
+        private IEnumerable<MergeAction> CreateForeignKeys(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

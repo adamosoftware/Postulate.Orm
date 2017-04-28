@@ -10,7 +10,7 @@ namespace Postulate.Merge
 {
     public partial class SchemaMerge<TDb>
     {
-        private IEnumerable<SchemaDiff> DropIndexes(IDbConnection connection)
+        private IEnumerable<MergeAction> DropIndexes(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

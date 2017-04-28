@@ -13,7 +13,7 @@ namespace Postulate.Merge
         /// <summary>
         /// Adds the model version number and change info to the meta.Version table
         /// </summary>
-        private SchemaDiff ScriptVersionInfo(IEnumerable<SchemaDiff> changes)
+        private MergeAction ScriptVersionInfo(IEnumerable<MergeAction> changes)
         {
             throw new NotImplementedException();
         }

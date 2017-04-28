@@ -10,7 +10,7 @@ namespace Postulate.Merge
 {
     public partial class SchemaMerge<TDb>
     {
-        private IEnumerable<SchemaDiff> DropPrimaryKeys(IDbConnection connection)
+        private IEnumerable<MergeAction> DropPrimaryKeys(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Postulate.Merge
 {
-    public abstract class SchemaDiff
+    public abstract class MergeAction
     {
         private readonly MergeObjectType _objectType;
         private readonly MergeActionType _actionType;
         private readonly string _description;
 
-        public SchemaDiff(MergeObjectType objectType, MergeActionType actionType, string description)
+        public MergeAction(MergeObjectType objectType, MergeActionType actionType, string description)
         {
             _objectType = objectType;
             _actionType = actionType;

@@ -30,7 +30,7 @@ namespace Postulate.Merge
         ForeignKey
     }
 
-    internal delegate IEnumerable<SchemaDiff> GetSchemaDiffMethod(IDbConnection connection);
+    internal delegate IEnumerable<MergeAction> GetSchemaDiffMethod(IDbConnection connection);
 
     public partial class SchemaMerge<TDb> where TDb : IDb, new()
     {
@@ -56,7 +56,7 @@ namespace Postulate.Merge
             return db.GetConnection();
         }
 
-        public IEnumerable<SchemaDiff> Compare()
+        public IEnumerable<MergeAction> Compare()
         {
             var db = new TDb();
             using (IDbConnection cn = db.GetConnection())
@@ -66,9 +66,9 @@ namespace Postulate.Merge
             }
         }
 
-        public IEnumerable<SchemaDiff> Compare(IDbConnection connection)
+        public IEnumerable<MergeAction> Compare(IDbConnection connection)
         {
-            List<SchemaDiff> results = new List<SchemaDiff>();
+            List<MergeAction> results = new List<MergeAction>();
 
             var diffMethods = new GetSchemaDiffMethod[]
             {
@@ -114,7 +114,7 @@ namespace Postulate.Merge
             }            
         }
 
-        public static bool Patch(Func<IEnumerable<SchemaDiff>, int, bool> uiAction = null)
+        public static bool Patch(Func<IEnumerable<MergeAction>, int, bool> uiAction = null)
         {
             var db = new TDb();
             using (IDbConnection cn = db.GetConnection())
@@ -124,7 +124,7 @@ namespace Postulate.Merge
             }
         }
 
-        public static bool Patch(IDbConnection connection, Func<IEnumerable<SchemaDiff>, int, bool> uiAction = null)
+        public static bool Patch(IDbConnection connection, Func<IEnumerable<MergeAction>, int, bool> uiAction = null)
         {
             int schemaVersion;
             
@@ -163,7 +163,7 @@ namespace Postulate.Merge
             Execute(connection, diffs);
         }
 
-        public void Execute(IDbConnection connection, IEnumerable<SchemaDiff> diffs)
+        public void Execute(IDbConnection connection, IEnumerable<MergeAction> diffs)
         {
             if (diffs.Any(a => !a.IsValid(connection)))
             {
@@ -183,7 +183,7 @@ namespace Postulate.Merge
             }
         }
 
-        public static IEnumerable<ValidationError> ValidationErrors(IDbConnection connection, IEnumerable<SchemaDiff> actions)
+        public static IEnumerable<ValidationError> ValidationErrors(IDbConnection connection, IEnumerable<MergeAction> actions)
         {
             return actions.Where(a => !a.IsValid(connection)).SelectMany(a => a.ValidationErrors(connection), (a, m) => new ValidationError(a, m));
         }
@@ -273,16 +273,16 @@ namespace Postulate.Merge
 
         public class ValidationError
         {
-            private readonly SchemaDiff _diff;
+            private readonly MergeAction _diff;
             private readonly string _message;
 
-            public ValidationError(SchemaDiff diff, string message)
+            public ValidationError(MergeAction diff, string message)
             {
                 _diff = diff;
                 _message = message;
             }
 
-            public SchemaDiff Diff => _diff;
+            public MergeAction Diff => _diff;
 
             public override string ToString()
             {

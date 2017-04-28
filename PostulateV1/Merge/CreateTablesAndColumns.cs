@@ -18,13 +18,13 @@ namespace Postulate.Merge
         /// <summary>
         /// Creates tables and columns that exist in the model but not in the schema
         /// </summary>
-        private IEnumerable<SchemaDiff> CreateTablesAndColumns(IDbConnection connection)
+        private IEnumerable<MergeAction> CreateTablesAndColumns(IDbConnection connection)
         {
             /* I do tables and columns together because I need to know what tables are created so I don't mistake
                the columns in those tables as standalone additions. Previously, I used an instance variable
                to record created tables, but I would like to avoid that going forward */
 
-            List<SchemaDiff> results = new List<SchemaDiff>();
+            List<MergeAction> results = new List<MergeAction>();
 
             var schemaTables = GetSchemaTables(connection);
             var addTables = _modelTypes.Where(t => !schemaTables.Any(st => st.Equals(t)));

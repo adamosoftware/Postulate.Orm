@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Merge.Diff
 {
-    public class CreateTable : SchemaDiff
+    public class CreateTable : MergeAction
     {
         private readonly Type _modelType;
         private readonly string _schema;

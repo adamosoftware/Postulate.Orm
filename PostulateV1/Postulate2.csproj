@@ -70,7 +70,7 @@
     <Compile Include="Merge\DropIndexes.cs" />
     <Compile Include="Merge\CreateForeignKeys.cs" />
     <Compile Include="Merge\CreateTablesAndColumns.cs" />
-    <Compile Include="Merge\SchemaDiff.cs" />
+    <Compile Include="Merge\Diff\MergeAction.cs" />
     <Compile Include="Merge\DropNonKeyColumns.cs" />
     <Compile Include="Merge\DropPrimaryKeys.cs" />
     <Compile Include="Merge\DropTables.cs" />

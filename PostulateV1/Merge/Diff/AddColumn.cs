@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Merge.Diff
 {
-    public class AddColumn : SchemaDiff
+    public class AddColumn : MergeAction
     {
         private readonly PropertyInfo _propertyInfo;
 
