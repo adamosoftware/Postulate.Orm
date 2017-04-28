@@ -24,42 +24,6 @@ namespace Testing
             }
         }
 
-        [TestMethod]
-        public void DetectNewTables()
-        {     
-            var sm = new Postulate.Merge.SchemaMerge<PostulateDb>();
-
-            var db = new PostulateDb();
-            using (IDbConnection cn = db.GetConnection())
-            {
-                cn.Open();
-                var diffs = sm.Compare(cn);
-
-                Assert.IsTrue(
-                    diffs.Any(item1 =>
-                        item1.ActionType == MergeActionType.Create &&
-                        item1.ObjectType == MergeObjectType.Table &&
-                        item1.Description.Contains("TableA") &&
-                    diffs.Any(item2 =>
-                        item2.ActionType == MergeActionType.Create &&
-                        item2.ObjectType == MergeObjectType.Table &&
-                        item2.Description.Contains("TableB"))));
-            }
-        }
-
-        [TestMethod]
-        public void CreateNewTables()
-        {
-            var sm = new Postulate.Merge.SchemaMerge<PostulateDb>();
-
-            var db = new PostulateDb();
-            using (IDbConnection cn = db.GetConnection())
-            {
-                cn.Open();
-                var diffs = sm.Compare(cn);
-            }
-        }
-
         private void DropTablesIfExists(IDbConnection cn, params string[] tableNames)
         {
             foreach (var tbl in tableNames)
@@ -71,5 +35,44 @@ namespace Testing
                 }
             }
         }
+
+        private bool AllTablesExist(IDbConnection cn, params string[] tableNames)
+        {
+            return tableNames.All(item =>
+            {
+                DbObject obj = DbObject.Parse(item, cn);
+                return cn.TableExists(obj.Schema, obj.Name);
+            });
+        }
+
+        [TestMethod]
+        public void DetectNewTables()
+        {
+            var sm = new SchemaMerge<PostulateDb>();
+            var diffs = sm.Compare();
+
+            Assert.IsTrue(
+                diffs.Any(item1 =>
+                    item1.ActionType == MergeActionType.Create &&
+                    item1.ObjectType == MergeObjectType.Table &&
+                    item1.Description.Contains("TableA") &&
+                diffs.Any(item2 =>
+                    item2.ActionType == MergeActionType.Create &&
+                    item2.ObjectType == MergeObjectType.Table &&
+                    item2.Description.Contains("TableB"))));
+        }
+
+        [TestMethod]
+        public void CreateNewTables()
+        {
+            var sm = new SchemaMerge<PostulateDb>();
+
+            using (IDbConnection cn = sm.GetConnection())
+            {
+                sm.Execute(cn);
+                Assert.IsTrue(AllTablesExist(cn, "TableA", "TableB"));
+            }
+        }
     }
 }
+

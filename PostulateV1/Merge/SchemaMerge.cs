@@ -50,6 +50,22 @@ namespace Postulate.Merge
                     t.IsDerivedFromGeneric(typeof(Record<>)));
         }
 
+        public IDbConnection GetConnection()
+        {
+            var db = new TDb();
+            return db.GetConnection();
+        }
+
+        public IEnumerable<SchemaDiff> Compare()
+        {
+            var db = new TDb();
+            using (IDbConnection cn = db.GetConnection())
+            {
+                cn.Open();
+                return Compare(cn);
+            }
+        }
+
         public IEnumerable<SchemaDiff> Compare(IDbConnection connection)
         {
             List<SchemaDiff> results = new List<SchemaDiff>();
@@ -72,6 +88,16 @@ namespace Postulate.Merge
             return results;
         }
 
+        public void SaveScriptAs(string fileName)
+        {
+            var db = new TDb();
+            using (IDbConnection cn = db.GetConnection())
+            {
+                cn.Open();
+                SaveScriptAs(cn, fileName);
+            }
+        }
+
         public void SaveScriptAs(IDbConnection connection, string fileName)
         {            
             var diffs = Compare(connection);
@@ -86,6 +112,16 @@ namespace Postulate.Merge
                     }
                 }
             }            
+        }
+
+        public static bool Patch(Func<IEnumerable<SchemaDiff>, int, bool> uiAction = null)
+        {
+            var db = new TDb();
+            using (IDbConnection cn = db.GetConnection())
+            {
+                cn.Open();
+                return Patch(cn, uiAction);
+            }
         }
 
         public static bool Patch(IDbConnection connection, Func<IEnumerable<SchemaDiff>, int, bool> uiAction = null)
@@ -110,6 +146,23 @@ namespace Postulate.Merge
 
         }
 
+        public void Execute()
+        {
+            var db = new TDb();
+            using (IDbConnection cn = db.GetConnection())
+            {
+                cn.Open();
+                var diffs = Compare();
+                Execute(cn, diffs);
+            }
+        }
+
+        public void Execute(IDbConnection connection)
+        {
+            var diffs = Compare(connection);
+            Execute(connection, diffs);
+        }
+
         public void Execute(IDbConnection connection, IEnumerable<SchemaDiff> diffs)
         {
             if (diffs.Any(a => !a.IsValid(connection)))
@@ -130,7 +183,7 @@ namespace Postulate.Merge
             }
         }
 
-        public IEnumerable<ValidationError> ValidationErrors(IDbConnection connection, IEnumerable<SchemaDiff> actions)
+        public static IEnumerable<ValidationError> ValidationErrors(IDbConnection connection, IEnumerable<SchemaDiff> actions)
         {
             return actions.Where(a => !a.IsValid(connection)).SelectMany(a => a.ValidationErrors(connection), (a, m) => new ValidationError(a, m));
         }
@@ -180,7 +233,7 @@ namespace Postulate.Merge
 					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]", null);
         }
 
-        private IEnumerable<ColumnRef> GetModelColumns(IEnumerable<Type> types, IDbConnection collationLookupConnection = null)
+        private static IEnumerable<ColumnRef> GetModelColumns(IEnumerable<Type> types, IDbConnection collationLookupConnection = null)
         {
             var results = types.SelectMany(t => t.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>()).Select(pi => new ColumnRef(pi)));
 
