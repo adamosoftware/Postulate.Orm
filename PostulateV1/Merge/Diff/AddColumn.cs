@@ -6,9 +6,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Merge
+namespace Postulate.Merge.Diff
 {
-    public class AddColumn : Diff
+    public class AddColumn : SchemaDiff
     {
         private readonly PropertyInfo _propertyInfo;
 

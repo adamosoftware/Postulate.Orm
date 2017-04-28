@@ -10,7 +10,7 @@ namespace Postulate.Merge
 {
     public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
     {
-        private IEnumerable<Diff> AlterNonKeyColumnTypes(IDbConnection connection)
+        private IEnumerable<SchemaDiff> AlterNonKeyColumnTypes(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

@@ -13,7 +13,7 @@ namespace Postulate.Merge
         /// <summary>
         /// Creates primary keys on existing tables that lack an explicit primary key
         /// </summary>
-        private IEnumerable<Diff> CreatePrimaryKeys(IDbConnection connection)
+        private IEnumerable<SchemaDiff> CreatePrimaryKeys(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

@@ -1,6 +1,7 @@
 ﻿using Postulate.Abstract;
 using Postulate.Attributes;
 using Postulate.Extensions;
+using Postulate.Merge.Diff;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,13 +18,13 @@ namespace Postulate.Merge
         /// <summary>
         /// Creates tables and columns that exist in the model but not in the schema
         /// </summary>
-        private IEnumerable<Diff> CreateTablesAndColumns(IDbConnection connection)
+        private IEnumerable<SchemaDiff> CreateTablesAndColumns(IDbConnection connection)
         {
             /* I do tables and columns together because I need to know what tables are created so I don't mistake
                the columns in those tables as standalone additions. Previously, I used an instance variable
                to record created tables, but I would like to avoid that going forward */
 
-            List<Diff> results = new List<Diff>();
+            List<SchemaDiff> results = new List<SchemaDiff>();
 
             var schemaTables = GetSchemaTables(connection);
             var addTables = _modelTypes.Where(t => !schemaTables.Any(st => st.Equals(t)));
@@ -33,11 +34,18 @@ namespace Postulate.Merge
             var addColumns = _modelTypes.Where(t => !results.OfType<CreateTable>().Any(ct => ct.Equals(t)))
                 .SelectMany(t => t.GetProperties()
                     .Where(pi =>
-                        pi.CanWrite &&
-                        IsSupportedType(pi.PropertyType) &&
                         !schemaColumns.Any(cr => cr.Equals(pi)) &&
+                        pi.CanWrite &&
+                        IsSupportedType(pi.PropertyType) &&                        
                         !pi.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
                         !pi.HasAttribute<NotMappedAttribute>()));
+
+            var pkColumns = addColumns.Where(pi => pi.HasAttribute<PrimaryKeyAttribute>());
+            var pkTables = pkColumns.GroupBy(item => DbObject.FromType(item.DeclaringType).GetHashCode());
+            foreach (var pk in pkTables)
+            {
+                //results.Add(new Drop)
+            }
 
             results.AddRange(addColumns.Select(pi => new AddColumn(pi)));
 

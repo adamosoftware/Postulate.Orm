@@ -26,7 +26,7 @@ namespace Postulate.Abstract
     /// <typeparam name="TKey">Data type of unique keys used on all model classes for this database</typeparam>
     public abstract class SqlDb<TKey>
     {
-        public const string IdentityColumnName = "Id";        
+        public const string IdentityColumnName = "Id";
 
         public string UserName { get; protected set; }
 
@@ -249,7 +249,7 @@ namespace Postulate.Abstract
 
         private string GetFindStatement<TRecord>() where TRecord : Record<TKey>
         {
-            return GetFindStatementBase<TRecord>() + $" WHERE [{typeof(TRecord).IdentityColumnName<TKey>()}]=@id";
+            return GetFindStatementBase<TRecord>() + $" WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
         private string GetFindStatementBase<TRecord>() where TRecord : Record<TKey>
@@ -268,7 +268,7 @@ namespace Postulate.Abstract
             return 
                 $@"INSERT INTO {GetTableName<TRecord>()} (
                     {string.Join(", ", columns.Select(s => ApplyDelimiter(s)))}
-                ) OUTPUT [inserted].[{typeof(TRecord).IdentityColumnName<TKey>()}] VALUES (
+                ) OUTPUT [inserted].[{typeof(TRecord).IdentityColumnName()}] VALUES (
                     {string.Join(", ", columns.Select(s => $"@{s}"))}
                 )";
         }
@@ -281,12 +281,12 @@ namespace Postulate.Abstract
                 $@"UPDATE {GetTableName<TRecord>()} SET
                     {string.Join(", ", columns.Select(s => $"{ApplyDelimiter(s)} = @{s}"))}
                 WHERE 
-                    [{typeof(TRecord).IdentityColumnName<TKey>()}]=@id";
+                    [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
         private string GetDeleteStatement<TRecord>() where TRecord : Record<TKey>
         {
-            return $"DELETE {GetTableName<TRecord>()} WHERE [{typeof(TRecord).IdentityColumnName<TKey>()}]=@id";
+            return $"DELETE {GetTableName<TRecord>()} WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
         private IEnumerable<PropertyInfo> GetEditableColumns<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>

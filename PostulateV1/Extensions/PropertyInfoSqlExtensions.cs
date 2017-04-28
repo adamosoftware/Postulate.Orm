@@ -1,5 +1,6 @@
 ﻿using Postulate.Attributes;
 using Postulate.Merge;
+using Postulate.Merge.Diff;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -88,6 +89,22 @@ namespace Postulate.Extensions
             if (propertyInfo.HasAttribute(out collate)) collation = $"COLLATE {collate.Collation} ";
 
             return $"{result} {collation}{nullable}";
+        }
+
+        public static string SqlDefaultExpression(this PropertyInfo propertyInfo, bool forCreateTable = false)
+        {
+            string template = (forCreateTable) ? " DEFAULT ({0})" : "{0}";
+
+            DefaultExpressionAttribute def;
+            if (propertyInfo.DeclaringType.HasAttribute(out def) && propertyInfo.Name.Equals(def.ColumnName)) return string.Format(template, Quote(propertyInfo, def.Expression));
+            if (propertyInfo.HasAttribute(out def)) return string.Format(template, Quote(propertyInfo, def.Expression));
+
+            // if the expression is part of a CREATE TABLE statement, it's not necessary to go any further
+            if (forCreateTable) return null;
+
+            if (propertyInfo.AllowSqlNull()) return "NULL";
+
+            throw new Exception($"{propertyInfo.DeclaringType.Name}.{propertyInfo.Name} property does not have a [DefaultExpression] nor [InsertExpression] attribute with no parameters.");
         }
 
         private static string Quote(PropertyInfo propertyInfo, string expression)

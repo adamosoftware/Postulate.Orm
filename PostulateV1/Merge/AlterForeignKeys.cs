@@ -13,7 +13,7 @@ namespace Postulate.Merge
         /// <summary>
         /// Drops and rebuilds foreign keys whose cascade delete option has changed
         /// </summary>
-        private IEnumerable<Diff> AlterForeignKeys(IDbConnection connection)
+        private IEnumerable<SchemaDiff> AlterForeignKeys(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

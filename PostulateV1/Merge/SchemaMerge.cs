@@ -28,7 +28,7 @@ namespace Postulate.Merge
         ForeignKey
     }
 
-    internal delegate IEnumerable<Diff> GetSchemaDiffMethod(IDbConnection connection);
+    internal delegate IEnumerable<SchemaDiff> GetSchemaDiffMethod(IDbConnection connection);
 
     public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
     {
@@ -48,9 +48,9 @@ namespace Postulate.Merge
                     t.IsDerivedFromGeneric(typeof(Record<>)));
         }
 
-        public IEnumerable<Diff> Compare(IDbConnection connection)
+        public IEnumerable<SchemaDiff> Compare(IDbConnection connection)
         {
-            List<Diff> results = new List<Diff>();
+            List<SchemaDiff> results = new List<SchemaDiff>();
 
             var diffMethods = new GetSchemaDiffMethod[]
             {
@@ -70,7 +70,7 @@ namespace Postulate.Merge
             return results;
         }
 
-        public IEnumerable<Diff> Compare()
+        public IEnumerable<SchemaDiff> Compare()
         {            
             var db = new TDb();
             using (IDbConnection cn = db.GetConnection())
@@ -101,7 +101,7 @@ namespace Postulate.Merge
             }
         }
 
-        public static bool Patch(Func<IEnumerable<Diff>, int, bool> uiAction = null)
+        public static bool Patch(Func<IEnumerable<SchemaDiff>, int, bool> uiAction = null)
         {
             int schemaVersion;
             var db = new TDb();
@@ -126,7 +126,7 @@ namespace Postulate.Merge
             }
         }
 
-        public void Execute(IDbConnection connection, IEnumerable<Diff> diffs)
+        public void Execute(IDbConnection connection, IEnumerable<SchemaDiff> diffs)
         {
             if (diffs.Any(a => !a.IsValid(connection)))
             {
@@ -188,31 +188,10 @@ namespace Postulate.Merge
             }
         }
 
-        public static Dictionary<Type, string> SupportedTypes(string length = null, byte precision = 0, byte scale = 0)
-        {
-            return new Dictionary<Type, string>()
-            {
-                { typeof(string), $"nvarchar({length})" },
-                { typeof(bool), "bit" },
-                { typeof(int), "int" },
-                { typeof(decimal), $"decimal({precision}, {scale})" },
-                { typeof(double), "float" },
-                { typeof(float), "float" },
-                { typeof(long), "bigint" },
-                { typeof(short), "smallint" },
-                { typeof(byte), "tinyint" },
-                { typeof(Guid), "uniqueidentifier" },
-                { typeof(DateTime), "datetime" },
-                { typeof(TimeSpan), "time" },
-                { typeof(char), "nchar(1)" },
-                { typeof(byte[]), $"varbinary({length})" }
-            };
-        }
-
         public static bool IsSupportedType(Type type)
         {
             return
-                SupportedTypes().ContainsKey(type) ||
+                CreateTable.SupportedTypes().ContainsKey(type) ||
                 (type.IsEnum && type.GetEnumUnderlyingType().Equals(typeof(int))) ||
                 (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
         }
@@ -226,6 +205,34 @@ namespace Postulate.Merge
 					[c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation]
 				FROM 
 					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]", null);
+        }
+
+        private IEnumerable<ColumnRef> GetModelColumns(IEnumerable<Type> types, IDbConnection collationLookupConnection = null)
+        {
+            var results = types.SelectMany(t => t.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>()).Select(pi => new ColumnRef(pi)));
+
+            if (collationLookupConnection != null)
+            {
+                var collations = collationLookupConnection.Query<ColumnRef>(
+                    @"SELECT 
+	                    SCHEMA_NAME([tbl].[schema_id]) AS [Schema],
+	                    [tbl].[name] AS [TableName],
+	                    [col].[Name] AS [ColumnName],
+	                    [col].[collation_name] AS [Collation]
+                    FROM 
+	                    [sys].[columns] [col] INNER JOIN [sys].[tables] [tbl] ON [col].[object_id]=[tbl].[object_id]
+                    WHERE
+	                    [col].[collation_name] IS NOT NULL");
+
+                results = from cr in results
+                          join col in collations on
+                            new { Schema = cr.Schema, TableName = cr.TableName, ColumnName = cr.ColumnName } equals
+                            new { Schema = col.Schema, TableName = col.TableName, ColumnName = col.ColumnName } into collatedColumns
+                          from output in collatedColumns.DefaultIfEmpty()
+                          select new ColumnRef(cr.PropertyInfo) { Collation = output?.Collation };
+            }
+
+            return results;
         }
 
         private static IEnumerable<DbObject> GetSchemaTables(IDbConnection connection)

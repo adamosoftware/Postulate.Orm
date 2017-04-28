@@ -13,7 +13,7 @@ namespace Postulate.Merge
         /// <summary>
         /// Drops columns that exist in the schema but not the model that are not part of a key
         /// </summary>
-        private IEnumerable<Diff> DropNonKeyColumns(IDbConnection connection)
+        private IEnumerable<SchemaDiff> DropNonKeyColumns(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

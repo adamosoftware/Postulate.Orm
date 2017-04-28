@@ -13,7 +13,7 @@ namespace Postulate.Merge
         /// <summary>
         /// Drops and rebuilds unique keys when included columns or types have changed
         /// </summary>
-        private IEnumerable<Diff> AlterUniqueKeys(IDbConnection connection)
+        private IEnumerable<SchemaDiff> AlterUniqueKeys(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

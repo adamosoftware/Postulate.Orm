@@ -6,9 +6,9 @@ namespace Postulate.Extensions
 {
     public static class TypeExtensions
     {
-        public static string IdentityColumnName<TKey>(this Type type)
+        public static string IdentityColumnName(this Type type)
         {
-            string result = SqlDb<TKey>.IdentityColumnName;
+            string result = Record<int>.IdColumnName;
 
             IdentityColumnAttribute attr;
             if (type.HasAttribute(out attr)) result = attr.ColumnName;

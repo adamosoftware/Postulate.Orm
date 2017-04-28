@@ -13,7 +13,7 @@ namespace Postulate.Merge
         /// <summary>
         /// Drops and rebuilds indexes where included columns or types have changed
         /// </summary>
-        private IEnumerable<Diff> AlterIndexes(IDbConnection connection)
+        private IEnumerable<SchemaDiff> AlterIndexes(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

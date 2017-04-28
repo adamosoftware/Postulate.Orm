@@ -13,7 +13,7 @@ namespace Postulate.Merge
         /// <summary>
         /// Drops and rebuilds primary keys when the columns or types of included columns have changed
         /// </summary>
-        private IEnumerable<Diff> AlterPrimaryKeys(IDbConnection connection)
+        private IEnumerable<SchemaDiff> AlterPrimaryKeys(IDbConnection connection)
         {
             throw new NotImplementedException();
         }
