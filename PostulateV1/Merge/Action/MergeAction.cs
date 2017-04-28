@@ -12,17 +12,20 @@ namespace Postulate.Merge.Action
         private readonly MergeObjectType _objectType;
         private readonly MergeActionType _actionType;
         private readonly string _description;
+        private readonly string _scriptComment;
 
-        public MergeAction(MergeObjectType objectType, MergeActionType actionType, string description)
+        public MergeAction(MergeObjectType objectType, MergeActionType actionType, string description, string scriptComment = null)
         {
             _objectType = objectType;
             _actionType = actionType;
             _description = description;
+            _scriptComment = scriptComment;
         }
 
         public MergeObjectType ObjectType { get { return _objectType; } }
         public MergeActionType ActionType { get { return _actionType; } }
         public string Description { get { return _description; } }
+        public string ScriptComment {  get { return _scriptComment; } }
 
         public abstract IEnumerable<string> ValidationErrors(IDbConnection connection);
 

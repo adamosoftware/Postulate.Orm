@@ -56,6 +56,8 @@
     <Compile Include="Interfaces\IDb.cs" />
     <Compile Include="Merge\Action\AddColumn.cs" />
     <Compile Include="Merge\Action\CreateForeignKey.cs" />
+    <Compile Include="Merge\Action\CreatePrimaryKey.cs" />
+    <Compile Include="Merge\Action\DropPrimaryKey.cs" />
     <Compile Include="Merge\Action\DropTable.cs" />
     <Compile Include="Merge\AddVersion.cs" />
     <Compile Include="Merge\AlterIndexes.cs" />

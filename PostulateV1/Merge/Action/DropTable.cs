@@ -12,21 +12,14 @@ namespace Postulate.Merge.Action
     {
         private readonly DbObject _object;        
 
-        public DropTable(DbObject @object) : base(MergeObjectType.Table, MergeActionType.DropAndCreate, $"Drop and create table {@object}")
+        public DropTable(DbObject @object, string scriptComment = null) : base(MergeObjectType.Table, MergeActionType.DropAndCreate, $"Drop and create table {@object}", scriptComment)
         {            
             _object = @object;            
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
-        {            
-            var foreignKeys = connection.GetReferencingForeignKeys(_object.ObjectId);
-            foreach (var fk in foreignKeys)
-            {
-                if (connection.Exists("[sys].[foreign_keys] WHERE [name]=@name", new { name = fk.ConstraintName }))
-                {
-                    yield return $"ALTER TABLE [{fk.ReferencingTable.Schema}].[{fk.ReferencingTable.Name}] DROP CONSTRAINT [{fk.ConstraintName}]";
-                }
-            }
+        {
+            foreach (var cmd in connection.GetFKDropStatements(_object.ObjectId)) yield return cmd;
 
             yield return $"DROP TABLE [{_object.Schema}].[{_object.Name}]";
         }

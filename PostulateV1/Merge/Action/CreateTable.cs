@@ -130,7 +130,7 @@ namespace Postulate.Merge.Action
             return new string[] { modelType.IdentityColumnName() };
         }
 
-        private string[] CreateTableMembers(bool withForeignKeys = false)
+        private string[] CreateTableMembers()
         {
             List<string> results = new List<string>();
 
@@ -142,9 +142,7 @@ namespace Postulate.Merge.Action
 
             results.Add(CreateTablePrimaryKey(clusterAttribute));
 
-            results.AddRange(CreateTableUniqueConstraints(clusterAttribute));
-
-            if (withForeignKeys) results.AddRange(CreateTableForeignKeys());
+            results.AddRange(CreateTableUniqueConstraints(clusterAttribute));            
 
             return results.ToArray();
 
@@ -195,14 +193,14 @@ namespace Postulate.Merge.Action
             return $"[{_modelType.IdentityColumnName()}] {typeMap[keyType]}";
         }
        
-        private string CreateTablePrimaryKey(ClusterAttribute clusterAttribute)
+        internal string CreateTablePrimaryKey(ClusterAttribute clusterAttribute)
         {
             return $"CONSTRAINT [PK_{DbObject.ConstraintName(_modelType)}] PRIMARY KEY {clusterAttribute.Syntax(ClusterOption.PrimaryKey)}({string.Join(", ", PrimaryKeyColumns().Select(col => $"[{col}]"))})";
         }        
 
         private Type FindKeyType(Type modelType)
         {
-            if (!modelType.IsDerivedFromGeneric(typeof(Record<>))) throw new ArgumentException("Model class must derive from DataRecord<TKey>");
+            if (!modelType.IsDerivedFromGeneric(typeof(Record<>))) throw new ArgumentException("Model class must derive from Record<TKey>");
 
             Type checkType = modelType;
             while (!checkType.IsGenericType) checkType = checkType.BaseType;

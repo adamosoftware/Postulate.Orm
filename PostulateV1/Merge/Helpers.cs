@@ -41,11 +41,23 @@ namespace Postulate.Merge
         {
             return allTypes.SelectMany(t => GetModelForeignKeys(t).Where(pi =>
             {
-                Attributes.ForeignKeyAttribute fk = pi.GetForeignKeyAttribute();
+                ForeignKeyAttribute fk = pi.GetForeignKeyAttribute();
                 return (fk.PrimaryTableType.Equals(modelType));
             }).Select(pi =>
                 new ForeignKeyRef() { ConstraintName = pi.ForeignKeyName(), ReferencingTable = DbObject.FromType(pi.DeclaringType) }
             ));
+        }
+
+        internal static IEnumerable<string> GetFKDropStatements(this IDbConnection connection, int objectId)
+        {
+            var foreignKeys = connection.GetReferencingForeignKeys(objectId);
+            foreach (var fk in foreignKeys)
+            {
+                if (connection.Exists("[sys].[foreign_keys] WHERE [name]=@name", new { name = fk.ConstraintName }))
+                {
+                    yield return $"ALTER TABLE [{fk.ReferencingTable.Schema}].[{fk.ReferencingTable.Name}] DROP CONSTRAINT [{fk.ConstraintName}]";
+                }
+            }
         }
 
         internal static bool HasColumnName(this Type modelType, string columnName)

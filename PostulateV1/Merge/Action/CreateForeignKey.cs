@@ -30,6 +30,11 @@ namespace Postulate.Merge.Action
                 $") REFERENCES {DbObject.SqlServerName(fk.PrimaryTableType)} (\r\n" +
                     $"\t[{fk.PrimaryTableType.IdentityColumnName()}]\r\n" +
                 ")" + cascadeDelete;
+
+            if (fk.CreateIndex)
+            {
+                yield return $"CREATE INDEX [IX_{DbObject.SqlServerName(_pi.DeclaringType)}_{_pi.SqlColumnName()}] ([{_pi.SqlColumnName()}])";
+            }
         }
 
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)

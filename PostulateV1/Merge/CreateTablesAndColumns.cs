@@ -44,28 +44,32 @@ namespace Postulate.Merge
             // empty tables may be dropped and rebuilt with new columns
             var rebuildTables = addColumns
                 .GroupBy(pi => pi.GetDbObject(connection))
-                .Where(obj => connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name))
-                .Select(grp => grp.Key);
+                .Where(obj => connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name));
             foreach (var tbl in rebuildTables)
             {
-                results.Add(new DropTable(tbl));
-                results.Add(new CreateTable(tbl.ModelType));
+                results.Add(new DropTable(tbl.Key, $"Empty table being re-created to add new columns: {string.Join(", ", tbl.Select(pi => pi.SqlColumnName()))}"));
+                results.Add(new CreateTable(tbl.Key.ModelType));
             }
 
             // tables with data may only have columns added
+            var alterColumns = addColumns
+                .GroupBy(pi => pi.GetDbObject(connection))
+                .Where(obj => !connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name))
+                .SelectMany(tbl => tbl);                       
 
-            var pkColumns = addColumns.Where(pi => pi.HasAttribute<PrimaryKeyAttribute>());
-            var pkTables = pkColumns.GroupBy(item => DbObject.FromType(item.DeclaringType).GetHashCode());
+            // adding primary key columns requires containing PKs to be rebuilt
+            var pkColumns = alterColumns.Where(pi => pi.HasAttribute<PrimaryKeyAttribute>());
+            var pkTables = pkColumns.GroupBy(item => DbObject.FromType(item.DeclaringType));
             foreach (var pk in pkTables)
             {
-                // drop primary key
+                results.Add(new DropPrimaryKey(pk.Key));
             }
 
-            results.AddRange(addColumns.Select(pi => new AddColumn(pi)));
+            results.AddRange(alterColumns.Select(pi => new AddColumn(pi)));
 
             foreach (var pk in pkTables)
             {
-                // rebuild primary key
+                results.Add(new CreatePrimaryKey(pk.Key));
             }
 
             var foreignKeys = _modelTypes.SelectMany(t => t.GetModelForeignKeys().Where(pi => !connection.ForeignKeyExists(pi)));
