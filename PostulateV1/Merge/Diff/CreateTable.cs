@@ -155,6 +155,11 @@ namespace Postulate.Merge.Diff
 
         }
 
+        private IEnumerable<string> CreateTableForeignKeys()
+        {
+            throw new NotImplementedException();
+        }
+
         private IEnumerable<string> CreateTableColumns()
         {
             List<string> results = new List<string>();

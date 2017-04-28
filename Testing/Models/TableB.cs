@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 
 namespace Testing.Models
 {
-    public class TestTable : BaseTable
+    class TableB : BaseTable
     {
-        [PrimaryKey]
-        [MaxLength(50)]
-        public string FirstName { get; set; }
+        [ForeignKey(typeof(Organization))]
+        public int OrganizationId { get; set; }
 
-        [PrimaryKey]
-        [MaxLength(50)]
-        public string LastName { get; set; }
+        [MaxLength(255)]
+        public string Description { get; set; }
     }
 }

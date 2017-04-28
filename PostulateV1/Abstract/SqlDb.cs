@@ -11,6 +11,7 @@ using Postulate.Exceptions;
 using Dapper;
 using System.Configuration;
 using System.Linq.Expressions;
+using Postulate.Interfaces;
 
 namespace Postulate.Abstract
 {
@@ -24,7 +25,7 @@ namespace Postulate.Abstract
     /// Supports CRUD actions for model classes
     /// </summary>
     /// <typeparam name="TKey">Data type of unique keys used on all model classes for this database</typeparam>
-    public abstract class SqlDb<TKey>
+    public abstract class SqlDb<TKey> : IDb
     {
         public const string IdentityColumnName = "Id";
 

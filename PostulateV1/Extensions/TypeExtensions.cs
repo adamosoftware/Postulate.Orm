@@ -1,6 +1,8 @@
 ﻿using Postulate.Abstract;
 using Postulate.Attributes;
+using Postulate.Merge.Diff;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Postulate.Extensions
 {
@@ -32,6 +34,20 @@ namespace Postulate.Extensions
             if (type.IsGenericType && type.GetGenericTypeDefinition().Equals(genericType)) return true;
             if (type.BaseType != null) return IsDerivedFromGeneric(type.BaseType, genericType);
             return false;
+        }
+
+        public static string GetSchema(this Type type)
+        {
+            string schema, name;
+            CreateTable.ParseNameAndSchema(type, out schema, out name);
+            return schema;
+        }
+
+        public static string GetTableName(this Type type)
+        {
+            string schema, name;
+            CreateTable.ParseNameAndSchema(type, out schema, out name);
+            return name;
         }
     }
 }

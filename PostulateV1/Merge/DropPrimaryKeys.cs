@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Merge
 {
-    public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
+    public partial class SchemaMerge<TDb>
     {
         private IEnumerable<SchemaDiff> DropPrimaryKeys(IDbConnection connection)
         {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Merge
 {
-    public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
+    public partial class SchemaMerge<TDb>
     {
         /// <summary>
         /// Creates foreign keys that exist in the model but not in the schema

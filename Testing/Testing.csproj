@@ -61,9 +61,11 @@
     <Compile Include="Models\Organization.cs" />
     <Compile Include="Models\PostulateDb.cs" />
     <Compile Include="CrudOperations.cs" />
-    <Compile Include="Models\TestTable.cs" />
+    <Compile Include="Models\TableA.cs" />
+    <Compile Include="Models\TableB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries.cs" />
+    <Compile Include="SchemaMergeTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

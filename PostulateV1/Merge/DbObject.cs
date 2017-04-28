@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Data;
 using Dapper;
 using Postulate.Attributes;
+using Postulate.Merge.Diff;
 
 namespace Postulate.Merge
 {
@@ -14,10 +15,11 @@ namespace Postulate.Merge
 
 		private const string _tempSuffix = "_temp";
 
-		public DbObject(string schema, string name)
+		public DbObject(string schema, string name, int objectId = 0)
 		{
 			_schema = schema;
 			_name = name;
+            ObjectId = objectId;
 			SquareBraces = true;
 		}
 
@@ -25,7 +27,42 @@ namespace Postulate.Merge
 		{
 		}
 
-		public string Schema { get { return _schema; } }
+        public static DbObject Parse(string objectName, IDbConnection connection = null)
+        {
+            DbObject result = null;
+            string[] parts = objectName.Split('.');
+            switch (parts.Length)
+            {
+                case 1:
+                    result = new DbObject("dbo", objectName);
+                    break;
+
+                case 2:
+                    result = new DbObject(parts[0], parts[1]);
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Too many name parts in {objectName}");
+            }
+
+            if (connection != null) SetObjectId(connection, result);
+
+            return result;
+        }
+
+        public static DbObject FromType(Type modelType, IDbConnection connection)
+        {
+            DbObject obj = FromType(modelType);
+            SetObjectId(connection, obj);
+            return obj;
+        }
+
+        private static void SetObjectId(IDbConnection connection, DbObject obj)
+        {
+            obj.ObjectId = connection.QueryFirstOrDefault<int>("SELECT [object_id] FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = obj.Schema, name = obj.Name });
+        }
+
+        public string Schema { get { return _schema; } }
 		public string Name { get { return _name; } }
 		public int ObjectId { get; set; }
 		public Type ModelType { get; set; }
@@ -68,13 +105,6 @@ namespace Postulate.Merge
 		public override int GetHashCode()
 		{
 			return Schema.GetHashCode() + Name.GetHashCode();
-		}
-
-		public static DbObject FromType(Type modelType, IDbConnection connection)
-		{
-			DbObject obj = FromType(modelType);
-			obj.ObjectId = connection.QueryFirstOrDefault<int>("SELECT [object_id] FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = obj.Schema, name = obj.Name });
-			return obj;
 		}
 
 		public static DbObject FromType(Type modelType)

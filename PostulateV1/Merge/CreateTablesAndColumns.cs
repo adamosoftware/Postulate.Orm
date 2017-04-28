@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Merge
 {
-    public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
+    public partial class SchemaMerge<TDb>
     {
         /// <summary>
         /// Creates tables and columns that exist in the model but not in the schema
@@ -35,6 +35,7 @@ namespace Postulate.Merge
                 .SelectMany(t => t.GetProperties()
                     .Where(pi =>
                         !schemaColumns.Any(cr => cr.Equals(pi)) &&
+                        !connection.ColumnExists(t.GetSchema(), t.GetTableName(), pi.SqlColumnName()) &&
                         pi.CanWrite &&
                         IsSupportedType(pi.PropertyType) &&                        
                         !pi.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&

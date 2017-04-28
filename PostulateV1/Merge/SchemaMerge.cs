@@ -8,6 +8,8 @@ using System.Data;
 using System.IO;
 using Dapper;
 using Postulate.Exceptions;
+using Postulate.Merge.Diff;
+using Postulate.Interfaces;
 
 namespace Postulate.Merge
 {
@@ -30,7 +32,7 @@ namespace Postulate.Merge
 
     internal delegate IEnumerable<SchemaDiff> GetSchemaDiffMethod(IDbConnection connection);
 
-    public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
+    public partial class SchemaMerge<TDb> where TDb : IDb, new()
     {
         private readonly IEnumerable<Type> _modelTypes;
 
@@ -55,82 +57,64 @@ namespace Postulate.Merge
             var diffMethods = new GetSchemaDiffMethod[]
             {
                 // create
-                CreateTablesAndColumns, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, CreateForeignKeys,
+                CreateTablesAndColumns /*, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, CreateForeignKeys,
 
                 // alter
                 AlterPrimaryKeys, AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, AlterForeignKeys,
 
                 // drop
-                DropTables, DropNonKeyColumns, DropPrimaryKeys, DropUniqueKeys, DropIndexes
+                DropTables, DropNonKeyColumns, DropPrimaryKeys, DropUniqueKeys, DropIndexes*/
             };
             foreach (var method in diffMethods) results.AddRange(method.Invoke(connection));
 
-            results.Add(ScriptVersionInfo(results));
+            //results.Add(ScriptVersionInfo(results));
 
             return results;
         }
 
-        public IEnumerable<SchemaDiff> Compare()
+        public void SaveScriptAs(IDbConnection connection, string fileName)
         {            
-            var db = new TDb();
-            using (IDbConnection cn = db.GetConnection())
+            var diffs = Compare(connection);
+            using (var file = File.CreateText(fileName))
             {
-                cn.Open();
-                return Compare(cn);
+                foreach (var diff in diffs)
+                {
+                    foreach (var cmd in diff.SqlCommands(connection))
+                    {
+                        file.WriteLine(cmd);
+                        file.WriteLine("\r\nGO\r\n");
+                    }
+                }
             }            
         }
 
-        public void SaveScriptAs(string fileName)
-        {
-            var db = new TDb();
-            using (IDbConnection cn = db.GetConnection())
-            {
-                cn.Open();
-                var diffs = Compare(cn);
-                using (var file = File.CreateText(fileName))
-                {
-                    foreach (var diff in diffs)
-                    {
-                        foreach (var cmd in diff.SqlCommands(cn))
-                        {
-                            file.WriteLine(cmd);
-                            file.WriteLine("\r\nGO\r\n");
-                        }
-                    }
-                }
-            }
-        }
-
-        public static bool Patch(Func<IEnumerable<SchemaDiff>, int, bool> uiAction = null)
+        public static bool Patch(IDbConnection connection, Func<IEnumerable<SchemaDiff>, int, bool> uiAction = null)
         {
             int schemaVersion;
-            var db = new TDb();
-            using (IDbConnection cn = db.GetConnection())
+            
+            if (IsPatchAvailable(connection, out schemaVersion))
             {
-                cn.Open();
-                if (IsPatchAvailable(cn, out schemaVersion))
+                var sm = new SchemaMerge<TDb>();
+                var diffs = sm.Compare(connection);
+
+                if (uiAction != null)
                 {
-                    var sm = new SchemaMerge<TDb, TKey>();
-                    var diffs = sm.Compare(cn);
-
-                    if (uiAction != null)
-                    {
-                        // giving user opportunity to cancel           
-                        if (!uiAction.Invoke(diffs, schemaVersion)) return false;
-                    }
-
-                    sm.Execute(cn, diffs);
-                    return true;
+                    // giving user opportunity to cancel           
+                    if (!uiAction.Invoke(diffs, schemaVersion)) return false;
                 }
-                return false;
+
+                sm.Execute(connection, diffs);
+                return true;
             }
+            return false;
+
         }
 
         public void Execute(IDbConnection connection, IEnumerable<SchemaDiff> diffs)
         {
             if (diffs.Any(a => !a.IsValid(connection)))
             {
-                string message = string.Join("\r\n", ValidationErrors(diffs));
+                string message = string.Join("\r\n", ValidationErrors(connection, diffs));
                 throw new ValidationException($"The model has one or more validation errors:\r\n{message}");
             }
 
@@ -146,26 +130,15 @@ namespace Postulate.Merge
             }
         }
 
-        public void Execute()
+        public IEnumerable<ValidationError> ValidationErrors(IDbConnection connection, IEnumerable<SchemaDiff> actions)
         {
-            var db = new TDb();
-            using (IDbConnection cn = db.GetConnection())
-            {
-                cn.Open();
-                var diffs = Compare(cn);
-                Execute(cn, diffs);
-            }
-        }
-
-        public static int GetSchemaVersion()
-        {
-            return (new TDb()).Version;
+            return actions.Where(a => !a.IsValid(connection)).SelectMany(a => a.ValidationErrors(connection), (a, m) => new ValidationError(a, m));
         }
 
         public static bool IsPatchAvailable(IDbConnection connection, out int schemaVersion)
         {
             int currentVersion = GetDbVersion(connection);
-            schemaVersion = GetSchemaVersion();
+            schemaVersion = (new TDb()).Version;
             return (schemaVersion > currentVersion);
         }
 
@@ -237,11 +210,31 @@ namespace Postulate.Merge
 
         private static IEnumerable<DbObject> GetSchemaTables(IDbConnection connection)
         {
-            return connection.Query<DbObject>(
+            var tables = connection.Query(
                 @"SELECT 
-                    SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [t].[object_id] AS [ObjectId]
+                    SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [Name], [t].[object_id] AS [ObjectId]
                 FROM 
                     [sys].[tables] [t]");
+            return tables.Select(item => new DbObject(item.Schema, item.Name, item.ObjectId));
+        }
+
+        public class ValidationError
+        {
+            private readonly SchemaDiff _diff;
+            private readonly string _message;
+
+            public ValidationError(SchemaDiff diff, string message)
+            {
+                _diff = diff;
+                _message = message;
+            }
+
+            public SchemaDiff Diff => _diff;
+
+            public override string ToString()
+            {
+                return $"{_diff.ToString()}: {_message}";
+            }
         }
     }
 }

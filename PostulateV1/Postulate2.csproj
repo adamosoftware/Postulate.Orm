@@ -53,6 +53,7 @@
     <Compile Include="Attributes\IdentityPositionAttribute.cs" />
     <Compile Include="Attributes\SchemaAttribute.cs" />
     <Compile Include="Extensions\ConnectionExtensions.cs" />
+    <Compile Include="Interfaces\IDb.cs" />
     <Compile Include="Merge\Diff\AddColumn.cs" />
     <Compile Include="Merge\AddVersion.cs" />
     <Compile Include="Merge\AlterIndexes.cs" />

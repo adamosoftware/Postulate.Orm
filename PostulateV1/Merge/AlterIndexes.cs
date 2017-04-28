@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Merge
 {
-    public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
+    public partial class SchemaMerge<TDb>
     {
         /// <summary>
         /// Drops and rebuilds indexes where included columns or types have changed

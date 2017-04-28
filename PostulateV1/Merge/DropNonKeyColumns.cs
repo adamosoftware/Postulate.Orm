@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Merge
 {
-    public partial class SchemaMerge<TDb, TKey> where TDb : SqlDb<TKey>, new()
+    public partial class SchemaMerge<TDb>
     {
         /// <summary>
         /// Drops columns that exist in the schema but not the model that are not part of a key

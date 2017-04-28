@@ -22,6 +22,7 @@ namespace Postulate.Merge
 
         public MergeObjectType ObjectType { get { return _objectType; } }
         public MergeActionType ActionType { get { return _actionType; } }
+        public string Description { get { return _description; } }
 
         public abstract IEnumerable<string> ValidationErrors(IDbConnection connection);
 

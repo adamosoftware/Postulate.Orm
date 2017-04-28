@@ -5,10 +5,11 @@ using System.Data;
 using System.Data.SqlClient;
 using Postulate.Enums;
 using System.Linq.Expressions;
+using Postulate.Interfaces;
 
 namespace Postulate
 {
-    public class SqlServerDb<TKey> : SqlDb<TKey>
+    public class SqlServerDb<TKey> : SqlDb<TKey>, IDb
     {
         public SqlServerDb(string connectionName, string userName = null) : base(connectionName)
         {

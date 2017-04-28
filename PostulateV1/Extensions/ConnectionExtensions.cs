@@ -22,5 +22,10 @@ namespace Postulate.Extensions
 				WHERE SCHEMA_NAME([tbl].[schema_id])=@schema AND [tbl].[name]=@tableName AND [col].[name]=@columnName",
 				new { schema = schema, tableName = tableName, columnName = columnName });
 		}
+
+        public static bool TableExists(this IDbConnection connection, string schema, string tableName)
+        {
+            return connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = schema, name = tableName });
+        }
 	}
 }
