@@ -47,7 +47,7 @@ Create and save a new Customer:
     var customer = new Customer() { FirstName = "Adam", LastName = "O'Neil" };
     new MyDb().Save<Customer>(customer);
 
-Find a Customer based on SQL criteria:
+Find a Customer based on a WHERE clause:
 
     var customer = new MyDb().FindWhere<Customer>(
       "[LastName]=@lastName AND [FirstName]=@firstName", 
