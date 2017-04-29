@@ -59,17 +59,19 @@ namespace Postulate.Merge
 
             // adding primary key columns requires containing PKs to be rebuilt
             var pkColumns = alterColumns.Where(pi => pi.HasAttribute<PrimaryKeyAttribute>());
-            var pkTables = pkColumns.GroupBy(item => DbObject.FromType(item.DeclaringType));
+            var pkTables = pkColumns.GroupBy(item => DbObject.FromType(item.DeclaringType)).Select(grp => grp.Key);
             foreach (var pk in pkTables)
             {
-                results.Add(new DropPrimaryKey(pk.Key));
+                results.Add(new DropPrimaryKey(pk));
             }
+
+            // todo: same thing with unique keys -- they must be rebuilt if column additions impact them
 
             results.AddRange(alterColumns.Select(pi => new AddColumn(pi)));
 
             foreach (var pk in pkTables)
             {
-                results.Add(new CreatePrimaryKey(pk.Key));
+                results.Add(new CreatePrimaryKey(pk));
             }
 
             var foreignKeys = _modelTypes.SelectMany(t => t.GetModelForeignKeys().Where(pi => !connection.ForeignKeyExists(pi)));
