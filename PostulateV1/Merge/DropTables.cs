@@ -13,7 +13,14 @@ namespace Postulate.Merge
     {
         private IEnumerable<MergeAction> DropTables(IDbConnection connection)
         {
-            throw new NotImplementedException();
+            List<MergeAction> results = new List<MergeAction>();
+
+            var schemaTables = GetSchemaTables(connection);
+            var dropTables = schemaTables.Where(obj => !_modelTypes.Any(t => obj.Equals(t)));
+
+            results.AddRange(dropTables.Select(obj => new DropTable(obj, $"Table {obj} was dropped from model")));
+
+            return results;
         }
     }
 }

@@ -123,10 +123,15 @@ namespace Postulate.Merge
 		public static string ConstraintName(Type modelType)
 		{
 			DbObject obj = FromType(modelType);
-			string result = obj.Name;
-			if (!obj.Schema.Equals("dbo")) result = obj.Schema.Substring(0, 1).ToUpper() + obj.Schema.Substring(1).ToLower() + result;
-			return result;
+            return obj.ConstraintName();
 		}
+
+        public string ConstraintName()
+        {
+            string result = Name;
+            if (!Schema.Equals("dbo")) result = Schema.Substring(0, 1).ToUpper() + Schema.Substring(1).ToLower() + result;
+            return result;
+        }
 
 		public static string SqlServerName(Type modelType)
 		{

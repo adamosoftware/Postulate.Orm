@@ -37,7 +37,7 @@ namespace Postulate.Merge
 
     public partial class SchemaMerge<TDb> where TDb : IDb, new()
     {
-        private readonly IEnumerable<Type> _modelTypes;
+        private readonly IEnumerable<Type> _modelTypes;        
 
         private const string _metaSchema = "meta";
         private const string _metaVersion = "Version";
@@ -50,7 +50,7 @@ namespace Postulate.Merge
                     t.Namespace.Equals(typeof(TDb).Namespace) &&
                     !t.HasAttribute<NotMappedAttribute>() &&
                     !t.IsAbstract &&
-                    t.IsDerivedFromGeneric(typeof(Record<>)));
+                    t.IsDerivedFromGeneric(typeof(Record<>)));            
         }
 
         public IDbConnection GetConnection()
@@ -76,13 +76,13 @@ namespace Postulate.Merge
             var diffMethods = new GetSchemaDiffMethod[]
             {
                 // create
-                CreateTablesAndColumns /*, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, CreateForeignKeys,
+                SyncTablesAndColumns, /*, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, CreateForeignKeys, */
 
                 // alter
-                AlterPrimaryKeys, AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, AlterForeignKeys,
+                /* AlterPrimaryKeys, AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, AlterForeignKeys, */
 
                 // drop
-                DropTables, DropNonKeyColumns, DropPrimaryKeys, DropUniqueKeys, DropIndexes*/
+                DropTables /*, DropPrimaryKeys, DropUniqueKeys, DropIndexes*/
             };
             foreach (var method in diffMethods) results.AddRange(method.Invoke(connection));
 
@@ -225,7 +225,7 @@ namespace Postulate.Merge
                 (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
         }
 
-        private static IEnumerable<ColumnRef> GetSchemaColumns(IDbConnection connection)
+        private IEnumerable<ColumnRef> GetSchemaColumns(IDbConnection connection)
         {
             return connection.Query<ColumnRef>(
                 @"SELECT SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [c].[Name] AS [ColumnName], 
@@ -233,12 +233,12 @@ namespace Postulate.Merge
 					[c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
 					[c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation]
 				FROM 
-					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]", null);
+					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]");
         }
 
-        private static IEnumerable<ColumnRef> GetModelColumns(IEnumerable<Type> types, IDbConnection collationLookupConnection = null)
+        private IEnumerable<ColumnRef> GetModelColumns(IDbConnection collationLookupConnection = null)
         {
-            var results = types.SelectMany(t => t.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>()).Select(pi => new ColumnRef(pi)));
+            var results = _modelTypes.SelectMany(t => t.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>()).Select(pi => new ColumnRef(pi)));
 
             if (collationLookupConnection != null)
             {

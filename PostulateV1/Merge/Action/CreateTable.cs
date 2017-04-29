@@ -27,6 +27,12 @@ namespace Postulate.Merge.Action
             ParseNameAndSchema(modelType, out _schema, out _name);
         }
 
+        internal bool InPrimaryKey(string columnName, out string pkName)
+        {
+            pkName = $"PK_{DbObject.ConstraintName(_modelType)}";
+            return _modelType.GetProperties().Any(pi => pi.SqlColumnName().Equals(columnName) && pi.HasAttribute<PrimaryKeyAttribute>());
+        }
+
         public string Schema { get { return _schema; } }
         public string Name { get { return _name; } }
 
@@ -134,18 +140,21 @@ namespace Postulate.Merge.Action
         {
             List<string> results = new List<string>();
 
-            ClusterAttribute clusterAttribute =
-                _modelType.GetCustomAttribute<ClusterAttribute>() ??
-                new ClusterAttribute(ClusterOption.PrimaryKey);
+            ClusterAttribute clusterAttribute = GetClusterAttribute();
 
             results.AddRange(CreateTableColumns());
 
             results.Add(CreateTablePrimaryKey(clusterAttribute));
 
-            results.AddRange(CreateTableUniqueConstraints(clusterAttribute));            
+            results.AddRange(CreateTableUniqueConstraints(clusterAttribute));
 
             return results.ToArray();
 
+        }
+
+        internal ClusterAttribute GetClusterAttribute()
+        {
+            return _modelType.GetCustomAttribute<ClusterAttribute>() ?? new ClusterAttribute(ClusterOption.PrimaryKey);
         }
 
         private IEnumerable<string> CreateTableForeignKeys()

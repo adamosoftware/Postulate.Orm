@@ -57,6 +57,7 @@
     <Compile Include="Merge\Action\AddColumn.cs" />
     <Compile Include="Merge\Action\CreateForeignKey.cs" />
     <Compile Include="Merge\Action\CreatePrimaryKey.cs" />
+    <Compile Include="Merge\Action\DropColumn.cs" />
     <Compile Include="Merge\Action\DropPrimaryKey.cs" />
     <Compile Include="Merge\Action\DropTable.cs" />
     <Compile Include="Merge\AddVersion.cs" />
@@ -73,9 +74,8 @@
     <Compile Include="Merge\DbObject.cs" />
     <Compile Include="Merge\DropIndexes.cs" />
     <Compile Include="Merge\CreateForeignKeys.cs" />
-    <Compile Include="Merge\CreateTablesAndColumns.cs" />
+    <Compile Include="Merge\SyncTablesAndColumns.cs" />
     <Compile Include="Merge\Action\MergeAction.cs" />
-    <Compile Include="Merge\DropNonKeyColumns.cs" />
     <Compile Include="Merge\DropPrimaryKeys.cs" />
     <Compile Include="Merge\DropTables.cs" />
     <Compile Include="Merge\DropUniqueKeys.cs" />

@@ -43,7 +43,17 @@ namespace Postulate.Merge
         public int ByteLength { get; set; }
         public int Precision { get; set; }
         public int Scale { get; set; }
-        public bool IsNullable { get; set; }
+
+        internal Type FindModelType(IEnumerable<Type> modelTypes)
+        {
+            return modelTypes.First(t =>
+            {
+                DbObject obj = DbObject.FromType(t);
+                return obj.Schema.Equals(Schema) && obj.Name.Equals(TableName);
+            });
+        }
+
+        public bool IsNullable { get; set; }        
 
         public string Length
         {
@@ -66,6 +76,7 @@ namespace Postulate.Merge
                     test.TableName.ToLower().Equals(this.TableName.ToLower()) &&
                     test.ColumnName.ToLower().Equals(this.ColumnName.ToLower());
             }
+
             return false;
         }
 
@@ -142,27 +153,29 @@ namespace Postulate.Merge
             return false;
         }
 
-        internal bool InPrimaryKey(IDbConnection connection, out string constraintName)
+        internal bool InPrimaryKey(IDbConnection connection, out string constraintName, out bool isClustered)
         {
             constraintName = null;
+            isClustered = false;
 
             var result = connection.QueryFirstOrDefault(
                 @"SELECT 	
-						[ndx].[name] AS [ConstraintName]
-					FROM 
-						[sys].[indexes] [ndx] INNER JOIN [sys].[index_columns] [ndxcol] ON [ndx].[object_id]=[ndxcol].[object_id]
-						INNER JOIN [sys].[columns] [col] ON 
-							[ndxcol].[column_id]=[col].[column_id] AND
-							[ndxcol].[object_id]=[col].[object_id]
-						INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
-					WHERE 
-						[is_primary_key]=1 AND
-						SCHEMA_NAME([t].[schema_id])=@schema AND
-						[t].[name]=@tableName AND
-						[col].[name]=@columnName", new { schema = this.Schema, tableName = this.TableName, columnName = this.ColumnName });
+					[ndx].[name] AS [ConstraintName], CONVERT(bit, CASE [ndx].[type_desc] WHEN 'CLUSTERED' THEN 1 ELSE 0 END) AS [IsClustered]
+				FROM 
+					[sys].[indexes] [ndx] INNER JOIN [sys].[index_columns] [ndxcol] ON [ndx].[object_id]=[ndxcol].[object_id]
+					INNER JOIN [sys].[columns] [col] ON 
+						[ndxcol].[column_id]=[col].[column_id] AND
+						[ndxcol].[object_id]=[col].[object_id]
+					INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
+				WHERE 
+					[is_primary_key]=1 AND
+					SCHEMA_NAME([t].[schema_id])=@schema AND
+					[t].[name]=@tableName AND
+					[col].[name]=@columnName", new { schema = this.Schema, tableName = this.TableName, columnName = this.ColumnName });
             if (result != null)
             {
                 constraintName = result.ConstraintName;
+                isClustered = result.IsClustered;
                 return true;
             }
 

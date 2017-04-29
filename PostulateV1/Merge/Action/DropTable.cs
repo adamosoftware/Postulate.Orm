@@ -12,7 +12,7 @@ namespace Postulate.Merge.Action
     {
         private readonly DbObject _object;        
 
-        public DropTable(DbObject @object, string scriptComment = null) : base(MergeObjectType.Table, MergeActionType.DropAndCreate, $"Drop and create table {@object}", scriptComment)
+        public DropTable(DbObject @object, string scriptComment = null) : base(MergeObjectType.Table, MergeActionType.Drop, $"Drop table {@object}", scriptComment)
         {            
             _object = @object;            
         }
@@ -28,7 +28,7 @@ namespace Postulate.Merge.Action
         {
             if (!_object.IsEmpty(connection))
             {
-                yield return $"Cannot drop and rebuild {_object} because it's not empty.";
+                yield return $"Cannot drop table {_object} because it's not empty.";
             }
         }
     }

@@ -152,6 +152,25 @@ namespace Testing
                 Assert.IsTrue(PKColumnsEqual(cn, "TableA", "FirstName", "LastName"));
             }
         }
+
+        [TestMethod]
+        public void CreateNewKeyColumnsInNonEmptyTable()
+        {
+            var sm = new SchemaMerge<PostulateDb>();            
+
+            using (IDbConnection cn = sm.GetConnection())
+            {
+                cn.Open();
+
+                // create tables A, B, and C
+                sm.Execute(cn);
+
+                var record = new TableA() { FirstName = "Adam", LastName = "O'Neil" };
+                new PostulateDb().Save(record);
+
+
+            }
+        }
     }
 }
 
