@@ -12,4 +12,6 @@ This is Postulate in a nutshell:
 
 - Use the [SchemaMerge](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Merge/SchemaMerge.cs) class to migrate models to your database. It offers methods for comparing and synchronizing models and the physical database.
 
+- Most methods have at least two overloads -- one that accepts `IDbConnection` already open, and one that opoens and closes a connection within the scope of the method.
+
 
