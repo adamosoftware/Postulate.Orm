@@ -64,7 +64,7 @@ namespace Postulate.Merge.Action
         {
             yield return
                 $"CREATE TABLE {TableName(_modelType)} (\r\n\t" +
-                    string.Join(",\r\n\t", CreateTableMembers(false)) +
+                    string.Join(",\r\n\t", CreateTableMembers()) +
                 "\r\n)";
         }
 

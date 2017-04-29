@@ -51,9 +51,30 @@ namespace Testing
         {
             return columnNames.All(item =>
             {
-                DbObject obj = DbObject.Parse(item);
+                DbObject obj = DbObject.Parse(tableName);
                 return cn.ColumnExists(obj.Schema, obj.Name, item);
             });
+        }
+
+        private bool PKColumnsEqual(IDbConnection cn, string tableName, params string[] columnNames)
+        {
+            DbObject obj = DbObject.Parse(tableName, cn);
+            var pkColumns = cn.Query<string>(
+                @"SELECT 
+                    LOWER([col].[name]) AS [ColumnName]
+                FROM 
+	                [sys].[index_columns] [ixcol] INNER JOIN [sys].[columns] [col] ON
+		                [ixcol].[object_id]=[col].[object_id] AND
+		                [ixcol].[column_id]=[col].[column_id]
+	                INNER JOIN [sys].[indexes] [ix] ON
+		                [ixcol].[object_id]=[ix].[object_id] AND
+		                [ixcol].[index_id]=[ix].[index_id]
+                WHERE 
+	                [ix].[is_primary_key]=1 AND
+	                [col].[object_id]=@objectId
+                ORDER BY [col].[name]", new { objectId = obj.ObjectId });
+
+            return Enumerable.SequenceEqual(columnNames.Select(s => s.ToLower()).OrderBy(s => s), pkColumns);
         }
 
         [TestMethod]
@@ -90,17 +111,45 @@ namespace Testing
         public void CreateNewNonKeyColumns()
         {
             var sm = new SchemaMerge<PostulateDb>();
+
             using (IDbConnection cn = sm.GetConnection())
             {
                 cn.Open();
+
+                // create tables A, B, and C
                 sm.Execute(cn);
 
+                // drop a few columns
                 cn.Execute("ALTER TABLE [dbo].[TableC] DROP COLUMN [SomeDate]");
                 cn.Execute("ALTER TABLE [dbo].[TableC] DROP COLUMN [SomeDouble]");
 
+                // add them back
                 sm.Execute(cn);
 
                 Assert.IsTrue(AllColumnsExist(cn, "TableC", "SomeDate", "SomeDouble"));
+            }
+        }
+
+        [TestMethod]
+        public void CreateNewKeyColumnsInEmptyTable()
+        {
+            var sm = new SchemaMerge<PostulateDb>();
+
+            using (IDbConnection cn = sm.GetConnection())
+            {
+                cn.Open();
+
+                // create tables A, B, and C
+                sm.Execute(cn);
+
+                // drop PK on table A
+                cn.Execute("ALTER TABLE [dbo].[TableA] DROP CONSTRAINT [PK_TableA]");
+                cn.Execute("ALTER TABLE [dbo].[TableA] DROP COLUMN [LastName]");
+
+                // restore them along with primary key
+                sm.Execute(cn);
+
+                Assert.IsTrue(PKColumnsEqual(cn, "TableA", "FirstName", "LastName"));
             }
         }
     }

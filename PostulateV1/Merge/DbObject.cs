@@ -5,6 +5,7 @@ using System.Data;
 using Dapper;
 using Postulate.Attributes;
 using Postulate.Merge.Action;
+using Postulate.Extensions;
 
 namespace Postulate.Merge
 {
@@ -75,7 +76,7 @@ namespace Postulate.Merge
 
         public bool IsEmpty(IDbConnection connection)
         {
-            throw new NotImplementedException();
+            return connection.IsTableEmpty(Schema, Name);
         }
 
         public override string ToString()
