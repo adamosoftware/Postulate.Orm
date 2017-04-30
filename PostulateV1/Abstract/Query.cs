@@ -4,6 +4,9 @@ using System.Data;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using System.Linq;
+using Postulate.Extensions;
+using Postulate.Attributes;
 
 namespace Postulate.Abstract
 {
@@ -30,14 +33,33 @@ namespace Postulate.Abstract
 
         public virtual SortOption[] SortOptions { get { return null; } }
 
-        private string ResolveQuery(string sql, int sortIndex)
+        private string ResolveQuery(int sortIndex)
         {
+            const string orderByToken = "{orderBy}";
+            const string whereToken = "{where}";
+
+            string result = _sql;
+
             if (sortIndex > -1)
             {
-                if (!sql.Contains("{orderBy}") || SortOptions == null) throw new ArgumentException("To use the Query sortIndex argument, the SortOptions property must be set, and \"{orderBy}\" must appear in the SQL command.");
-                return sql.Replace("{orderBy}", $"ORDER BY {SortOptions[sortIndex].Expression}");
+                if (!result.Contains(orderByToken) || SortOptions == null) throw new ArgumentException("To use the Query sortIndex argument, the SortOptions property must be set, and \"{orderBy}\" must appear in the SQL command.");
+                result = result.Replace(orderByToken, $"ORDER BY {SortOptions[sortIndex].Expression}");
             }
-            return sql;
+
+            if (result.Contains(whereToken))
+            {
+                List<string> terms = new List<string>();
+                var props = GetType().GetProperties().Where(pi => pi.HasAttribute<WhereAttribute>());
+                foreach (var pi in props)
+                {
+                    WhereAttribute whereAttr = pi.GetCustomAttributes(false).OfType<WhereAttribute>().First();
+                    object value = pi.GetValue(this);
+                    if (value != null) terms.Add(whereAttr.Expression);
+                }
+                result = result.Replace(whereToken, $"WHERE {string.Join(" AND ", terms)}");
+            }
+
+            return result;
         }
 
         private string GetSortOption(int sortIndex)
@@ -67,7 +89,7 @@ namespace Postulate.Abstract
 
         public IEnumerable<TResult> Execute(IDbConnection connection, int sortIndex = -1)
         {
-            return connection.Query<TResult>(ResolveQuery(_sql, sortIndex), this, commandType: CommandType);
+            return connection.Query<TResult>(ResolveQuery(sortIndex), this, commandType: CommandType);
         }
 
         public IEnumerable<TResult> Execute(string orderBy, int pageSize, int pageNumber)
@@ -175,6 +197,26 @@ namespace Postulate.Abstract
         public async Task<TResult> ExecuteSingleAsync(IDbConnection connection)
         {
             return await connection.QuerySingleOrDefaultAsync<TResult>(_sql, this, commandType: CommandType);
+        }
+
+        public void Test(IDbConnection connection)
+        {
+            var results = Execute(connection);
+
+            if (SortOptions != null)
+            {
+                for (int i = 0; i < SortOptions.Length; i++)
+                {
+                    results = Execute(connection, i);
+                }
+            }            
+
+            foreach (var pi in GetType().GetProperties().Where(pi => pi.HasAttribute<WhereAttribute>(attr => attr.TestValue != null)))
+            {
+                WhereAttribute attr = pi.GetCustomAttributes(false).OfType<WhereAttribute>().First();
+                pi.SetValue(this, attr.TestValue);
+                results = Execute(connection);
+            }
         }
 
         public class SortOption

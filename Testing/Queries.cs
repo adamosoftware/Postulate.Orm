@@ -52,6 +52,20 @@ namespace Testing
 
             Assert.IsTrue(testRecords == totalRecordCount);
         }
+
+        [TestMethod]
+        public void OrgsWhere()
+        {
+            Organization org = new Organization() { Name = "Sample Org For You", BillingRate = 1 };
+
+            var db = new PostulateDb();
+            db.Save(org);
+
+            var orgs = new OrgsWhere() { Name = "sample" }.Execute();
+            Assert.IsTrue(orgs.Any());
+
+            db.Delete<Organization>(org.Id);
+        }
     }
 
     public class PostulateQuery<TResult> : Query<TResult>
@@ -62,7 +76,10 @@ namespace Testing
 
         //public override string[] SortOptions { get { return new string[] { "[Name]" }; }
 
-        public override string[] SortOptions => new string[] { "[Name]" };
+        public override SortOption[] SortOptions => new SortOption[]
+            {
+                new SortOption() { Text = "Last Name", Expression = "[LastName] ASC" }
+            };
     }
 
     public class AllOrgs : PostulateQuery<Organization>
@@ -91,6 +108,16 @@ namespace Testing
         {
         }
 
+        public string Name { get; set; }
+    }
+
+    public class OrgsWhere : PostulateQuery<Organization>
+    {
+        public OrgsWhere() : base("SELECT * FROM [dbo].[Organization] {where}")
+        {
+        }
+
+        [Where("[Name] LIKE '%' + @name + '%'")]
         public string Name { get; set; }
     }
 }

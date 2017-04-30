@@ -20,5 +20,10 @@ namespace Postulate.Attributes
         }
 
         public string Expression {  get { return _expression; } }
+
+        /// <summary>
+        /// Enables unit tests to test this parameter with a sample value to see if the underlying query is valid
+        /// </summary>
+        public object TestValue { get; set; }
     }
 }

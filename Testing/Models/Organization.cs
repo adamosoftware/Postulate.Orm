@@ -19,7 +19,7 @@ namespace Testing.Models
 
 		public DateTime? EndDate { get; set; }
 
-        public int? SomeNewValue { get; set; }
+        //public int? SomeNewValue { get; set; }
 
 		[Calculated("DATEDIFF(d, [EffectiveDate], [EndDate])")]
 		public int? ContractLength { get; set; }
