@@ -42,7 +42,7 @@ Find a Customer record from a key value.
 
     var customer = new MyDb().Find<Customer>(id);
     
-Create and save a new Customer:
+Create and save a new Customer. "Save" here means an insert or update is performed automatically according to the state of the record:
 
     var customer = new Customer() { FirstName = "Adam", LastName = "O'Neil" };
     new MyDb().Save<Customer>(customer);
