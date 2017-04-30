@@ -14,7 +14,7 @@ This is Postulate in a nutshell:
 
 - Most methods have at least two overloads -- one that accepts an `IDbConnection` already open, and one that opens and closes a connection within the scope of the method.
 
-- Use the [Query&lt;TResult&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Query.cs) class for inline SQL with strongly-typed results. See "Using the Query class" for more information.
+- Use the [Query&lt;TResult&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Abstract/Query.cs) class for inline SQL with strongly-typed results. See "Using the Query class" for more information.
 
 ## Code Examples
 
@@ -60,3 +60,31 @@ Update select properties of a Customer without updating the whole record:
     customer.State = "XR";
     customer.ZipCode = "12345";
     new MyDb().Update<Customer>(customer, r => r.Address, r => r.City, r => r.State, r => r.ZipCode);
+
+Query all customers. This is a two-step process, where the first step is to create a base class based on [Query&lt;TResult&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Abstract/Query.cs) that tells Postulate how to get a connection when needed. This is a one-time step. You use this class as the basis for your other queries:
+
+    public class MyDbQuery<TResult> : Query<TResult>
+    {
+        public MyDbQuery(string sql) : base(sql, () => { return new MyDb().GetConnection(); })
+        {
+        }
+    }
+
+Now for the actual query class that returns your results. Parameters are added as properties of the class.
+
+    public class CustomerQuery<Customer>
+    {
+        public CustomerQuery() : base("SELECT * FROM [dbo].[Customer] WHERE [LastName] LIKE @lastName ORDER BY [LastName]")
+        {
+        }
+        
+        public string LastName { get; set; }
+    }
+    
+Finally, you execute it like this to return all records:
+    
+    var results = new CustomerQuery() { LastName = "O'Neil" }.Execute();
+    
+To execute a server-side paged query, use the overload of the Execute method that accepts an ORDER BY argument as well as the page size and number. In this example, the results are returned in 10 record increments, and page 121 is returned here.
+
+    var results = new CustomerQuery() { LastName = "whoever" }.Execute("[LastName]", 10, 121);
