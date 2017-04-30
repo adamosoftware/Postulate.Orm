@@ -14,12 +14,12 @@ namespace Postulate.Abstract
     public abstract class Query<TResult>
     {
         private readonly string _sql;
-        private readonly Func<IDbConnection> _connectionGetter;
+        private readonly Func<IDbConnection> _connectionGetter;        
 
-        public Query(string sql, Func<IDbConnection> connectionGetter, int sortIndex = -1)
+        public Query(string sql, Func<IDbConnection> connectionGetter)
         {
             _sql = sql;
-            _connectionGetter = connectionGetter;
+            _connectionGetter = connectionGetter;            
         }
 
         public string Sql { get { return _sql; } }
@@ -28,7 +28,33 @@ namespace Postulate.Abstract
 
         public CommandType CommandType { get; set; } = CommandType.Text;
 
-        public virtual string[] SortOptions { get { return null; } }
+        public virtual SortOption[] SortOptions { get { return null; } }
+
+        private string ResolveQuery(string sql, int sortIndex)
+        {
+            if (sortIndex > -1)
+            {
+                if (!sql.Contains("{orderBy}") || SortOptions == null) throw new ArgumentException("To use the Query sortIndex argument, the SortOptions property must be set, and \"{orderBy}\" must appear in the SQL command.");
+                return sql.Replace("{orderBy}", $"ORDER BY {SortOptions[sortIndex].Expression}");
+            }
+            return sql;
+        }
+
+        private string GetSortOption(int sortIndex)
+        {
+            try
+            {
+                return SortOptions[sortIndex].Expression;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException($"Sort index {sortIndex} is out of range of the defined sort options for this query.");
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullReferenceException("The SortOptions property returned null.");
+            }
+        }
 
         public IEnumerable<TResult> Execute(int sortIndex = -1)
         {
@@ -42,32 +68,6 @@ namespace Postulate.Abstract
         public IEnumerable<TResult> Execute(IDbConnection connection, int sortIndex = -1)
         {
             return connection.Query<TResult>(ResolveQuery(_sql, sortIndex), this, commandType: CommandType);
-        }
-
-        private string ResolveQuery(string sql, int sortIndex)
-        {
-            if (sortIndex > -1)
-            {
-                if (!sql.Contains("{orderBy}") || SortOptions == null) throw new ArgumentException("To use the Query sortIndex argument, the SortOptions property must be set, and \"{orderBy}\" must appear in the SQL command.");
-                return sql.Replace("{orderBy}", $"ORDER BY {SortOptions[sortIndex]}");
-            }
-            return sql;
-        }
-
-        private string GetSortOption(int sortIndex)
-        {
-            try
-            {
-                return SortOptions[sortIndex];
-            }
-            catch (IndexOutOfRangeException)
-            {
-                throw new IndexOutOfRangeException($"Sort index {sortIndex} is out of range of the defined sort options for this query.");
-            }
-            catch (NullReferenceException)
-            {
-                throw new NullReferenceException("The SortOptions property returned null.");
-            }
         }
 
         public IEnumerable<TResult> Execute(string orderBy, int pageSize, int pageNumber)
@@ -175,6 +175,17 @@ namespace Postulate.Abstract
         public async Task<TResult> ExecuteSingleAsync(IDbConnection connection)
         {
             return await connection.QuerySingleOrDefaultAsync<TResult>(_sql, this, commandType: CommandType);
+        }
+
+        public class SortOption
+        {
+            public string Text { get; set; }
+            public string Expression { get; set; }
+
+            public override string ToString()
+            {
+                return Expression;
+            }
         }
     }
 }
