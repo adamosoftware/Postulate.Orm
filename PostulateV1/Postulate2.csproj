@@ -52,6 +52,7 @@
     <Compile Include="Attributes\ForeignKeyAttribute.cs" />
     <Compile Include="Attributes\IdentityPositionAttribute.cs" />
     <Compile Include="Attributes\SchemaAttribute.cs" />
+    <Compile Include="Attributes\WhereAttribute.cs" />
     <Compile Include="Extensions\ConnectionExtensions.cs" />
     <Compile Include="Interfaces\IDb.cs" />
     <Compile Include="Merge\Action\AddColumn.cs" />

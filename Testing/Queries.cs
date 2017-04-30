@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Postulate;
 using Postulate.Abstract;
+using Postulate.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,13 @@ namespace Testing
         }
 
         [TestMethod]
+        public void OrgsWithName2()
+        {
+            var orgs = new OrgsWithName2() { Name = "sample" }.Execute();
+            Assert.IsTrue(orgs.Any());
+        }
+
+        [TestMethod]
         public void OrgsPaged()
         {
             int totalRecordCount = new PostulateQuery<int>("SELECT COUNT(1) FROM [dbo].[Organization]").ExecuteSingle();
@@ -51,13 +59,20 @@ namespace Testing
         public PostulateQuery(string sql) : base(sql, () => { return new PostulateDb().GetConnection(); })
         {
         }
+
+        //public override string[] SortOptions { get { return new string[] { "[Name]" }; }
+
+        public override string[] SortOptions => new string[] { "[Name]" };
     }
 
     public class AllOrgs : PostulateQuery<Organization>
     {
-        public AllOrgs() : base("SELECT * FROM [dbo].[Organization]")
+        public AllOrgs() : base("SELECT * FROM [dbo].[Organization] {where}")
         {
         }
+
+        [Where("[Name] LIKE '%' + @name + '%'")]
+        public string Name { get; set; }
     }
 
     public class OrgsWithName : PostulateQuery<Organization>
@@ -68,5 +83,14 @@ namespace Testing
         }
 
         public string Name { get; set; }        
+    }
+
+    public class OrgsWithName2 : PostulateQuery<Organization>
+    {
+        public OrgsWithName2() : base("SELECT * FROM [dbo].[Organization] WHERE [Name] LIKE '%' + @name + '%'")
+        {
+        }
+
+        public string Name { get; set; }
     }
 }
