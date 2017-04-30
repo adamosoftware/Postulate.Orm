@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Postulate;
+using Postulate.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;

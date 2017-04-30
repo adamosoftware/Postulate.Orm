@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 
-namespace Postulate
+namespace Postulate.Abstract
 {
     /// <summary>
     /// Defines a SQL query with a fixed parameter set
     /// </summary>
     /// <typeparam name="TResult">Type of result</typeparam>
-    public class Query<TResult>
+    public abstract class Query<TResult>
     {
         private readonly string _sql;
         private readonly Func<IDbConnection> _connectionGetter;

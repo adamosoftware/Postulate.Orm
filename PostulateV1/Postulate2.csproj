@@ -81,7 +81,7 @@
     <Compile Include="Merge\DropUniqueKeys.cs" />
     <Compile Include="Merge\ForeignKeyRef.cs" />
     <Compile Include="Merge\Helpers.cs" />
-    <Compile Include="Query.cs" />
+    <Compile Include="Abstract\Query.cs" />
     <Compile Include="Abstract\SqlDb.cs" />
     <Compile Include="Abstract\Record.cs" />
     <Compile Include="Attributes\CalculatedAttribute.cs" />
