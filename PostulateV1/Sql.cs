@@ -19,15 +19,10 @@ namespace Postulate
                 return null;
             }
 
-            var result = "WHERE " + string.Join(" AND ", terms
-                .Where(t => t.Condition)
-                .Select(t => t.Expression));
+            var result = "WHERE " + string.Join(" AND ", included.Select(t => t.Expression));
 
             parameters = new DynamicParameters();
-            foreach (WhereClauseTerm term in terms.Where(t => t.Condition))
-            {
-                parameters.Add(term.GetParameterName(), term.Value);
-            }
+            foreach (WhereClauseTerm term in included) parameters.Add(term.GetParameterName(), term.Value);
 
             return result;
         }
