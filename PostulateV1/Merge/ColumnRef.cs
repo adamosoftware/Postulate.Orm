@@ -132,17 +132,17 @@ namespace Postulate.Merge
             fk = null;
             var result = connection.QueryFirstOrDefault(
                 @"SELECT 
-						[fk].[name] AS [ConstraintName], [t].[name] AS [TableName], SCHEMA_NAME([t].[schema_id]) AS [Schema]
-					FROM 
-						[sys].[foreign_key_columns] [fkcol] INNER JOIN [sys].[columns] [col] ON 
-							[fkcol].[parent_object_id]=[col].[object_id] AND
-							[fkcol].[parent_column_id]=[col].[column_id]
-						INNER JOIN [sys].[foreign_keys] [fk] ON [fkcol].[constraint_object_id]=[fk].[object_id]
-						INNER JOIN [sys].[tables] [t] ON [fkcol].[parent_object_id]=[t].[object_id]
-					WHERE
-						SCHEMA_NAME([t].[schema_id])=@schema AND
-						[t].[name]=@tableName AND
-						[col].[name]=@columnName", new { schema = this.Schema, tableName = this.TableName, columnName = this.ColumnName });
+					[fk].[name] AS [ConstraintName], [t].[name] AS [TableName], SCHEMA_NAME([t].[schema_id]) AS [Schema]
+				FROM 
+					[sys].[foreign_key_columns] [fkcol] INNER JOIN [sys].[columns] [col] ON 
+						[fkcol].[parent_object_id]=[col].[object_id] AND
+						[fkcol].[parent_column_id]=[col].[column_id]
+					INNER JOIN [sys].[foreign_keys] [fk] ON [fkcol].[constraint_object_id]=[fk].[object_id]
+					INNER JOIN [sys].[tables] [t] ON [fkcol].[parent_object_id]=[t].[object_id]
+				WHERE
+					SCHEMA_NAME([t].[schema_id])=@schema AND
+					[t].[name]=@tableName AND
+					[col].[name]=@columnName", new { schema = this.Schema, tableName = this.TableName, columnName = this.ColumnName });
 
             if (result != null)
             {

@@ -31,37 +31,59 @@ namespace Postulate.Abstract
 
         public CommandType CommandType { get; set; } = CommandType.Text;
 
+        /// <summary>
+        /// Defines a list of possible ORDER BY clauses that can be used with a query, enabling end-user sort choice without exposing a SQL injection risk
+        /// </summary>
         public virtual SortOption[] SortOptions { get { return null; } }
 
         private string ResolveQuery(int sortIndex)
         {
             const string orderByToken = "{orderBy}";
             const string whereToken = "{where}";
+            const string andWhereToken = "{andWhere}";
 
             string result = _sql;
 
-            if (sortIndex > -1)
+            if (result.Contains(orderByToken))
             {
-                if (!result.Contains(orderByToken) || SortOptions == null) throw new ArgumentException("To use the Query sortIndex argument, the SortOptions property must be set, and \"{orderBy}\" must appear in the SQL command.");
-                result = result.Replace(orderByToken, $"ORDER BY {SortOptions[sortIndex].Expression}");
+                if (sortIndex > -1)
+                {
+                    if (!result.Contains(orderByToken) || SortOptions == null) throw new ArgumentException("To use the Query sortIndex argument, the SortOptions property must be set, and \"{orderBy}\" must appear in the SQL command.");
+                    result = result.Replace(orderByToken, $"ORDER BY {GetSortOption(sortIndex)}");
+                }
+                else
+                {
+                    result = result.Replace(orderByToken, string.Empty);
+                }                
             }
 
-            if (result.Contains(whereToken))
+            Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
             {
+                { whereToken, "WHERE" }, // query has no where clause, so it needs the word WHERE inserted
+                { andWhereToken, "AND" } // query already contains a WHERE clause, we're just adding to it
+            };
+            string token;
+            if (result.ContainsAny(new string[] { whereToken, andWhereToken }, out token))
+            {
+                bool anyCriteria = false;
                 List<string> terms = new List<string>();
                 var props = GetType().GetProperties().Where(pi => pi.HasAttribute<WhereAttribute>());
                 foreach (var pi in props)
                 {
+                    anyCriteria = true;
                     WhereAttribute whereAttr = pi.GetCustomAttributes(false).OfType<WhereAttribute>().First();
                     object value = pi.GetValue(this);
                     if (value != null) terms.Add(whereAttr.Expression);
                 }
-                result = result.Replace(whereToken, $"WHERE {string.Join(" AND ", terms)}");
+                result = result.Replace(whereToken, (anyCriteria) ? $"{whereBuilder[token]} {string.Join(" AND ", terms)}" : string.Empty);
             }
 
             return result;
         }
 
+        /// <summary>
+        /// Gets the sort expression for a given sortIndex argument. Handles a couple of common exceptions so that a useful error message is returned
+        /// </summary>
         private string GetSortOption(int sortIndex)
         {
             try
@@ -70,11 +92,11 @@ namespace Postulate.Abstract
             }
             catch (IndexOutOfRangeException)
             {
-                throw new IndexOutOfRangeException($"Sort index {sortIndex} is out of range of the defined sort options for this query.");
+                throw new IndexOutOfRangeException($"Sort index {sortIndex} is out of range of the defined sort options for query {GetType().Name}.");
             }
             catch (NullReferenceException)
             {
-                throw new NullReferenceException("The SortOptions property returned null.");
+                throw new NullReferenceException($"The SortOptions property is not set on query {GetType().Name}.");
             }
         }
 
@@ -201,21 +223,31 @@ namespace Postulate.Abstract
 
         public void Test(IDbConnection connection)
         {
-            var results = Execute(connection);
+            string context = "No arguments";
+            try
+            {                
+                var results = Execute(connection);
 
-            if (SortOptions != null)
-            {
-                for (int i = 0; i < SortOptions.Length; i++)
+                if (SortOptions != null)
                 {
-                    results = Execute(connection, i);
+                    for (int i = 0; i < SortOptions.Length; i++)
+                    {
+                        context = $"Sort option: {SortOptions[i].Expression}";
+                        results = Execute(connection, i);
+                    }
                 }
-            }            
 
-            foreach (var pi in GetType().GetProperties().Where(pi => pi.HasAttribute<WhereAttribute>(attr => attr.TestValue != null)))
+                foreach (var pi in GetType().GetProperties().Where(pi => pi.HasAttribute<WhereAttribute>(attr => attr.TestValue != null)))
+                {
+                    context = $"Property: {pi.Name}";
+                    WhereAttribute attr = pi.GetCustomAttributes(false).OfType<WhereAttribute>().First();
+                    pi.SetValue(this, attr.TestValue);
+                    results = Execute(connection);
+                }
+            }
+            catch (Exception exc)
             {
-                WhereAttribute attr = pi.GetCustomAttributes(false).OfType<WhereAttribute>().First();
-                pi.SetValue(this, attr.TestValue);
-                results = Execute(connection);
+                throw new Exception($"Error in query {GetType().Name}: {exc.Message} ({context})");
             }
         }
 

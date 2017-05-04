@@ -4,6 +4,7 @@ using Postulate.Abstract;
 using Postulate.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,6 +66,21 @@ namespace Testing
             Assert.IsTrue(orgs.Any());
 
             db.Delete<Organization>(org.Id);
+        }
+
+        [TestMethod]
+        public void QueryTestMethod()
+        {
+            PostulateQuery<Organization>[] queries = new PostulateQuery<Organization>[]
+            {
+                new AllOrgs(), new OrgsWithName2(), new OrgsWhere()
+            };
+
+            using (IDbConnection cn = new PostulateDb().GetConnection())
+            {
+                cn.Open();
+                foreach (var query in queries) query.Test(cn);
+            }                
         }
     }
 

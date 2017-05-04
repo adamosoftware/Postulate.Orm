@@ -67,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries.cs" />
     <Compile Include="SchemaMergeTest.cs" />
+    <Compile Include="SqlTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
