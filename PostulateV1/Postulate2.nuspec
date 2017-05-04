@@ -8,7 +8,7 @@
     <owners>$author$</owners>
     <projectUrl>https://github.com/adamosoftware/PostulateORM</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>Lightweight code-first ORM made with Dapper</description>
     <copyright>$copyright$</copyright>
     <tags>orm dapper</tags>
   </metadata>

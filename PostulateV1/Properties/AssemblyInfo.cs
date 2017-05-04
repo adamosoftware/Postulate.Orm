@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Postulate ORM")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Lightweight code-first ORM made with Dapper")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Adam O'Neil Software")]
 [assembly: AssemblyProduct("Postulate ORM")]
