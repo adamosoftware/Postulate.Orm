@@ -2,7 +2,7 @@
 using Postulate.Attributes;
 using Postulate.Merge.Action;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
+using ReflectionHelper;
 
 namespace Postulate.Extensions
 {

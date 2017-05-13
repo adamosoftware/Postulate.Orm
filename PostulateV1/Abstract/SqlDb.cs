@@ -12,6 +12,7 @@ using Dapper;
 using System.Configuration;
 using System.Linq.Expressions;
 using Postulate.Interfaces;
+using ReflectionHelper;
 
 namespace Postulate.Abstract
 {

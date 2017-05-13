@@ -8,6 +8,7 @@ using Postulate.Extensions;
 using Postulate.Attributes;
 using System.Data;
 using Dapper;
+using ReflectionHelper;
 
 namespace Postulate.Merge
 {

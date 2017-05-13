@@ -10,8 +10,7 @@ using Dapper;
 using Postulate.Exceptions;
 using Postulate.Merge.Action;
 using Postulate.Interfaces;
-using System.Reflection;
-using Postulate.Attributes;
+using ReflectionHelper;
 
 namespace Postulate.Merge
 {
