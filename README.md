@@ -2,7 +2,7 @@
 
 Postulate is a lightweight code-first ORM for SQL Server made with Dapper. You can target any data source that supports `IDbConnection`, but the default implementation is for SQL Server, and the Schema Merge feature works only with SQL Server. This repo an overhaul of the [prior version](https://github.com/adamosoftware/Postulate08) with a number of breaking changes -- the new syntax is simpler, and model classes no longer require a RowManager.
 
-As of now (4/29/17), several important things aren't working yet, and there's no nuget package available yet.
+As of now (5/13/17), there is a pre-release nuget package **PostulateORM**. The Query class has been moved to [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql).
 
 This is Postulate in a nutshell:
 
@@ -13,8 +13,6 @@ This is Postulate in a nutshell:
 - Use the [SchemaMerge](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Merge/SchemaMerge.cs) class to migrate models to your database. It offers methods for comparing and synchronizing models and the physical database, and works only with SQL Server. See "Schema Merging" for more information.
 
 - Most methods have at least two overloads -- one that accepts an `IDbConnection` already open, and one that opens and closes a connection within the scope of the method.
-
-- Use the [Query&lt;TResult&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Abstract/Query.cs) class for inline SQL with strongly-typed results. See "Using the Query class" for more information.
 
 ## Code Examples
 
