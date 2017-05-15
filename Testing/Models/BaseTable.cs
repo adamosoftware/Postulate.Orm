@@ -1,8 +1,8 @@
 ﻿using Postulate.Orm.Abstract;
-using Postulate.Attributes;
+using Postulate.Orm.Attributes;
 using System;
 using System.ComponentModel.DataAnnotations;
-using Postulate.Enums;
+using Postulate.Orm.Enums;
 using System.Data;
 
 namespace Testing.Models

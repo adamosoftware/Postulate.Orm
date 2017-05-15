@@ -1,5 +1,5 @@
-﻿using Postulate.Attributes;
-using Postulate.Enums;
+﻿using Postulate.Orm.Attributes;
+using Postulate.Orm.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;

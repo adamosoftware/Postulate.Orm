@@ -1,4 +1,4 @@
-﻿using Postulate.Enums;
+﻿using Postulate.Orm.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;

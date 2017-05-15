@@ -1,5 +1,5 @@
 ﻿using Postulate.Orm.Abstract;
-using Postulate.Attributes;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge.Action;
 using System;
 using ReflectionHelper;

@@ -1,17 +1,17 @@
-﻿using Postulate.Attributes;
-using Postulate.Enums;
+﻿using Postulate.Orm.Attributes;
+using Postulate.Orm.Enums;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using System.Linq;
-using Postulate.Extensions;
+using Postulate.Orm.Extensions;
 using System.ComponentModel.DataAnnotations.Schema;
-using Postulate.Exceptions;
+using Postulate.Orm.Exceptions;
 using Dapper;
 using System.Configuration;
 using System.Linq.Expressions;
-using Postulate.Interfaces;
+using Postulate.Orm.Interfaces;
 using ReflectionHelper;
 
 namespace Postulate.Orm.Abstract

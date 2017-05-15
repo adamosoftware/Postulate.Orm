@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Postulate.Attributes;
+using Postulate.Orm.Attributes;
 
 namespace Testing.Models
 {

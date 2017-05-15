@@ -1,8 +1,8 @@
 ﻿using System.Data;
 using Dapper;
 using System.Reflection;
-using Postulate.Attributes;
-using Postulate.Merge;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Merge;
 using System.Collections.Generic;
 using System.Linq;
 

@@ -1,4 +1,4 @@
-﻿using Postulate.Attributes;
+﻿using Postulate.Orm.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

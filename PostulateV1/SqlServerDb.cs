@@ -3,11 +3,11 @@ using System;
 using System.Linq;
 using System.Data;
 using System.Data.SqlClient;
-using Postulate.Enums;
+using Postulate.Orm.Enums;
 using System.Linq.Expressions;
-using Postulate.Interfaces;
+using Postulate.Orm.Interfaces;
 
-namespace Postulate
+namespace Postulate.Orm
 {
     public class SqlServerDb<TKey> : SqlDb<TKey>, IDb
     {

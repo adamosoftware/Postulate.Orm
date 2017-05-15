@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Testing.Models;
-using System.Data.SqlClient;
 using System.Data;
 using Dapper;
 

@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Postulate.Extensions;
-using Postulate.Attributes;
+using Postulate.Orm.Extensions;
+using Postulate.Orm.Attributes;
 
 namespace Postulate.Orm.Merge.Action
 {

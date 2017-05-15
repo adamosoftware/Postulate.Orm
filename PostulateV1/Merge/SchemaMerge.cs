@@ -2,14 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Postulate.Extensions;
+using Postulate.Orm.Extensions;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.IO;
 using Dapper;
-using Postulate.Exceptions;
+using Postulate.Orm.Exceptions;
 using Postulate.Orm.Merge.Action;
-using Postulate.Interfaces;
+using Postulate.Orm.Interfaces;
 using ReflectionHelper;
 
 namespace Postulate.Orm.Merge

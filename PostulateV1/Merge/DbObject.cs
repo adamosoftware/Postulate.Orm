@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Data;
 using Dapper;
-using Postulate.Attributes;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge.Action;
-using Postulate.Extensions;
+using Postulate.Orm.Extensions;
 
 namespace Postulate.Orm.Merge
 {

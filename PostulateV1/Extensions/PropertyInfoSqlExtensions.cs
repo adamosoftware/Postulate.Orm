@@ -1,5 +1,5 @@
-﻿using Postulate.Attributes;
-using Postulate.Merge;
+﻿using Postulate.Orm.Attributes;
+using Postulate.Orm.Merge;
 using Postulate.Orm.Merge.Action;
 using System;
 using System.Collections.Generic;

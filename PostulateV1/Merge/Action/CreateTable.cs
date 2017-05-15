@@ -1,7 +1,7 @@
 ﻿using Postulate.Orm.Abstract;
-using Postulate.Attributes;
-using Postulate.Enums;
-using Postulate.Extensions;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Enums;
+using Postulate.Orm.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

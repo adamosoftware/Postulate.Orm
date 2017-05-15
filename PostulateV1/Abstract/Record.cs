@@ -1,4 +1,4 @@
-﻿using Postulate.Enums;
+﻿using Postulate.Orm.Enums;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Postulate.Extensions;
+using Postulate.Orm.Extensions;
 
 namespace Postulate.Orm.Abstract
 {

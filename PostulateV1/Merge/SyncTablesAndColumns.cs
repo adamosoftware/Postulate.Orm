@@ -1,6 +1,6 @@
 ﻿using Postulate.Orm.Abstract;
-using Postulate.Attributes;
-using Postulate.Extensions;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
 using Postulate.Orm.Merge.Action;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

@@ -4,8 +4,8 @@ using System.Data;
 using System.Linq;
 using Dapper;
 using System.Reflection;
-using Postulate.Extensions;
-using Postulate.Attributes;
+using Postulate.Orm.Extensions;
+using Postulate.Orm.Attributes;
 using ReflectionHelper;
 
 namespace Postulate.Orm.Merge

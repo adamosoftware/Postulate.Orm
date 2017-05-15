@@ -3,8 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data.SqlClient;
 using Testing.Models;
 using System.Data;
-using Postulate.Extensions;
-using Postulate.Merge;
+using Postulate.Orm.Extensions;
+using Postulate.Orm.Merge;
 using Dapper;
 using System.Linq;
 
