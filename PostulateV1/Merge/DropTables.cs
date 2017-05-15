@@ -1,5 +1,5 @@
-﻿using Postulate.Abstract;
-using Postulate.Merge.Action;
+﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Merge.Action;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Merge
+namespace Postulate.Orm.Merge
 {
     public partial class SchemaMerge<TDb>
     {

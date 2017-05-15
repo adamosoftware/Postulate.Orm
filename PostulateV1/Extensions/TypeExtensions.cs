@@ -1,10 +1,10 @@
-﻿using Postulate.Abstract;
+﻿using Postulate.Orm.Abstract;
 using Postulate.Attributes;
-using Postulate.Merge.Action;
+using Postulate.Orm.Merge.Action;
 using System;
 using ReflectionHelper;
 
-namespace Postulate.Extensions
+namespace Postulate.Orm.Extensions
 {
     public static class TypeExtensions
     {

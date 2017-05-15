@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Postulate.Attributes
+namespace Postulate.Orm.Attributes
 {
     public enum Access
 	{		

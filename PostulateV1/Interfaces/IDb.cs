@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Interfaces
+namespace Postulate.Orm.Interfaces
 {
     /// <summary>
     /// Enables SchemaMerge to work without SqlDb&lt;Key&gt;

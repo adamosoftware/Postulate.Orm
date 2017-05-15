@@ -1,4 +1,4 @@
-﻿namespace Postulate.Enums
+﻿namespace Postulate.Orm.Enums
 {
     public enum SaveAction
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Postulate.Attributes
+namespace Postulate.Orm.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 	public class SchemaAttribute : Attribute

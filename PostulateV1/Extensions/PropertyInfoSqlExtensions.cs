@@ -1,6 +1,6 @@
 ﻿using Postulate.Attributes;
 using Postulate.Merge;
-using Postulate.Merge.Action;
+using Postulate.Orm.Merge.Action;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using ReflectionHelper;
 
-namespace Postulate.Extensions
+namespace Postulate.Orm.Extensions
 {
     public static class PropertyInfoSqlExtensions
     {

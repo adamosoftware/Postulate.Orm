@@ -14,7 +14,7 @@ using System.Linq.Expressions;
 using Postulate.Interfaces;
 using ReflectionHelper;
 
-namespace Postulate.Abstract
+namespace Postulate.Orm.Abstract
 {
     public enum ConnectionSource
     {

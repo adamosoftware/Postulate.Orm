@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.3
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postulate2", "PostulateV1\Postulate2.csproj", "{74D32DED-6B61-4C06-99B7-4BF11A7325E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postulate.Orm", "PostulateV1\Postulate.Orm.csproj", "{74D32DED-6B61-4C06-99B7-4BF11A7325E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{E2FFFA51-D436-42E3-B35F-544145ACCBFE}"
 EndProject

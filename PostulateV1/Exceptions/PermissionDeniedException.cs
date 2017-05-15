@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Exceptions
+namespace Postulate.Orm.Exceptions
 {
     public class PermissionDeniedException : Exception
     {

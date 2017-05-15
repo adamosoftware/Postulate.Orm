@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Merge
+namespace Postulate.Orm.Merge
 {
     internal class ForeignKeyRef
     {

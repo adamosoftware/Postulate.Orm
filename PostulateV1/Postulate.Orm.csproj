@@ -7,8 +7,8 @@
     <ProjectGuid>{74D32DED-6B61-4C06-99B7-4BF11A7325E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Postulate</RootNamespace>
-    <AssemblyName>PostulateORM</AssemblyName>
+    <RootNamespace>Postulate.Orm</RootNamespace>
+    <AssemblyName>PostulateOrm</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -55,7 +55,6 @@
     <Compile Include="Attributes\ForeignKeyAttribute.cs" />
     <Compile Include="Attributes\IdentityPositionAttribute.cs" />
     <Compile Include="Attributes\SchemaAttribute.cs" />
-    <Compile Include="Attributes\WhereAttribute.cs" />
     <Compile Include="Extensions\ConnectionExtensions.cs" />
     <Compile Include="Interfaces\IDb.cs" />
     <Compile Include="Merge\Action\AddColumn.cs" />

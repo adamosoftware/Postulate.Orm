@@ -1,4 +1,4 @@
-﻿using Postulate.Abstract;
+﻿using Postulate.Orm.Abstract;
 using System;
 using System.Linq;
 using System.Data;

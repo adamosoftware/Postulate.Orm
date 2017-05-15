@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Reflection;
 
-namespace Postulate.Validation
+namespace Postulate.Orm.Validation
 {
 	public enum Patterns
 	{

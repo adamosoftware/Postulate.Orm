@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Attributes
+namespace Postulate.Orm.Attributes
 {
 	/// <summary>
 	/// Indicates where in the target table inherited columns are added

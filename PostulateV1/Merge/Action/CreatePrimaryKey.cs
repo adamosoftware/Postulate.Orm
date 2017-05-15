@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Merge.Action
+namespace Postulate.Orm.Merge.Action
 {
     public class CreatePrimaryKey : MergeAction
     {

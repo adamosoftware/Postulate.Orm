@@ -4,10 +4,10 @@ using System.Reflection;
 using System.Data;
 using Dapper;
 using Postulate.Attributes;
-using Postulate.Merge.Action;
+using Postulate.Orm.Merge.Action;
 using Postulate.Extensions;
 
-namespace Postulate.Merge
+namespace Postulate.Orm.Merge
 {
 	public class DbObject
 	{

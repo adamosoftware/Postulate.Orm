@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Attributes
+namespace Postulate.Orm.Attributes
 {
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 	public class IdentityPositionAttribute : Attribute

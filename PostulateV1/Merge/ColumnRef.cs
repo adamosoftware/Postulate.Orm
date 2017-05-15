@@ -10,7 +10,7 @@ using System.Data;
 using Dapper;
 using ReflectionHelper;
 
-namespace Postulate.Merge
+namespace Postulate.Orm.Merge
 {
     public class ColumnRef
     {

@@ -1,4 +1,4 @@
-﻿using Postulate.Abstract;
+﻿using Postulate.Orm.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +8,11 @@ using System.Data;
 using System.IO;
 using Dapper;
 using Postulate.Exceptions;
-using Postulate.Merge.Action;
+using Postulate.Orm.Merge.Action;
 using Postulate.Interfaces;
 using ReflectionHelper;
 
-namespace Postulate.Merge
+namespace Postulate.Orm.Merge
 {
     public enum MergeActionType
     {

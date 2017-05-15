@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Postulate.Extensions;
 
-namespace Postulate.Abstract
+namespace Postulate.Orm.Abstract
 {
     public abstract class Record<TKey>
     {

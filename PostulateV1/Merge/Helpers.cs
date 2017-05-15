@@ -8,7 +8,7 @@ using Postulate.Extensions;
 using Postulate.Attributes;
 using ReflectionHelper;
 
-namespace Postulate.Merge
+namespace Postulate.Orm.Merge
 {
     internal static class Helpers
     {

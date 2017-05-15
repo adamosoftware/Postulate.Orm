@@ -9,7 +9,7 @@ using Postulate.Extensions;
 using Postulate.Attributes;
 using Dapper;
 
-namespace Postulate.Merge.Action
+namespace Postulate.Orm.Merge.Action
 {
     public class CreateForeignKey : MergeAction
     {

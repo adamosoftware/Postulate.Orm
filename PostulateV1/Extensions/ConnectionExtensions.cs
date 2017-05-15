@@ -6,7 +6,7 @@ using Postulate.Merge;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Postulate.Extensions
+namespace Postulate.Orm.Extensions
 {
 	public static class ConnectionExtensions
 	{

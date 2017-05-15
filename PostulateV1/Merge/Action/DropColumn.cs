@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Postulate.Extensions;
 using Postulate.Attributes;
 
-namespace Postulate.Merge.Action
+namespace Postulate.Orm.Merge.Action
 {
     public class DropColumn : MergeAction
     {
