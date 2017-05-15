@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>PostulateORM</id>
+    <id>Postulate.Orm</id>
     <version>$version$-alpha</version>
     <title>$title$</title>
     <authors>$author$</authors>
@@ -10,6 +10,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Lightweight code-first ORM made with Dapper</description>
     <copyright>$copyright$</copyright>
-    <tags>orm dapper</tags>
+    <tags>orm dapper codefirst</tags>
   </metadata>
 </package>
