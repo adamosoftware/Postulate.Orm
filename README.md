@@ -2,7 +2,7 @@
 
 Postulate is a lightweight code-first ORM for SQL Server made with Dapper. You can target any data source that supports `IDbConnection`, but the default implementation is for SQL Server, and the Schema Merge feature works only with SQL Server. This repo an overhaul of the [prior version](https://github.com/adamosoftware/Postulate08) with a number of breaking changes -- the new syntax is simpler, and model classes no longer require a RowManager.
 
-As of now (5/13/17), there is a pre-release nuget package **PostulateORM**. The Query class has been moved to [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql).
+As of now (5/15/17), there is a pre-release nuget package **Postulate.Orm**. The Query class has been moved to [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql).
 
 This is Postulate in a nutshell:
 
@@ -59,30 +59,3 @@ Update select properties of a Customer without updating the whole record:
     customer.ZipCode = "12345";
     new MyDb().Update<Customer>(customer, r => r.Address, r => r.City, r => r.State, r => r.ZipCode);
 
-Query all customers. This is a two-step process, where the first step is to create a base class based on [Query&lt;TResult&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Abstract/Query.cs) that tells Postulate how to get a connection when needed. This is a one-time step. You use this class as the basis for your other queries:
-
-    public class MyDbQuery<TResult> : Query<TResult>
-    {
-        public MyDbQuery(string sql) : base(sql, () => { return new MyDb().GetConnection(); })
-        {
-        }
-    }
-
-Now for the actual query class that returns your results. Parameters are added as properties of the class.
-
-    public class CustomerQuery<Customer>
-    {
-        public CustomerQuery() : base("SELECT * FROM [dbo].[Customer] WHERE [LastName] LIKE @lastName ORDER BY [LastName]")
-        {
-        }
-        
-        public string LastName { get; set; }
-    }
-    
-Finally, you execute it like this to return all records:
-    
-    var results = new CustomerQuery() { LastName = "O'Neil" }.Execute();
-    
-To execute a server-side paged query, use the overload of the Execute method that accepts an ORDER BY argument as well as the page size and number. In this example, the results are returned in 10 record increments, and page 121 is returned here.
-
-    var results = new CustomerQuery() { LastName = "whoever" }.Execute("[LastName]", 10, 121);
