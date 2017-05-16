@@ -189,6 +189,7 @@
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Schema Merge";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             this.ResizeEnd += new System.EventHandler(this.frmMain_ResizeEnd);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);

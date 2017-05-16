@@ -104,5 +104,10 @@ namespace Postulate.MergeUI
             int width = this.Width - btnExecute.Width - toolStripLabel1.Width - btnSaveAs.Width - btnSelectAssembly.Width - 50;
             tbAssembly.Size = new Size(width, tbAssembly.Height);
         }
+
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+            frmMain_ResizeEnd(sender, e);
+        }
     }
 }
