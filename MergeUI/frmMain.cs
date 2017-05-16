@@ -5,14 +5,11 @@ using Postulate.Orm.Interfaces;
 using Postulate.Orm.Merge;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Postulate.MergeUI
@@ -84,13 +81,7 @@ namespace Postulate.MergeUI
                                 ActionNode ndAction = new ActionNode(objectType.Key, diff.ToString());
                                 ndAction.StartLine = lineRanges[diff].Start;
                                 ndAction.EndLine = lineRanges[diff].End;
-                                ndObjectType.Nodes.Add(ndAction);
-
-                                /*foreach (var cmd in diff.SqlCommands(cn))
-                                {
-                                    TreeViewItem tviCmd = new TreeViewItem() { Header = cmd };
-                                    tviDiff.Items.Add(tviCmd);
-                                }*/
+                                ndObjectType.Nodes.Add(ndAction);                                
                             }
 
                             ndObjectType.Expand();
