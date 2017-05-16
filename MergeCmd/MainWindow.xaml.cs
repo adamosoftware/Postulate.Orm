@@ -64,10 +64,28 @@ namespace Postulate.MergeUI
                         cn.Open();
                         var schemaMerge = Activator.CreateInstance(schemaMergeGenericType) as ISchemaMerge;
                         var diffs = schemaMerge.Compare(cn);
-                        foreach (var diff in diffs.GroupBy(item => item.ActionType))
+                        foreach (var actionType in diffs.GroupBy(item => item.ActionType))
                         {
-                            TreeViewItem tviDiff = new TreeViewItem() { Header = diff.Key };
-                            tviDb.Items.Add(tviDiff);
+                            TreeViewItem tviActionType = new TreeViewItem() { Header = actionType.Key };
+                            tviDb.Items.Add(tviActionType);
+
+                            foreach (var objectType in actionType.GroupBy(item => item.ObjectType))
+                            {
+                                TreeViewItem tviObjectType = new TreeViewItem() { Header = objectType.Key };
+                                tviActionType.Items.Add(tviObjectType);
+
+                                foreach (var diff in objectType)
+                                {
+                                    TreeViewItem tviDiff = new TreeViewItem() { Header = diff.ToString() };
+                                    tviObjectType.Items.Add(tviDiff);
+
+                                    foreach (var cmd in diff.SqlCommands(cn))
+                                    {
+                                        TreeViewItem tviCmd = new TreeViewItem() { Header = cmd };
+                                        tviDiff.Items.Add(tviCmd);
+                                    }
+                                }
+                            }
                         }
                     }                    
                 }
