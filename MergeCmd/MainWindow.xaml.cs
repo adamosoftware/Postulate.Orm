@@ -4,12 +4,14 @@ using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Merge;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace Postulate.MergeUI
 {
@@ -45,6 +47,13 @@ namespace Postulate.MergeUI
         {
             try
             {
+                Dictionary<MergeActionType, BitmapImage> actionTypeImages = new Dictionary<MergeActionType, BitmapImage>()
+                {
+                    { MergeActionType.Create, new BitmapImage(new Uri("pack://application:,,,/Img/ActionType/Create.png")) },
+                    { MergeActionType.Alter, new BitmapImage(new Uri("pack://application:,,,/Img/ActionType/Alter.png")) },
+                    { MergeActionType.Drop, new BitmapImage(new Uri("pack://application:,,,/Img/ActionType/Drop.png")) }
+                };
+
                 var assembly = Assembly.LoadFile(fileName);
                 var config = ConfigurationManager.OpenExeConfiguration(assembly.Location);
 
@@ -66,12 +75,12 @@ namespace Postulate.MergeUI
                         var diffs = schemaMerge.Compare(cn);
                         foreach (var actionType in diffs.GroupBy(item => item.ActionType))
                         {
-                            TreeViewItem tviActionType = new TreeViewItem() { Header = actionType.Key };
-                            tviDb.Items.Add(tviActionType);
+                            TreeViewItem tviActionType = new TreeViewItem() { Header = $"{actionType.Key} ({actionType.Count()})" };
+                            tviDb.Items.Add(tviActionType);                            
 
                             foreach (var objectType in actionType.GroupBy(item => item.ObjectType))
                             {
-                                TreeViewItem tviObjectType = new TreeViewItem() { Header = objectType.Key };
+                                TreeViewItem tviObjectType = new TreeViewItem() { Header = $"{objectType.Key} ({objectType.Count()})" };
                                 tviActionType.Items.Add(tviObjectType);
 
                                 foreach (var diff in objectType)
@@ -85,20 +94,21 @@ namespace Postulate.MergeUI
                                         tviDiff.Items.Add(tviCmd);
                                     }
                                 }
+
+                                tviObjectType.IsExpanded = true;
                             }
+
+                            tviActionType.IsExpanded = true;
                         }
-                    }                    
+                    }
+
+                    tviDb.IsExpanded = true;
                 }
             }
             catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);
             }
-        }
-
-        private void btnSelectAssembly_Click_1(object sender, RoutedEventArgs e)
-        {
-
-        }
+        }       
     }
 }

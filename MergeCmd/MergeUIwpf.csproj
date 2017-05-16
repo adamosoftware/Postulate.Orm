@@ -56,6 +56,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\MergeTree.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -101,5 +102,15 @@
       <Name>Postulate.Orm</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Img\ActionType\Drop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Img\ActionType\Create.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Img\ActionType\Alter.png" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

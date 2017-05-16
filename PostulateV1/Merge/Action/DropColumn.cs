@@ -29,7 +29,7 @@ namespace Postulate.Orm.Merge.Action
 
             if (inPK) yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.ColumnName}] DROP CONSTRAINT [{pkName}]";
 
-            yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.ColumnName}] DROP COLUMN [{_columnRef.ColumnName}]";
+            yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.TableName}] DROP COLUMN [{_columnRef.ColumnName}]";
 
             if (inPK) yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.TableName}] ADD {ct.CreateTablePrimaryKey(ct.GetClusterAttribute())}";
         }
@@ -37,6 +37,11 @@ namespace Postulate.Orm.Merge.Action
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)
         {
             return new string[] { };
+        }
+
+        public override string ToString()
+        {
+            return $"{_columnRef.Schema}.{_columnRef.TableName}.{_columnRef.ColumnName}";
         }
     }
 }
