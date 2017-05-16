@@ -11,6 +11,7 @@ using Postulate.Orm.Exceptions;
 using Postulate.Orm.Merge.Action;
 using Postulate.Orm.Interfaces;
 using ReflectionHelper;
+using System.Text;
 
 namespace Postulate.Orm.Merge
 {
@@ -100,19 +101,35 @@ namespace Postulate.Orm.Merge
             }
         }
 
+        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var action in actions)
+            {
+                if (!string.IsNullOrEmpty(action.ScriptComment))
+                {
+                    sb.AppendLine($"--{action.ScriptComment}");
+                    sb.AppendLine();
+                }
+
+                foreach (var cmd in action.SqlCommands(connection))
+                {
+                    sb.AppendLine(cmd);
+                    sb.AppendLine("\r\nGO\r\n");
+                }
+            }
+
+            return sb;
+        }
+
         public void SaveScriptAs(IDbConnection connection, string fileName)
         {            
             var diffs = Compare(connection);
             using (var file = File.CreateText(fileName))
             {
-                foreach (var diff in diffs)
-                {
-                    foreach (var cmd in diff.SqlCommands(connection))
-                    {
-                        file.WriteLine(cmd);
-                        file.WriteLine("\r\nGO\r\n");
-                    }
-                }
+                var sb = GetScript(connection, diffs);
+                file.Write(sb.ToString());
             }            
         }
 

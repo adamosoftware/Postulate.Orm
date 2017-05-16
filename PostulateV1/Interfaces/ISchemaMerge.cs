@@ -10,9 +10,10 @@ namespace Postulate.Orm.Interfaces
 {
     public interface ISchemaMerge
     {
-        IEnumerable<MergeAction> Compare(IDbConnection connection);     
+        IEnumerable<MergeAction> Compare(IDbConnection connection);
+        StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions);
         void SaveScriptAs(IDbConnection connection, string fileName);        
         void Execute(IDbConnection connection);
-        void Execute(IDbConnection connection, IEnumerable<MergeAction> diffs);
+        void Execute(IDbConnection connection, IEnumerable<MergeAction> actions);
     }
 }
