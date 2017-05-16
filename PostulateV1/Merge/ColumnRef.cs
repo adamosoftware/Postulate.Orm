@@ -47,7 +47,7 @@ namespace Postulate.Orm.Merge
 
         internal Type FindModelType(IEnumerable<Type> modelTypes)
         {
-            return modelTypes.First(t =>
+            return modelTypes.FirstOrDefault(t =>
             {
                 DbObject obj = DbObject.FromType(t);
                 return obj.Schema.Equals(Schema) && obj.Name.Equals(TableName);

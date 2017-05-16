@@ -232,7 +232,9 @@ namespace Postulate.Orm.Merge
 					[c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
 					[c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation]
 				FROM 
-					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]");
+					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
+                WHERE
+                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta')");
         }
 
         private IEnumerable<ColumnRef> GetModelColumns(IDbConnection collationLookupConnection = null)
@@ -269,7 +271,9 @@ namespace Postulate.Orm.Merge
                 @"SELECT 
                     SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [Name], [t].[object_id] AS [ObjectId]
                 FROM 
-                    [sys].[tables] [t]");
+                    [sys].[tables] [t]
+                WHERE
+                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta')");
             return tables.Select(item => new DbObject(item.Schema, item.Name, item.ObjectId));
         }
 

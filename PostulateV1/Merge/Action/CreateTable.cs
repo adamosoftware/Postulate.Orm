@@ -260,5 +260,10 @@ namespace Postulate.Orm.Merge.Action
         {
             return base.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return $"{Schema}.{Name}";
+        }
     }
 }

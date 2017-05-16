@@ -133,10 +133,10 @@ namespace Postulate.Orm.Merge
             return result;
         }
 
-		public static string SqlServerName(Type modelType)
+		public static string SqlServerName(Type modelType, bool squareBrackets = true)
 		{
 			DbObject obj = FromType(modelType);
-			obj.SquareBraces = true;
+			obj.SquareBraces = squareBrackets;
 			return obj.ToString();
 		}
 	}

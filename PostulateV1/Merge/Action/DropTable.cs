@@ -26,5 +26,10 @@ namespace Postulate.Orm.Merge.Action
                 yield return $"Cannot drop table {_object} because it's not empty.";
             }
         }
+
+        public override string ToString()
+        {
+            return $"{_object.Schema}.{_object.Name}";
+        }
     }
 }

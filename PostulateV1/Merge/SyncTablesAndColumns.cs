@@ -49,7 +49,7 @@ namespace Postulate.Orm.Merge
         }
 
         private IEnumerable<DbObject> DeletedTables(IDbConnection connection)
-        {
+        {            
             var schemaTables = GetSchemaTables(connection);
             return schemaTables.Where(obj => !_modelTypes.Any(t => obj.Equals(t)));
         }

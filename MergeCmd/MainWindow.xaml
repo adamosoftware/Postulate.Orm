@@ -23,7 +23,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" x:Name="tbAssembly"/>
+            <TextBox Grid.Column="0" x:Name="tbAssembly" VerticalContentAlignment="Center"/>
             <Button Grid.Column="1" Content="..." Width="25" x:Name="btnSelectAssembly" Click="btnSelectAssembly_Click"/>
         </Grid>
 
