@@ -32,20 +32,20 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tvwActions = new System.Windows.Forms.TreeView();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.tbSQL = new FastColoredTextBoxNS.FastColoredTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.tbAssembly = new System.Windows.Forms.ToolStripTextBox();
             this.btnSelectAssembly = new System.Windows.Forms.ToolStripButton();
             this.btnExecute = new System.Windows.Forms.ToolStripButton();
-            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.tbSQL = new FastColoredTextBoxNS.FastColoredTextBox();
             this.btnSaveAs = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbSQL)).BeginInit();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -78,6 +78,55 @@
             this.tvwActions.SelectedImageIndex = 0;
             this.tvwActions.Size = new System.Drawing.Size(275, 286);
             this.tvwActions.TabIndex = 0;
+            this.tvwActions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterSelect);
+            // 
+            // imageList1
+            // 
+            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList1.Images.SetKeyName(0, "Alter");
+            this.imageList1.Images.SetKeyName(1, "Create");
+            this.imageList1.Images.SetKeyName(2, "Drop");
+            this.imageList1.Images.SetKeyName(3, "Table");
+            this.imageList1.Images.SetKeyName(4, "Column");
+            this.imageList1.Images.SetKeyName(5, "Database");
+            this.imageList1.Images.SetKeyName(6, "ForeignKey");
+            // 
+            // tbSQL
+            // 
+            this.tbSQL.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+            this.tbSQL.AutoIndentCharsPatterns = "";
+            this.tbSQL.AutoScrollMinSize = new System.Drawing.Size(27, 14);
+            this.tbSQL.BackBrush = null;
+            this.tbSQL.CharHeight = 14;
+            this.tbSQL.CharWidth = 8;
+            this.tbSQL.CommentPrefix = "--";
+            this.tbSQL.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.tbSQL.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.tbSQL.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbSQL.IsReplaceMode = false;
+            this.tbSQL.Language = FastColoredTextBoxNS.Language.SQL;
+            this.tbSQL.LeftBracket = '(';
+            this.tbSQL.Location = new System.Drawing.Point(0, 0);
+            this.tbSQL.Name = "tbSQL";
+            this.tbSQL.Paddings = new System.Windows.Forms.Padding(0);
+            this.tbSQL.ReadOnly = true;
+            this.tbSQL.RightBracket = ')';
+            this.tbSQL.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.tbSQL.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("tbSQL.ServiceColors")));
+            this.tbSQL.Size = new System.Drawing.Size(363, 286);
+            this.tbSQL.TabIndex = 0;
+            this.tbSQL.Zoom = 100;
             // 
             // toolStrip1
             // 
@@ -123,51 +172,6 @@
             this.btnExecute.Size = new System.Drawing.Size(67, 22);
             this.btnExecute.Text = "Execute";
             // 
-            // imageList1
-            // 
-            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList1.Images.SetKeyName(0, "Alter");
-            this.imageList1.Images.SetKeyName(1, "Create");
-            this.imageList1.Images.SetKeyName(2, "Drop");
-            this.imageList1.Images.SetKeyName(3, "Table");
-            this.imageList1.Images.SetKeyName(4, "Column");
-            this.imageList1.Images.SetKeyName(5, "Database");
-            this.imageList1.Images.SetKeyName(6, "ForeignKey");
-            // 
-            // tbSQL
-            // 
-            this.tbSQL.AutoCompleteBracketsList = new char[] {
-        '(',
-        ')',
-        '{',
-        '}',
-        '[',
-        ']',
-        '\"',
-        '\"',
-        '\'',
-        '\''};
-            this.tbSQL.AutoScrollMinSize = new System.Drawing.Size(27, 14);
-            this.tbSQL.BackBrush = null;
-            this.tbSQL.CharHeight = 14;
-            this.tbSQL.CharWidth = 8;
-            this.tbSQL.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.tbSQL.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-            this.tbSQL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbSQL.Font = new System.Drawing.Font("Courier New", 9.75F);
-            this.tbSQL.IsReplaceMode = false;
-            this.tbSQL.Language = FastColoredTextBoxNS.Language.SQL;
-            this.tbSQL.Location = new System.Drawing.Point(0, 0);
-            this.tbSQL.Name = "tbSQL";
-            this.tbSQL.Paddings = new System.Windows.Forms.Padding(0);
-            this.tbSQL.ReadOnly = true;
-            this.tbSQL.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.tbSQL.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("tbSQL.ServiceColors")));
-            this.tbSQL.Size = new System.Drawing.Size(363, 286);
-            this.tbSQL.TabIndex = 0;
-            this.tbSQL.Zoom = 100;
-            // 
             // btnSaveAs
             // 
             this.btnSaveAs.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -195,9 +199,9 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.tbSQL)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbSQL)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

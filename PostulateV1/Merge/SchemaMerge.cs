@@ -101,20 +101,48 @@ namespace Postulate.Orm.Merge
             }
         }
 
-        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions)
+        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges)
         {
+            lineRanges = new Dictionary<MergeAction, LineRange>();
+            int startRange = 0;
+            int endRange = 0;
+
             StringBuilder sb = new StringBuilder();
 
             foreach (var action in actions)
             {
                 foreach (var cmd in action.SqlCommands(connection))
-                {
+                {                    
                     sb.AppendLine(cmd);
                     sb.AppendLine("\r\nGO\r\n");
+                    endRange += GetLineCount(cmd) + 4;
                 }
+
+                lineRanges.Add(action, new LineRange(startRange, endRange));
+                startRange = endRange;
             }
 
             return sb;
+        }
+
+        private int GetLineCount(string text)
+        {
+            int result = 0;
+            int start = 0;
+            while (true)
+            {
+                int position = text.IndexOf("\r\n", start);
+                if (position == -1) break;
+                start = position + 1;
+                result++;
+            }
+            return result;
+        }
+
+        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            Dictionary<MergeAction, LineRange> lineRanges;
+            return GetScript(connection, actions, out lineRanges);
         }
 
         public void SaveScriptAs(IDbConnection connection, string fileName)
@@ -286,7 +314,7 @@ namespace Postulate.Orm.Merge
                 WHERE
                     SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta')");
             return tables.Select(item => new DbObject(item.Schema, item.Name, item.ObjectId));
-        }
+        }        
 
         public class ValidationError
         {

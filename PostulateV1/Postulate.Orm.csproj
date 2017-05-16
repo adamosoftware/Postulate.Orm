@@ -78,6 +78,7 @@
     <Compile Include="Merge\DbObject.cs" />
     <Compile Include="Merge\DropIndexes.cs" />
     <Compile Include="Merge\CreateForeignKeys.cs" />
+    <Compile Include="Merge\LineRange.cs" />
     <Compile Include="Merge\SyncTablesAndColumns.cs" />
     <Compile Include="Merge\Action\MergeAction.cs" />
     <Compile Include="Merge\DropPrimaryKeys.cs" />

@@ -1,4 +1,5 @@
-﻿using Postulate.Orm;
+﻿using FastColoredTextBoxNS;
+using Postulate.Orm;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Merge;
@@ -63,7 +64,9 @@ namespace Postulate.MergeUI
 
                     var schemaMerge = Activator.CreateInstance(schemaMergeGenericType) as ISchemaMerge;
                     var diffs = schemaMerge.Compare(cn);
-                    var script = schemaMerge.GetScript(cn, diffs);
+
+                    Dictionary<Orm.Merge.Action.MergeAction, LineRange> lineRanges;
+                    var script = schemaMerge.GetScript(cn, diffs, out lineRanges);
                     tbSQL.Text = script.ToString();
 
                     foreach (var actionType in diffs.GroupBy(item => item.ActionType))
@@ -79,6 +82,8 @@ namespace Postulate.MergeUI
                             foreach (var diff in objectType)
                             {
                                 ActionNode ndAction = new ActionNode(objectType.Key, diff.ToString());
+                                ndAction.StartLine = lineRanges[diff].Start;
+                                ndAction.EndLine = lineRanges[diff].End;
                                 ndObjectType.Nodes.Add(ndAction);
 
                                 /*foreach (var cmd in diff.SqlCommands(cn))
@@ -108,6 +113,19 @@ namespace Postulate.MergeUI
         private void frmMain_Load(object sender, EventArgs e)
         {
             frmMain_ResizeEnd(sender, e);
+        }
+
+        private void tvwActions_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            try
+            {
+                ActionNode nd = e.Node as ActionNode;
+                if (nd != null) tbSQL.Selection = new Range(tbSQL, new Place(0, nd.StartLine), new Place(0, nd.EndLine));
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
         }
     }
 }

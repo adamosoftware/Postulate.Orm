@@ -15,5 +15,8 @@ namespace Postulate.MergeUI
             ImageKey = objectType.ToString();
             SelectedImageKey = objectType.ToString();
         }
+
+        public int StartLine { get; set; }
+        public int EndLine { get; set; }
     }
 }
