@@ -1,10 +1,17 @@
 ﻿using Postulate.Orm;
+using System.Configuration;
 
 namespace Testing.Models
 {
     public class PostulateDb : SqlServerDb<int>
     {
-        public PostulateDb() : base("PostulateTest", "adamo")
+        private const string dbName = "PostulateTest";
+
+        public PostulateDb(Configuration configuration) : base(configuration, dbName)
+        {
+        }
+
+        public PostulateDb() : base(dbName, "adamo")
         {
         }
     }

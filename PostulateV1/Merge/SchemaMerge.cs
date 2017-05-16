@@ -34,7 +34,7 @@ namespace Postulate.Orm.Merge
 
     internal delegate IEnumerable<MergeAction> GetSchemaDiffMethod(IDbConnection connection);
 
-    public partial class SchemaMerge<TDb> where TDb : IDb, new()
+    public partial class SchemaMerge<TDb> : ISchemaMerge where TDb : IDb, new()
     {
         private readonly IEnumerable<Type> _modelTypes;        
 

@@ -13,6 +13,7 @@ using System.Configuration;
 using System.Linq.Expressions;
 using Postulate.Orm.Interfaces;
 using ReflectionHelper;
+using System.IO;
 
 namespace Postulate.Orm.Abstract
 {
@@ -28,7 +29,7 @@ namespace Postulate.Orm.Abstract
     /// <typeparam name="TKey">Data type of unique keys used on all model classes for this database</typeparam>
     public abstract class SqlDb<TKey> : IDb
     {
-        public const string IdentityColumnName = "Id";
+        public const string IdentityColumnName = "Id";        
 
         public string UserName { get; protected set; }
 
@@ -36,20 +37,25 @@ namespace Postulate.Orm.Abstract
 
         private readonly string _connectionString;
 
+        public SqlDb(Configuration configuration, string connectionName)
+        {
+            _connectionString = configuration.ConnectionStrings.ConnectionStrings[connectionName].ConnectionString;
+        }
+
         public SqlDb(string connection, ConnectionSource connectionSource = ConnectionSource.ConfigFile)
         {
             switch (connectionSource)
             {
                 case ConnectionSource.ConfigFile:
                     try
-                    {
+                    {                        
                         _connectionString = ConfigurationManager.ConnectionStrings[connection].ConnectionString;
                     }
                     catch (NullReferenceException)
                     {
-                        string fileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+                        string fileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;                        
                         string allConnections = AllConnectionNames();
-                        throw new NullReferenceException($"Connection string named {connection} was not found in {fileName}. These connection names are defined: {allConnections}");
+                        throw new NullReferenceException($"Connection string named '{connection}' was not found in {fileName}. These connection names are defined: {allConnections}");                        
                     }
                     break;
 
@@ -63,6 +69,11 @@ namespace Postulate.Orm.Abstract
                 string name = _connectionString.Substring(1);
                 _connectionString = ConnectionStringReference.Resolve(name);
             }
+        }
+
+        private string FindConnectionString(string location, string connection)
+        {
+            throw new NotImplementedException();
         }
 
         private string AllConnectionNames()
@@ -79,7 +90,7 @@ namespace Postulate.Orm.Abstract
         protected string ConnectionString
         {
             get { return _connectionString; }
-        }
+        }        
 
         public abstract IDbConnection GetConnection();
 

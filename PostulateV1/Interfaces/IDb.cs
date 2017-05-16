@@ -13,6 +13,6 @@ namespace Postulate.Orm.Interfaces
     public interface IDb
     {
         int Version { get; }
-        IDbConnection GetConnection();
+        IDbConnection GetConnection();        
     }
 }

@@ -6,11 +6,17 @@ using System.Data.SqlClient;
 using Postulate.Orm.Enums;
 using System.Linq.Expressions;
 using Postulate.Orm.Interfaces;
+using System.Configuration;
 
 namespace Postulate.Orm
 {
     public class SqlServerDb<TKey> : SqlDb<TKey>, IDb
     {
+        public SqlServerDb(Configuration configuration, string connectionName, string userName = null) : base(configuration, connectionName)
+        {
+            UserName = userName;
+        }
+
         public SqlServerDb(string connectionName, string userName = null) : base(connectionName)
         {
             UserName = userName;

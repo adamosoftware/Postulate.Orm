@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postulate.Orm", "PostulateV
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{E2FFFA51-D436-42E3-B35F-544145ACCBFE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MergeUI", "MergeCmd\MergeUI.csproj", "{99D6C52C-0004-45B2-901A-42DE6DAB8135}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{E2FFFA51-D436-42E3-B35F-544145ACCBFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2FFFA51-D436-42E3-B35F-544145ACCBFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2FFFA51-D436-42E3-B35F-544145ACCBFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99D6C52C-0004-45B2-901A-42DE6DAB8135}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99D6C52C-0004-45B2-901A-42DE6DAB8135}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99D6C52C-0004-45B2-901A-42DE6DAB8135}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99D6C52C-0004-45B2-901A-42DE6DAB8135}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

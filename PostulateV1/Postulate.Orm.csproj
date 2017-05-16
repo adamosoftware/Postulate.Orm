@@ -57,6 +57,7 @@
     <Compile Include="Attributes\SchemaAttribute.cs" />
     <Compile Include="Extensions\ConnectionExtensions.cs" />
     <Compile Include="Interfaces\IDb.cs" />
+    <Compile Include="Interfaces\ISchemaMerge.cs" />
     <Compile Include="Merge\Action\AddColumn.cs" />
     <Compile Include="Merge\Action\CreateForeignKey.cs" />
     <Compile Include="Merge\Action\CreatePrimaryKey.cs" />
