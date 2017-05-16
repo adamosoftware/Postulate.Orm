@@ -75,14 +75,14 @@ namespace Postulate.Orm.Merge
 
             var diffMethods = new GetSchemaDiffMethod[]
             {
-                // create
+                // create/drop
                 SyncTablesAndColumns, /*, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, CreateForeignKeys, */
 
                 // alter
                 /* AlterPrimaryKeys, AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, AlterForeignKeys, */
 
                 // drop
-                DropTables /*, DropPrimaryKeys, DropUniqueKeys, DropIndexes*/
+                /*, DropPrimaryKeys, DropUniqueKeys, DropIndexes*/
             };
             foreach (var method in diffMethods) results.AddRange(method.Invoke(connection));
 
@@ -107,12 +107,6 @@ namespace Postulate.Orm.Merge
 
             foreach (var action in actions)
             {
-                if (!string.IsNullOrEmpty(action.ScriptComment))
-                {
-                    sb.AppendLine($"--{action.ScriptComment}");
-                    sb.AppendLine();
-                }
-
                 foreach (var cmd in action.SqlCommands(connection))
                 {
                     sb.AppendLine(cmd);
