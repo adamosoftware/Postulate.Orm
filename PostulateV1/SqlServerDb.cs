@@ -12,14 +12,12 @@ namespace Postulate.Orm
 {
     public class SqlServerDb<TKey> : SqlDb<TKey>, IDb
     {
-        public SqlServerDb(Configuration configuration, string connectionName, string userName = null) : base(configuration, connectionName)
+        public SqlServerDb(Configuration configuration, string connectionName, string userName = null) : base(configuration, connectionName, userName)
         {
-            UserName = userName;
         }
 
-        public SqlServerDb(string connectionName, string userName = null) : base(connectionName)
-        {
-            UserName = userName;
+        public SqlServerDb(string connectionName, string userName = null) : base(connectionName, userName)
+        {            
         }
 
         protected override string ApplyDelimiter(string name)

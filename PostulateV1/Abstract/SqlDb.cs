@@ -37,13 +37,16 @@ namespace Postulate.Orm.Abstract
 
         private readonly string _connectionString;
 
-        public SqlDb(Configuration configuration, string connectionName)
+        public SqlDb(Configuration configuration, string connectionName, string userName = null)
         {
             _connectionString = configuration.ConnectionStrings.ConnectionStrings[connectionName].ConnectionString;
+            UserName = userName;
         }
 
-        public SqlDb(string connection, ConnectionSource connectionSource = ConnectionSource.ConfigFile)
+        public SqlDb(string connection, string userName = null, ConnectionSource connectionSource = ConnectionSource.ConfigFile)
         {
+            UserName = userName;
+
             switch (connectionSource)
             {
                 case ConnectionSource.ConfigFile:
