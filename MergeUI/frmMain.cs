@@ -164,5 +164,30 @@ namespace Postulate.MergeUI
                 MessageBox.Show(exc.Message);
             }            
         }
+
+        private void btnExecute_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                DbNode nd = tvwActions.SelectedNode?.FindParentNode<DbNode>();
+                if (nd == null) nd = tvwActions.Nodes[0] as DbNode;
+                
+                var mergeInfo = MergeActions[nd.ConnectionName];
+                var selectedActions = tvwActions.FindNodes<ActionNode>(true, node => node.Checked);
+
+                using (var cn = mergeInfo.Db.GetConnection())
+                {
+                    cn.Open();
+                    mergeInfo.Merge.Execute(cn, selectedActions.Select(node => node.Action));                        
+                }
+
+                MergeActions = Program.GetMergeActions(tbAssembly.Text);
+                BuildTreeView();                
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
     }
 }
