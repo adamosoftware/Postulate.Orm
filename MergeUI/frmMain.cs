@@ -1,15 +1,9 @@
 ﻿using FastColoredTextBoxNS;
-using Postulate.Orm;
-using Postulate.Orm.Extensions;
-using Postulate.Orm.Interfaces;
-using Postulate.Orm.Merge;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Postulate.MergeUI
@@ -113,6 +107,23 @@ namespace Postulate.MergeUI
             {
                 ActionNode nd = e.Node as ActionNode;
                 if (nd != null) tbSQL.Selection = new Range(tbSQL, new Place(0, nd.StartLine), new Place(0, nd.EndLine));
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
+
+        private void btnSaveAs_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog dlg = new SaveFileDialog();
+                dlg.Filter = "SQL Files|*.sql|All Files|*.*";
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    tbSQL.SaveToFile(dlg.FileName, Encoding.ASCII);
+                }
             }
             catch (Exception exc)
             {
