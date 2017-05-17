@@ -21,6 +21,9 @@ namespace Postulate.MergeUI
             InitializeComponent();
         }
 
+        internal string AssemblyFilename { get; set; }
+        internal Dictionary<string, MergeInfo> MergeActions { get; set; }
+
         private void btnSelectAssembly_Click(object sender, EventArgs e)
         {
             try
@@ -30,7 +33,8 @@ namespace Postulate.MergeUI
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     tbAssembly.Text = dlg.FileName;
-                    BuildTreeView(dlg.FileName);
+                    MergeActions = Program.GetMergeActions(dlg.FileName);
+                    BuildTreeView();
                 }
             }
             catch (Exception exc)
@@ -39,61 +43,45 @@ namespace Postulate.MergeUI
             }
         }
 
-        private void BuildTreeView(string fileName)
+        private void BuildTreeView()
         {
             tvwActions.Nodes.Clear();
 
-            var assembly = Assembly.LoadFile(fileName);
-            var config = ConfigurationManager.OpenExeConfiguration(assembly.Location);
-
-            var dbTypes = assembly.GetTypes().Where(t => t.IsDerivedFromGeneric(typeof(SqlServerDb<>)));
-            foreach (var dbType in dbTypes)
+            foreach (var key in MergeActions.Keys)
             {
-                Type schemaMergeBaseType = typeof(SchemaMerge<>);
-                var schemaMergeGenericType = schemaMergeBaseType.MakeGenericType(dbType);
-                var db = Activator.CreateInstance(dbType, config) as IDb;
-                using (var cn = db.GetConnection())
+                var mergeInfo = MergeActions[key];
+                DbNode dbNode = new DbNode(key, mergeInfo.ServerAndDatabase);
+                tvwActions.Nodes.Add(dbNode);
+
+                tbSQL.Text = mergeInfo.Script.ToString();
+
+                foreach (var actionType in mergeInfo.Actions.GroupBy(item => item.ActionType))
                 {
-                    cn.Open();
+                    ActionTypeNode ndActionType = new ActionTypeNode(actionType.Key, actionType.Count());
+                    dbNode.Nodes.Add(ndActionType);
 
-                    DbNode dbNode = new DbNode(dbType.Name, cn);
-                    tvwActions.Nodes.Add(dbNode);
-
-                    var schemaMerge = Activator.CreateInstance(schemaMergeGenericType) as ISchemaMerge;
-                    var diffs = schemaMerge.Compare(cn);
-
-                    Dictionary<Orm.Merge.Action.MergeAction, LineRange> lineRanges;
-                    var script = schemaMerge.GetScript(cn, diffs, out lineRanges);
-                    tbSQL.Text = script.ToString();
-
-                    foreach (var actionType in diffs.GroupBy(item => item.ActionType))
+                    foreach (var objectType in actionType.GroupBy(item => item.ObjectType))
                     {
-                        ActionTypeNode ndActionType = new ActionTypeNode(actionType.Key, actionType.Count());
-                        dbNode.Nodes.Add(ndActionType);
+                        ObjectTypeNode ndObjectType = new ObjectTypeNode(objectType.Key, objectType.Count());
+                        ndActionType.Nodes.Add(ndObjectType);
 
-                        foreach (var objectType in actionType.GroupBy(item => item.ObjectType))
+                        foreach (var diff in objectType)
                         {
-                            ObjectTypeNode ndObjectType = new ObjectTypeNode(objectType.Key, objectType.Count());
-                            ndActionType.Nodes.Add(ndObjectType);
-
-                            foreach (var diff in objectType)
-                            {
-                                ActionNode ndAction = new ActionNode(objectType.Key, diff.ToString());
-                                ndAction.StartLine = lineRanges[diff].Start;
-                                ndAction.EndLine = lineRanges[diff].End;
-                                ndObjectType.Nodes.Add(ndAction);                                
-                            }
-
-                            ndObjectType.Expand();
+                            ActionNode ndAction = new ActionNode(objectType.Key, diff.ToString());
+                            ndAction.StartLine = mergeInfo.LineRanges[diff].Start;
+                            ndAction.EndLine = mergeInfo.LineRanges[diff].End;
+                            ndObjectType.Nodes.Add(ndAction);
                         }
 
-                        ndActionType.Expand();
+                        ndObjectType.Expand();
                     }
 
-                    dbNode.Expand();
-                }                
-            }     
-        }
+                    ndActionType.Expand();
+                }
+
+                dbNode.Expand();
+            }
+        }        
 
         private void frmMain_ResizeEnd(object sender, EventArgs e)
         {
@@ -103,7 +91,20 @@ namespace Postulate.MergeUI
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            frmMain_ResizeEnd(sender, e);
+            try
+            {
+                frmMain_ResizeEnd(sender, e);
+
+                if (MergeActions != null)
+                {
+                    tbAssembly.Text = AssemblyFilename;
+                    BuildTreeView();
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }            
         }
 
         private void tvwActions_AfterSelect(object sender, TreeViewEventArgs e)
