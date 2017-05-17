@@ -69,6 +69,7 @@
             // 
             // tvwActions
             // 
+            this.tvwActions.CheckBoxes = true;
             this.tvwActions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tvwActions.ImageIndex = 0;
             this.tvwActions.ImageList = this.imageList1;
@@ -78,6 +79,7 @@
             this.tvwActions.SelectedImageIndex = 0;
             this.tvwActions.Size = new System.Drawing.Size(275, 286);
             this.tvwActions.TabIndex = 0;
+            this.tvwActions.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterCheck);
             this.tvwActions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterSelect);
             // 
             // imageList1
@@ -114,7 +116,6 @@
             this.tbSQL.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.tbSQL.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.tbSQL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbSQL.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.tbSQL.IsReplaceMode = false;
             this.tbSQL.Language = FastColoredTextBoxNS.Language.SQL;
             this.tbSQL.LeftBracket = '(';

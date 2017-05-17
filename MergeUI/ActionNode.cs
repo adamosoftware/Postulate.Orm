@@ -10,13 +10,18 @@ namespace Postulate.MergeUI
 {
     internal class ActionNode : TreeNode
     {
-        public ActionNode(MergeObjectType objectType, string text) : base(text)
+        private readonly Orm.Merge.Action.MergeAction _action;
+
+        public ActionNode(Orm.Merge.Action.MergeAction action) : base(action.ToString())
         {
-            ImageKey = objectType.ToString();
-            SelectedImageKey = objectType.ToString();
+            _action = action;
+            ImageKey = action.ObjectType.ToString();
+            SelectedImageKey = action.ObjectType.ToString();
         }
 
         public int StartLine { get; set; }
         public int EndLine { get; set; }
+
+        public Orm.Merge.Action.MergeAction Action { get { return _action; } }
     }
 }

@@ -1,4 +1,6 @@
-﻿using FastColoredTextBoxNS;
+﻿using AdamOneilSoftware;
+using FastColoredTextBoxNS;
+using Postulate.Orm.Merge;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -59,11 +61,11 @@ namespace Postulate.MergeUI
                         ObjectTypeNode ndObjectType = new ObjectTypeNode(objectType.Key, objectType.Count());
                         ndActionType.Nodes.Add(ndObjectType);
 
-                        foreach (var diff in objectType)
+                        foreach (var action in objectType)
                         {
-                            ActionNode ndAction = new ActionNode(objectType.Key, diff.ToString());
-                            ndAction.StartLine = mergeInfo.LineRanges[diff].Start;
-                            ndAction.EndLine = mergeInfo.LineRanges[diff].End;
+                            ActionNode ndAction = new ActionNode(action);
+                            ndAction.StartLine = mergeInfo.LineRanges[action].Start;
+                            ndAction.EndLine = mergeInfo.LineRanges[action].End;
                             ndObjectType.Nodes.Add(ndAction);
                         }
 
@@ -74,6 +76,7 @@ namespace Postulate.MergeUI
                 }
 
                 dbNode.Expand();
+                dbNode.Checked = true;
             }
         }        
 
@@ -129,6 +132,37 @@ namespace Postulate.MergeUI
             {
                 MessageBox.Show(exc.Message);
             }
+        }
+
+        private void tvwActions_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            try
+            {
+                tvwActions.AfterCheck -= tvwActions_AfterCheck;
+                e.Node.CheckChildNodes(e.Node.Checked);
+                tvwActions.AfterCheck += tvwActions_AfterCheck;
+
+                DbNode nd = e.Node.FindParentNode<DbNode>();
+                if (nd == null) nd = tvwActions.Nodes[0] as DbNode;
+                var mergeInfo = MergeActions[nd.ConnectionName];
+                var selectedActions = tvwActions.FindNodes<ActionNode>(true, node => node.Checked);
+
+                using (var cn = mergeInfo.Db.GetConnection())
+                {
+                    cn.Open();
+                    Dictionary<Orm.Merge.Action.MergeAction, LineRange> lineRanges;
+                    tbSQL.Text = mergeInfo.Merge.GetScript(cn, selectedActions.Select(node => node.Action), out lineRanges).ToString();
+                    foreach (var actionNode in selectedActions)
+                    {
+                        actionNode.StartLine = lineRanges[actionNode.Action].Start;
+                        actionNode.EndLine = lineRanges[actionNode.Action].End;
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }            
         }
     }
 }

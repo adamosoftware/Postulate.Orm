@@ -63,7 +63,7 @@ namespace Postulate.MergeUI
                     var actions = schemaMerge.Compare(cn);
                     Dictionary<Orm.Merge.Action.MergeAction, LineRange> lineRanges;
                     var script = schemaMerge.GetScript(cn, actions, out lineRanges);
-                    results.Add(dbType.Name, new MergeInfo { Actions = actions, LineRanges = lineRanges, Script = script, ServerAndDatabase = ParseConnectionInfo(cn) });
+                    results.Add(dbType.Name, new MergeInfo { Db = db, Merge = schemaMerge, Actions = actions, LineRanges = lineRanges, Script = script, ServerAndDatabase = ParseConnectionInfo(cn) });
                 }
             }
 
