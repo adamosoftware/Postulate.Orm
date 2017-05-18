@@ -143,7 +143,7 @@ namespace Postulate.Orm.Extensions
         public static bool AllowSqlNull(this PropertyInfo propertyInfo)
         {
             if (InPrimaryKey(propertyInfo)) return false;
-            if (!propertyInfo.HasAttribute<RequiredAttribute>()) return false;            
+            if (propertyInfo.HasAttribute<RequiredAttribute>()) return false;
             return propertyInfo.PropertyType.IsNullable();
         }
 

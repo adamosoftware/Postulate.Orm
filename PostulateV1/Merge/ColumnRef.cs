@@ -26,6 +26,13 @@ namespace Postulate.Orm.Merge
             if (pi.HasAttribute(out collate)) Collation = collate.Collation;
             DbObject = obj;
             IsNullable = pi.AllowSqlNull();
+            ModelType = pi.ReflectedType;
+        }
+
+        internal static string CompareSyntaxes(ColumnRef leftColumn, ColumnRef rightColumn)
+        {
+            bool withCollation = IsCollationChanged(leftColumn, rightColumn);
+            return $"{leftColumn.GetDataTypeSyntax(withCollation)} -> {rightColumn.GetDataTypeSyntax(withCollation)}";
         }
 
         public ColumnRef()
@@ -38,6 +45,7 @@ namespace Postulate.Orm.Merge
         public PropertyInfo PropertyInfo { get; set; }
         public int ObjectID { get; set; }
         public DbObject DbObject { get; set; }
+        public Type ModelType { get; set; }
 
         public string DataType { get; set; }
         public string Collation { get; set; }
@@ -67,6 +75,12 @@ namespace Postulate.Orm.Merge
             }
         }
 
+        internal static bool IsCollationChanged(ColumnRef leftColumn, ColumnRef rightColumn)
+        {
+            if (string.IsNullOrEmpty(leftColumn.Collation) && string.IsNullOrEmpty(rightColumn.Collation)) return false;
+            return !leftColumn?.Collation?.Equals(rightColumn?.Collation) ?? true;
+        }
+
         public override bool Equals(object obj)
         {
             ColumnRef test = obj as ColumnRef;
@@ -91,7 +105,7 @@ namespace Postulate.Orm.Merge
             return $"{Schema}.{TableName}.{ColumnName}";
         }
 
-        public string GetDataTypeSyntax()
+        public string GetDataTypeSyntax(bool withCollation = true)
         {
             string result = null;
             switch (DataType)
@@ -113,7 +127,7 @@ namespace Postulate.Orm.Merge
                     break;
             }
 
-            if (!string.IsNullOrEmpty(Collation))
+            if (withCollation && !string.IsNullOrEmpty(Collation))
             {
                 result += " COLLATE " + Collation;
             }
@@ -147,7 +161,11 @@ namespace Postulate.Orm.Merge
 
             if (result != null)
             {
-                fk = new ForeignKeyRef() { ConstraintName = result.ConstraintName, ReferencingTable = new DbObject(result.Schema, result.TableName) };
+                fk = new ForeignKeyRef()
+                {
+                    ConstraintName = result.ConstraintName,
+                    ChildObject = new DbObject(result.Schema, result.TableName)                    
+                };
                 return true;
             }
 

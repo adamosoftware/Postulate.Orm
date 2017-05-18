@@ -9,11 +9,12 @@ namespace Testing.Models
 {
     public abstract class BaseTable : Record<int>
     {
-        [ColumnAccess(Access.InsertOnly)]
+        [ColumnAccess(Access.InsertOnly)]        
         public DateTime DateCreated { get; set; }
 
         [ColumnAccess(Access.InsertOnly)]
         [MaxLength(20)]
+        [Required]
         public string CreatedBy { get; set; }
 
         [ColumnAccess(Access.UpdateOnly)]

@@ -79,6 +79,7 @@ namespace Postulate.Orm.Merge
                 SyncTablesAndColumns, /*, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, CreateForeignKeys, */
 
                 // alter
+                AlterColumnTypes
                 /* AlterPrimaryKeys, AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, AlterForeignKeys, */
 
                 // drop
@@ -278,7 +279,9 @@ namespace Postulate.Orm.Merge
 
         private IEnumerable<ColumnRef> GetModelColumns(IDbConnection collationLookupConnection = null)
         {
-            var results = _modelTypes.SelectMany(t => t.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>()).Select(pi => new ColumnRef(pi)));
+            var results = _modelTypes.SelectMany(t => t.GetProperties()
+                .Where(pi => !pi.HasAttribute<NotMappedAttribute>())
+                .Select(pi => new ColumnRef(pi) { ModelType = t }));
 
             if (collationLookupConnection != null)
             {

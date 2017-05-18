@@ -8,8 +8,8 @@ namespace Testing.Models
 {
     public class TableC : BaseTable
     {
-        public int SomeValue { get; set; }
-        public DateTime? SomeDate { get; set; }
+        public long SomeValue { get; set; }
+        public DateTime SomeDate { get; set; }
         public Double SomeDouble { get; set; }
     }
 }

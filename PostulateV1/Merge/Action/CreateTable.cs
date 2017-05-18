@@ -239,11 +239,16 @@ namespace Postulate.Orm.Merge.Action
             return results;
         }
 
-        protected IEnumerable<string> PrimaryKeyColumns(bool markedOnly = false)
+        private IEnumerable<string> PrimaryKeyColumns(bool markedOnly = false)
         {
             return PrimaryKeyColumns(_modelType, markedOnly);
         }
     
+        internal string PrimaryKeyColumnSyntax()
+        {
+            return string.Join(", ", PrimaryKeyColumns().Select(col => $"[{col}]"));
+        }
+
         public override bool Equals(object obj)
         {
             Type t = obj as Type;

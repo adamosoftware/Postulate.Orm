@@ -108,7 +108,7 @@ namespace Postulate.MergeUI
             try
             {
                 ActionNode nd = e.Node as ActionNode;
-                if (nd != null) tbSQL.Selection = new Range(tbSQL, new Place(0, nd.StartLine), new Place(0, nd.EndLine));
+                if (nd?.Checked ?? false) tbSQL.Selection = new Range(tbSQL, new Place(0, nd.StartLine), new Place(0, nd.EndLine));
             }
             catch (Exception exc)
             {
@@ -177,8 +177,10 @@ namespace Postulate.MergeUI
                 using (var cn = mergeInfo.Db.GetConnection())
                 {
                     cn.Open();
-                    mergeInfo.Merge.Execute(cn, selectedActions.Select(node => node.Action));
+                    mergeInfo.Merge.Execute(cn, selectedActions.Select(node => node.Action));                    
                 }
+
+                MessageBox.Show("Changes executed successfully!");
 
                 Refresh();
             }

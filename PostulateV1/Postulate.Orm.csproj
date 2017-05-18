@@ -59,6 +59,7 @@
     <Compile Include="Interfaces\IDb.cs" />
     <Compile Include="Interfaces\ISchemaMerge.cs" />
     <Compile Include="Merge\Action\AddColumn.cs" />
+    <Compile Include="Merge\Action\AlterColumn.cs" />
     <Compile Include="Merge\Action\CreateForeignKey.cs" />
     <Compile Include="Merge\Action\CreatePrimaryKey.cs" />
     <Compile Include="Merge\Action\DropColumn.cs" />
@@ -67,7 +68,7 @@
     <Compile Include="Merge\AddVersion.cs" />
     <Compile Include="Merge\AlterIndexes.cs" />
     <Compile Include="Merge\AlterForeignKeys.cs" />
-    <Compile Include="Merge\AlterNonKeyColumnTypes.cs" />
+    <Compile Include="Merge\AlterColumnTypes.cs" />
     <Compile Include="Merge\AlterPrimaryKeys.cs" />
     <Compile Include="Merge\AlterUniqueKeys.cs" />
     <Compile Include="Merge\ColumnRef.cs" />
