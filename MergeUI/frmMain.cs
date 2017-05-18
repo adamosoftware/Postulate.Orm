@@ -29,8 +29,7 @@ namespace Postulate.MergeUI
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     tbAssembly.Text = dlg.FileName;
-                    MergeActions = Program.GetMergeActions(dlg.FileName);
-                    BuildTreeView();
+                    Refresh();
                 }
             }
             catch (Exception exc)
@@ -81,8 +80,8 @@ namespace Postulate.MergeUI
         }        
 
         private void frmMain_ResizeEnd(object sender, EventArgs e)
-        {
-            int width = this.Width - btnExecute.Width - toolStripLabel1.Width - btnSaveAs.Width - btnSelectAssembly.Width - 50;
+        {            
+            int width = this.Width - btnExecute.Width - toolStripLabel1.Width - btnRefresh.Width - btnSaveAs.Width - btnSelectAssembly.Width - 50;
             tbAssembly.Size = new Size(width, tbAssembly.Height);
         }
 
@@ -171,18 +170,36 @@ namespace Postulate.MergeUI
             {
                 DbNode nd = tvwActions.SelectedNode?.FindParentNode<DbNode>();
                 if (nd == null) nd = tvwActions.Nodes[0] as DbNode;
-                
+
                 var mergeInfo = MergeActions[nd.ConnectionName];
                 var selectedActions = tvwActions.FindNodes<ActionNode>(true, node => node.Checked);
 
                 using (var cn = mergeInfo.Db.GetConnection())
                 {
                     cn.Open();
-                    mergeInfo.Merge.Execute(cn, selectedActions.Select(node => node.Action));                        
+                    mergeInfo.Merge.Execute(cn, selectedActions.Select(node => node.Action));
                 }
 
-                MergeActions = Program.GetMergeActions(tbAssembly.Text);
-                BuildTreeView();                
+                Refresh();
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
+        
+        public new void Refresh()
+        {
+            base.Refresh();
+            MergeActions = Program.GetMergeActions(tbAssembly.Text);
+            BuildTreeView();
+        }
+
+        private void tsbRefresh_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Refresh();
             }
             catch (Exception exc)
             {
