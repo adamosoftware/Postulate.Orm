@@ -72,7 +72,9 @@ namespace Postulate.Orm.Extensions
 
         public static bool HasClusteredPrimaryKey(this Type type)
         {
-            return type.HasAttribute<ClusterAttribute>(attr => attr.Option == ClusterOption.PrimaryKey);
+            return 
+                type.HasAttribute<ClusterAttribute>(attr => attr.Option == ClusterOption.PrimaryKey) ||
+                !type.HasAttribute<ClusterAttribute>();
         }
     }
 }
