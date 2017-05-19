@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.MergeUI
 {
-    internal class MergeInfo
+    internal class MergeViewModel
     {
         public IDb Db { get; set; }
         public ISchemaMerge Merge { get; set; }

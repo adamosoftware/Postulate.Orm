@@ -62,7 +62,7 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="DbNode.cs" />
-    <Compile Include="MergeInfo.cs" />
+    <Compile Include="MergeViewModel.cs" />
     <Compile Include="ObjectTypeNode.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

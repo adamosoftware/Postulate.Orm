@@ -20,7 +20,7 @@ namespace Postulate.MergeUI
         [STAThread]
         static void Main(string[] args)
         {
-            Dictionary<string, MergeInfo> actions = null;
+            Dictionary<string, MergeViewModel> actions = null;
             string fileName = null;
 
             if (args?.Length == 1)
@@ -43,9 +43,9 @@ namespace Postulate.MergeUI
             Application.Run(new frmMain() { MergeActions = actions, AssemblyFilename = fileName });
         }
 
-        internal static Dictionary<string, MergeInfo> GetMergeActions(string assemblyFile)
+        internal static Dictionary<string, MergeViewModel> GetMergeActions(string assemblyFile)
         {
-            Dictionary<string, MergeInfo> results = new Dictionary<string, MergeInfo>();
+            Dictionary<string, MergeViewModel> results = new Dictionary<string, MergeViewModel>();
 
             var assembly = Assembly.LoadFile(assemblyFile);
             var config = ConfigurationManager.OpenExeConfiguration(assembly.Location);
@@ -63,7 +63,7 @@ namespace Postulate.MergeUI
                     var actions = schemaMerge.Compare(cn);
                     Dictionary<Orm.Merge.Action.MergeAction, LineRange> lineRanges;
                     var script = schemaMerge.GetScript(cn, actions, out lineRanges);
-                    results.Add(dbType.Name, new MergeInfo { Db = db, Merge = schemaMerge, Actions = actions, LineRanges = lineRanges, Script = script, ServerAndDatabase = ParseConnectionInfo(cn) });
+                    results.Add(dbType.Name, new MergeViewModel { Db = db, Merge = schemaMerge, Actions = actions, LineRanges = lineRanges, Script = script, ServerAndDatabase = ParseConnectionInfo(cn) });
                 }
             }
 

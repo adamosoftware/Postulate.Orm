@@ -18,7 +18,7 @@ namespace Postulate.MergeUI
         }
 
         internal string AssemblyFilename { get; set; }
-        internal Dictionary<string, MergeInfo> MergeActions { get; set; }
+        internal Dictionary<string, MergeViewModel> MergeActions { get; set; }
 
         private void btnSelectAssembly_Click(object sender, EventArgs e)
         {
@@ -44,35 +44,40 @@ namespace Postulate.MergeUI
 
             foreach (var key in MergeActions.Keys)
             {
-                var mergeInfo = MergeActions[key];
-                DbNode dbNode = new DbNode(key, mergeInfo.ServerAndDatabase);
+                var vm = MergeActions[key];
+                DbNode dbNode = new DbNode(key, vm.ServerAndDatabase);
                 tvwActions.Nodes.Add(dbNode);
 
-                tbSQL.Text = mergeInfo.Script.ToString();
+                tbSQL.Text = vm.Script.ToString();
 
-                foreach (var actionType in mergeInfo.Actions.GroupBy(item => item.ActionType))
+                using (var cn = vm.Db.GetConnection())
                 {
-                    ActionTypeNode ndActionType = new ActionTypeNode(actionType.Key, actionType.Count());
-                    dbNode.Nodes.Add(ndActionType);
-
-                    foreach (var objectType in actionType.GroupBy(item => item.ObjectType))
+                    cn.Open();
+                    foreach (var actionType in vm.Actions.GroupBy(item => item.ActionType))
                     {
-                        ObjectTypeNode ndObjectType = new ObjectTypeNode(objectType.Key, objectType.Count());
-                        ndActionType.Nodes.Add(ndObjectType);
+                        ActionTypeNode ndActionType = new ActionTypeNode(actionType.Key, actionType.Count());
+                        dbNode.Nodes.Add(ndActionType);
 
-                        foreach (var action in objectType)
+                        foreach (var objectType in actionType.GroupBy(item => item.ObjectType))
                         {
-                            ActionNode ndAction = new ActionNode(action);
-                            ndAction.StartLine = mergeInfo.LineRanges[action].Start;
-                            ndAction.EndLine = mergeInfo.LineRanges[action].End;
-                            ndObjectType.Nodes.Add(ndAction);
+                            ObjectTypeNode ndObjectType = new ObjectTypeNode(objectType.Key, objectType.Count());
+                            ndActionType.Nodes.Add(ndObjectType);
+
+                            foreach (var action in objectType)
+                            {                                
+                                ActionNode ndAction = new ActionNode(action);
+                                ndAction.StartLine = vm.LineRanges[action].Start;
+                                ndAction.EndLine = vm.LineRanges[action].End;                                
+                                ndAction.ValidationErrors = action.ValidationErrors(cn).ToArray();
+                                ndObjectType.Nodes.Add(ndAction);
+                            }
+
+                            ndObjectType.Expand();
                         }
 
-                        ndObjectType.Expand();
+                        ndActionType.Expand();
                     }
-
-                    ndActionType.Expand();
-                }
+                }                    
 
                 dbNode.Expand();
                 dbNode.Checked = true;
@@ -109,6 +114,16 @@ namespace Postulate.MergeUI
             {
                 ActionNode nd = e.Node as ActionNode;
                 if (nd?.Checked ?? false) tbSQL.Selection = new Range(tbSQL, new Place(0, nd.StartLine), new Place(0, nd.EndLine));
+
+                if (!nd?.IsValid ?? false)
+                {
+                    splcActions.Panel2Collapsed = false;
+                    lblErrors.Text = string.Join("\r\n", nd.ValidationErrors);
+                }
+                else
+                {
+                    splcActions.Panel2Collapsed = true;
+                }
             }
             catch (Exception exc)
             {

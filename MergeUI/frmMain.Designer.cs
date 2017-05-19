@@ -41,12 +41,20 @@
             this.btnExecute = new System.Windows.Forms.ToolStripButton();
             this.btnSaveAs = new System.Windows.Forms.ToolStripButton();
             this.btnRefresh = new System.Windows.Forms.ToolStripButton();
+            this.splcActions = new System.Windows.Forms.SplitContainer();
+            this.lblErrors = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbSQL)).BeginInit();
             this.toolStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splcActions)).BeginInit();
+            this.splcActions.Panel1.SuspendLayout();
+            this.splcActions.Panel2.SuspendLayout();
+            this.splcActions.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -58,7 +66,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.tvwActions);
+            this.splitContainer1.Panel1.Controls.Add(this.splcActions);
             // 
             // splitContainer1.Panel2
             // 
@@ -78,7 +86,7 @@
             this.tvwActions.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tvwActions.Name = "tvwActions";
             this.tvwActions.SelectedImageIndex = 0;
-            this.tvwActions.Size = new System.Drawing.Size(275, 286);
+            this.tvwActions.Size = new System.Drawing.Size(275, 181);
             this.tvwActions.TabIndex = 0;
             this.tvwActions.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterCheck);
             this.tvwActions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterSelect);
@@ -117,7 +125,6 @@
             this.tbSQL.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.tbSQL.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.tbSQL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbSQL.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.tbSQL.IsReplaceMode = false;
             this.tbSQL.Language = FastColoredTextBoxNS.Language.SQL;
             this.tbSQL.LeftBracket = '(';
@@ -198,6 +205,47 @@
             this.btnRefresh.Text = "toolStripButton1";
             this.btnRefresh.Click += new System.EventHandler(this.tsbRefresh_Click);
             // 
+            // splcActions
+            // 
+            this.splcActions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splcActions.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splcActions.Location = new System.Drawing.Point(0, 0);
+            this.splcActions.Name = "splcActions";
+            this.splcActions.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splcActions.Panel1
+            // 
+            this.splcActions.Panel1.Controls.Add(this.tvwActions);
+            // 
+            // splcActions.Panel2
+            // 
+            this.splcActions.Panel2.Controls.Add(this.pictureBox1);
+            this.splcActions.Panel2.Controls.Add(this.lblErrors);
+            this.splcActions.Size = new System.Drawing.Size(275, 286);
+            this.splcActions.SplitterDistance = 181;
+            this.splcActions.TabIndex = 1;
+            // 
+            // lblErrors
+            // 
+            this.lblErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblErrors.Location = new System.Drawing.Point(54, 13);
+            this.lblErrors.Name = "lblErrors";
+            this.lblErrors.Size = new System.Drawing.Size(218, 79);
+            this.lblErrors.TabIndex = 0;
+            this.lblErrors.Text = "label1";
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(12, 13);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(36, 36);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 1;
+            this.pictureBox1.TabStop = false;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -219,6 +267,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.tbSQL)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.splcActions.Panel1.ResumeLayout(false);
+            this.splcActions.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splcActions)).EndInit();
+            this.splcActions.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -237,6 +290,9 @@
         private FastColoredTextBoxNS.FastColoredTextBox tbSQL;
         private System.Windows.Forms.ToolStripButton btnSaveAs;
         private System.Windows.Forms.ToolStripButton btnRefresh;
+        private System.Windows.Forms.SplitContainer splcActions;
+        private System.Windows.Forms.Label lblErrors;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 
