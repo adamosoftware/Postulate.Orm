@@ -11,7 +11,7 @@ using ReflectionHelper;
 namespace Postulate.Orm.Merge
 {
     internal static class Helpers
-    {
+    {        
         internal static IEnumerable<ForeignKeyRef> GetReferencingForeignKeys(this IDbConnection connection, int objectID)
         {
             return connection.Query<ForeignKeyInfo>(

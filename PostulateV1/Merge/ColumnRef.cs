@@ -24,7 +24,7 @@ namespace Postulate.Orm.Merge
             DataType = pi.SqlDataType();
             CollateAttribute collate;
             if (pi.HasAttribute(out collate)) Collation = collate.Collation;
-            DbObject = obj;
+            DbObject = obj;            
             IsNullable = pi.AllowSqlNull();
             ModelType = pi.ReflectedType;
         }
@@ -90,6 +90,16 @@ namespace Postulate.Orm.Merge
                     test.Schema.ToLower().Equals(this.Schema.ToLower()) &&
                     test.TableName.ToLower().Equals(this.TableName.ToLower()) &&
                     test.ColumnName.ToLower().Equals(this.ColumnName.ToLower());
+            }
+
+            PropertyInfo pi = obj as PropertyInfo;
+            if (pi != null)
+            {
+                DbObject dbo = DbObject.FromType(pi.ReflectedType);
+                return
+                    dbo.Schema.ToLower().Equals(this.Schema.ToLower()) &&
+                    dbo.Name.ToLower().Equals(this.TableName.ToLower()) &&
+                    pi.SqlColumnName().ToLower().Equals(this.ColumnName.ToLower());
             }
 
             return false;

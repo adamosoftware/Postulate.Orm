@@ -79,8 +79,8 @@ namespace Postulate.Orm.Merge
                 SyncTablesAndColumns, /*, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, CreateForeignKeys, */
 
                 // alter
-                AlterColumnTypes
-                /* AlterPrimaryKeys, AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, AlterForeignKeys, */
+                AlterColumnTypes, AlterPrimaryKeys
+                /* AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, AlterForeignKeys, */
 
                 // drop
                 /*, DropPrimaryKeys, DropUniqueKeys, DropIndexes*/
@@ -317,7 +317,21 @@ namespace Postulate.Orm.Merge
                 WHERE
                     SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta')");
             return tables.Select(item => new DbObject(item.Schema, item.Name, item.ObjectId));
-        }        
+        }
+
+        internal Type FindModelType(string schema, string name)
+        {
+            return FindModelType(new DbObject(schema, name));
+        }
+
+        internal Type FindModelType(DbObject @object)
+        {            
+            return _modelTypes.FirstOrDefault(t =>
+            {
+                DbObject obj = DbObject.FromType(t);
+                return obj.Schema.Equals(@object.Schema) && obj.Name.Equals(@object.Name);
+            });
+        }
 
         public class ValidationError
         {

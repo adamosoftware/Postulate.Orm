@@ -156,5 +156,11 @@ namespace Postulate.Orm.Extensions
         {
             return DbObject.FromType(propertyInfo.DeclaringType, connection);
         }
+
+        public static IEnumerable<string> GetPrimaryKeyValidationErrors(this PropertyInfo propertyInfo)
+        {
+            if (propertyInfo.SqlColumnType().ToLower().Contains("char(max)")) yield return $"Primary key column [{propertyInfo.Name}] may not use MAX size.";
+            if (propertyInfo.PropertyType.IsNullableGeneric()) yield return $"Primary key column [{propertyInfo.Name}] may not be nullable.";
+        }        
     }
 }

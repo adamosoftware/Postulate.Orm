@@ -6,6 +6,7 @@ using Dapper;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge.Action;
 using Postulate.Orm.Extensions;
+using System.Collections.Generic;
 
 namespace Postulate.Orm.Merge
 {
@@ -22,7 +23,8 @@ namespace Postulate.Orm.Merge
 			_name = name;
             ObjectId = objectId;
 			SquareBraces = true;
-		}
+            PKConstraintName = "PK_" + ConstraintName(schema, name);
+        }
 
 		public DbObject()
 		{
@@ -68,6 +70,8 @@ namespace Postulate.Orm.Merge
 		public int ObjectId { get; set; }
 		public Type ModelType { get; set; }
 		public bool SquareBraces { get; set; }
+        public bool IsClusteredPK { get; set; }
+        public string PKConstraintName { get; set; }
 
 		public string QualifiedName()
 		{
@@ -117,7 +121,11 @@ namespace Postulate.Orm.Merge
 		{
             string schema, name;
             CreateTable.ParseNameAndSchema(modelType, out schema, out name);
-			return new DbObject(schema, name) { ModelType = modelType };
+			return new DbObject(schema, name)
+                {
+                    ModelType = modelType,
+                    IsClusteredPK = modelType.HasClusteredPrimaryKey()                    
+                };
 		}
 
 		public static string ConstraintName(Type modelType)
@@ -126,11 +134,16 @@ namespace Postulate.Orm.Merge
             return obj.ConstraintName();
 		}
 
+        public static string ConstraintName(string schema, string name)
+        {
+            string result = name;
+            if (!schema.Equals("dbo")) result = schema.Substring(0, 1).ToUpper() + schema.Substring(1).ToLower() + result;
+            return result;
+        }
+
         public string ConstraintName()
         {
-            string result = Name;
-            if (!Schema.Equals("dbo")) result = Schema.Substring(0, 1).ToUpper() + Schema.Substring(1).ToLower() + result;
-            return result;
+            return ConstraintName(this.Schema, this.Name);
         }
 
 		public static string SqlServerName(Type modelType, bool squareBrackets = true)
@@ -139,5 +152,11 @@ namespace Postulate.Orm.Merge
 			obj.SquareBraces = squareBrackets;
 			return obj.ToString();
 		}
-	}
+
+        internal IEnumerable<ForeignKeyRef> GetReferencingForeignKeys(IDbConnection connection)
+        {
+            if (ObjectId == 0) SetObjectId(connection, this);
+            return connection.GetReferencingForeignKeys(ObjectId);
+        }
+    }
 }

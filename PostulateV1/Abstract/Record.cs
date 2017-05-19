@@ -12,7 +12,7 @@ namespace Postulate.Orm.Abstract
 {
     public abstract class Record<TKey>
     {
-        internal static string IdColumnName {  get { return nameof(Id); } }
+        internal static string IdentityColumnName {  get { return nameof(Id); } }
 
         private TKey _id;
         public TKey Id

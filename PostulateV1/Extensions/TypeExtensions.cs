@@ -3,6 +3,9 @@ using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge.Action;
 using System;
 using ReflectionHelper;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Postulate.Orm.Extensions
 {
@@ -10,12 +13,29 @@ namespace Postulate.Orm.Extensions
     {
         public static string IdentityColumnName(this Type type)
         {
-            string result = Record<int>.IdColumnName;
+            string result = Record<int>.IdentityColumnName;
 
             IdentityColumnAttribute attr;
             if (type.HasAttribute(out attr)) result = attr.ColumnName;
 
             return result;
+        }
+
+        public static IEnumerable<PropertyInfo> GetPrimaryKeyProperties(this Type type)
+        {
+            var markedProperties = type
+                .GetProperties().Where(pi => pi.HasAttribute<PrimaryKeyAttribute>())
+                .OrderBy(pi => pi.SqlColumnName());                
+
+            if (markedProperties.Any())
+            {
+                foreach (var prop in markedProperties) yield return prop;
+            }
+            else
+            {
+                // if you make it here, it means there are no marked PK columns, so just return Id
+                yield return type.GetProperty(Record<int>.IdentityColumnName);
+            }
         }
 
         public static bool IsNullable(this Type type)
@@ -48,6 +68,11 @@ namespace Postulate.Orm.Extensions
             string schema, name;
             CreateTable.ParseNameAndSchema(type, out schema, out name);
             return name;
+        }
+
+        public static bool HasClusteredPrimaryKey(this Type type)
+        {
+            return type.HasAttribute<ClusterAttribute>(attr => attr.Option == ClusterOption.PrimaryKey);
         }
     }
 }
