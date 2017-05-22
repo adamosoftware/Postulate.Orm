@@ -51,8 +51,6 @@ namespace Postulate.Orm.Merge
 
         private Dictionary<string, ForeignKeyAlterInfo> GetModelFKAlterInfo()
         {
-            var temp = _modelTypes.SelectMany(t => t.GetModelForeignKeys());
-
             return _modelTypes.SelectMany(t => t.GetModelForeignKeys())
                 .ToDictionary(
                     item => item.ForeignKeyName(), 
