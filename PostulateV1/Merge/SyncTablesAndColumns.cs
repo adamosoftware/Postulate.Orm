@@ -38,15 +38,17 @@ namespace Postulate.Orm.Merge
             var newFK = _modelTypes.SelectMany(t => t.GetModelForeignKeys().Where(pi => !connection.ForeignKeyExists(pi)));
             results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
 
-            var deletedFK = DeletedForeignKeys(connection, deletedTables);
+            var deletedFK = DeletedForeignKeys(connection, deletedTables, deletedColumns);
             results.AddRange(deletedFK.Select(fk => new DropForeignKey(fk)));
 
             return results;
         }
 
-        private IEnumerable<ForeignKeyRef> DeletedForeignKeys(IDbConnection connection, IEnumerable<DbObject> deletedTables)
+        private IEnumerable<ForeignKeyRef> DeletedForeignKeys(IDbConnection connection, IEnumerable<DbObject> deletedTables, IEnumerable<ColumnRef> deletedColumns)
         {
-            var results = GetSchemaFKs(connection).Where(fk => !deletedTables.Any(obj => fk.ChildObject.Equals(obj)));
+            var results = GetSchemaFKs(connection).Where(fk => 
+                !deletedTables.Any(obj => fk.ChildObject.Equals(obj)) && 
+                !deletedColumns.Any(cr => fk.Child.Equals(cr)));
 
             return results.Where(fk =>
             {
@@ -62,12 +64,18 @@ namespace Postulate.Orm.Merge
                 @"SELECT 
                     [fk].[name] AS [ConstraintName],
                     SCHEMA_NAME([t].[schema_id]) AS [ReferencingSchema],
-                    [t].[name] AS [ReferencingTable]
+                    [t].[name] AS [ReferencingTable],
+                    [col].[name] AS [ReferencingColumn]
                 FROM 
-                    [sys].[foreign_keys] [fk] INNER JOIN [sys].[tables] [t] ON [fk].[parent_object_id]=[t].[object_id]")
+                    [sys].[foreign_key_columns] [fkcol] INNER JOIN [sys].[columns] [col] ON 
+						[fkcol].[parent_object_id]=[col].[object_id] AND
+						[fkcol].[parent_column_id]=[col].[column_id]
+					INNER JOIN [sys].[foreign_keys] [fk] ON [fkcol].[constraint_object_id]=[fk].[object_id]
+					INNER JOIN [sys].[tables] [t] ON [fkcol].[parent_object_id]=[t].[object_id]")
                     .Select(row => new ForeignKeyRef()
                     {
-                        ConstraintName = row.ConstraintName,
+                        ConstraintName = row.ConstraintName,                        
+                        Child = new ColumnRef() { ColumnName = row.ReferencingColumn, Schema = row.ReferencingSchema, TableName = row.ReferencingTable },
                         ChildObject = new DbObject(row.ReferencingSchema, row.ReferencingTable)
                     });
         }

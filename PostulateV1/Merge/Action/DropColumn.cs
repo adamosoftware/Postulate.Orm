@@ -29,6 +29,12 @@ namespace Postulate.Orm.Merge.Action
 
             if (inPK) yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.ColumnName}] DROP CONSTRAINT [{pkName}]";
 
+            ForeignKeyRef fk;
+            if (_columnRef.IsForeignKey(connection, out fk))
+            {
+                yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.TableName}] DROP CONSTRAINT [{fk.ConstraintName}]";
+            }
+
             yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.TableName}] DROP COLUMN [{_columnRef.ColumnName}]";
 
             if (inPK) yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.TableName}] ADD {ct.CreateTablePrimaryKey(ct.GetClusterAttribute())}";

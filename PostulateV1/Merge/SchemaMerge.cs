@@ -76,7 +76,7 @@ namespace Postulate.Orm.Merge
             var diffMethods = new GetSchemaDiffMethod[]
             {
                 // create/drop
-                SyncTablesAndColumns, /*, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, CreateForeignKeys, */
+                SyncTablesAndColumns, /*, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, */
 
                 // alter
                 AlterColumnTypes, AlterPrimaryKeys, AlterForeignKeys
