@@ -156,6 +156,12 @@ namespace Postulate.Orm
 				)");
             }
 
+            string indexName = $"IX_{_changesSchema}_{tableName}_RecordId";
+            if (!connection.Exists("[sys].[indexes] WHERE [name]=@name", new { name = indexName }))
+            {
+                connection.Execute($"CREATE INDEX [{indexName}] ON [{_changesSchema}].[{tableName}] ([RecordId])");
+            }
+
             if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _changesSchema, name = tableName }))
             {
                 connection.Execute($@"CREATE TABLE [{_changesSchema}].[{tableName}] (
