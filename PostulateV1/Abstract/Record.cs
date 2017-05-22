@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Postulate.Orm.Extensions;
+using Postulate.Orm.Attributes;
 
 namespace Postulate.Orm.Abstract
 {

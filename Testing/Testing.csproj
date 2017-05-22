@@ -67,6 +67,7 @@
     <Compile Include="Models\TableC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SchemaMergeTest.cs" />
+    <Compile Include="TestChangeTracking.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

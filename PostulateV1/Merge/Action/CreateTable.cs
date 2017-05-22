@@ -188,18 +188,21 @@ namespace Postulate.Orm.Merge.Action
 
         private string IdentityColumnSql()
         {
-            var typeMap = new Dictionary<Type, string>()
-            {
-                { typeof(int), "int identity(1,1)" },
-                { typeof(long), "bigint identity(1,1)" },
-                { typeof(Guid), "uniqueidentifier DEFAULT NewSequentialID()" }
-            };
-
             Type keyType = FindKeyType(_modelType);
 
-            return $"[{_modelType.IdentityColumnName()}] {typeMap[keyType]}";
+            return $"[{_modelType.IdentityColumnName()}] {KeyTypeMap()[keyType]}";
         }
-       
+
+        internal static Dictionary<Type, string> KeyTypeMap(bool withDefaults = true)
+        {
+            return new Dictionary<Type, string>()
+            {
+                { typeof(int), $"int{((withDefaults) ? " identity(1,1)" : string.Empty)}" },
+                { typeof(long), $"bigint{((withDefaults) ? " identity(1,1)" : string.Empty)}" },
+                { typeof(Guid), $"uniqueidentifier{((withDefaults) ? " DEFAULT NewSequentialID()" : string.Empty)}" }
+            };
+        }
+
         internal string CreateTablePrimaryKey(ClusterAttribute clusterAttribute)
         {
             return $"CONSTRAINT [PK_{DbObject.ConstraintName(_modelType)}] PRIMARY KEY {clusterAttribute.Syntax(ClusterOption.PrimaryKey)}({string.Join(", ", PrimaryKeyColumns().Select(col => $"[{col}]"))})";

@@ -13,7 +13,7 @@ using System.Configuration;
 using System.Linq.Expressions;
 using Postulate.Orm.Interfaces;
 using ReflectionHelper;
-using System.IO;
+using Postulate.Orm.Models;
 
 namespace Postulate.Orm.Abstract
 {
@@ -137,9 +137,15 @@ namespace Postulate.Orm.Abstract
         public void Delete<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
             TRecord record = Find<TRecord>(connection, id);
-            Delete(connection, record);
+            if (record != null) Delete(connection, record);
         }
         
+        public void DeleteWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
+        {
+            TRecord record = FindWhere<TRecord>(connection, criteria, parameters);
+            if (record != null) Delete<TRecord>(connection, record.Id);
+        }
+
         public void Save<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
         {
             SaveAction action;
@@ -171,7 +177,11 @@ namespace Postulate.Orm.Abstract
             {
                 if (record.AllowSave(connection, UserName, out message))
                 {
+                    string ignoreProps;
+                    if (action == SaveAction.Update && HasChangeTracking<TRecord>(out ignoreProps)) CaptureChanges(connection, record, ignoreProps);
+
                     saveAction.Invoke(record);
+
                     record.AfterSave(connection, action);
                 }
                 else
@@ -271,7 +281,7 @@ namespace Postulate.Orm.Abstract
         private string GetFindStatementBase<TRecord>() where TRecord : Record<TKey>
         {
             return
-                $@"SELECT 
+                $@"SELECT {ApplyDelimiter(IdentityColumnName)},
                     {string.Join(", ", GetColumnNames<TRecord>().Select(name => ApplyDelimiter(name)))} 
                 FROM 
                     {GetTableName<TRecord>()}";
@@ -326,6 +336,8 @@ namespace Postulate.Orm.Abstract
 
         private TRecord FindInner<TRecord>(IDbConnection connection, TRecord row) where TRecord : Record<TKey>
         {
+            if (row == null) return null;
+
             string message;
             if (row.AllowFind(connection, UserName, out message))
             {
@@ -372,7 +384,7 @@ namespace Postulate.Orm.Abstract
         private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
             string cmd = GetFindStatementBase<TRecord>() + $" WHERE {criteria}";
-            return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);
+            return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);                       
         }
 
         private void ExecuteDelete<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
@@ -386,6 +398,52 @@ namespace Postulate.Orm.Abstract
             string modelTypeName = typeof(TRecord).Name;
             if (!dictionary.ContainsKey(modelTypeName)) dictionary.Add(modelTypeName, commandBuilder.Invoke());
             return dictionary[modelTypeName];
+        }
+
+        public IEnumerable<PropertyChange> GetChanges<TRecord>(IDbConnection connection, TRecord record, string ignoreProps = null) where TRecord : Record<TKey>
+        {
+            if (record.IsNewRow()) return null;
+
+            string[] ignorePropsArray = (ignoreProps ?? string.Empty).Split(',', ';').Select(s => s.Trim()).ToArray();
+
+            TRecord savedRecord = Find<TRecord>(connection, record.Id);
+            return typeof(TRecord).GetProperties().Where(pi => pi.HasColumnAccess(Access.UpdateOnly) && !ignorePropsArray.Contains(pi.Name)).Select(pi =>
+            {
+                return new PropertyChange()
+                {
+                    PropertyName = pi.Name,
+                    OldValue = OnGetChangesPropertyValue(pi, savedRecord, connection),
+                    NewValue = OnGetChangesPropertyValue(pi, record, connection)
+                };
+            }).Where(vc => vc.IsChanged());
+        }
+
+        protected virtual object OnGetChangesPropertyValue(PropertyInfo propertyInfo, object record, IDbConnection connection)
+        {
+            return propertyInfo.GetValue(record);
+        }
+
+        public void CaptureChanges<TRecord>(IDbConnection connection, TRecord record, string ignoreProps = null) where TRecord : Record<TKey>
+        {
+            var changes = GetChanges(connection, record, ignoreProps);
+            if (changes?.Any() ?? false) OnCaptureChanges<TRecord>(connection, record.Id, changes);
+        }
+
+        protected abstract void OnCaptureChanges<TRecord>(IDbConnection connection, TKey id, IEnumerable<PropertyChange> changes) where TRecord : Record<TKey>;
+
+        public abstract IEnumerable<ChangeHistory<TKey>> QueryChangeHistory<TRecord>(IDbConnection connection, TKey id, int timeZoneOffset = 0) where TRecord : Record<TKey>;
+
+        private bool HasChangeTracking<TRecord>(out string ignoreProperties) where TRecord : Record<TKey>
+        {
+            TrackChangesAttribute attr;
+            if (typeof(TRecord).HasAttribute(out attr))
+            {
+                ignoreProperties = attr.IgnoreProperties;
+                return true;
+            }
+            ignoreProperties = null;
+            return false;
+
         }
     }
 }

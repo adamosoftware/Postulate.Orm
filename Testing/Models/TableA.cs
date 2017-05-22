@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Testing.Models
 {
+    [TrackChanges(IgnoreProperties = "DateModified")]
     public class TableA : BaseTable
     {
         [PrimaryKey]
