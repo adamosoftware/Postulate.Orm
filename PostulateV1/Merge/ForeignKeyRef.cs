@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Orm.Merge
 {
-    internal class ForeignKeyRef
+    public class ForeignKeyRef
     {
         public string ConstraintName { get; set; }
         public ColumnRef Parent { get; set; }

@@ -82,8 +82,7 @@ namespace Postulate.Orm.Merge
                 AlterColumnTypes, AlterPrimaryKeys, AlterForeignKeys
                 /* AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, */
 
-                // drop
-                /*, DropPrimaryKeys, DropUniqueKeys, DropIndexes*/
+                // drop                
             };
             foreach (var method in diffMethods) results.AddRange(method.Invoke(connection));
 

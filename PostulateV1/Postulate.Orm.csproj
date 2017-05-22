@@ -65,6 +65,7 @@
     <Compile Include="Merge\Action\CreateForeignKey.cs" />
     <Compile Include="Merge\Action\CreatePrimaryKey.cs" />
     <Compile Include="Merge\Action\DropColumn.cs" />
+    <Compile Include="Merge\Action\DropForeignKey.cs" />
     <Compile Include="Merge\Action\DropPrimaryKey.cs" />
     <Compile Include="Merge\Action\DropTable.cs" />
     <Compile Include="Merge\Action\MergeForeignKeyBase.cs" />

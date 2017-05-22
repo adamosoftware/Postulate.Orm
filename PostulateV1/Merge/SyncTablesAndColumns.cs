@@ -8,6 +8,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using ReflectionHelper;
+using Dapper;
+using System;
 
 namespace Postulate.Orm.Merge
 {
@@ -33,10 +35,41 @@ namespace Postulate.Orm.Merge
             var deletedColumns = DeletedColumns(connection, deletedTables);
             results.AddRange(deletedColumns.Select(cr => new DropColumn(cr, cr.FindModelType(_modelTypes))));
 
-            var foreignKeys = _modelTypes.SelectMany(t => t.GetModelForeignKeys().Where(pi => !connection.ForeignKeyExists(pi)));
-            results.AddRange(foreignKeys.Select(pi => new CreateForeignKey(pi)));
+            var newFK = _modelTypes.SelectMany(t => t.GetModelForeignKeys().Where(pi => !connection.ForeignKeyExists(pi)));
+            results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
+
+            var deletedFK = DeletedForeignKeys(connection, deletedTables);
+            results.AddRange(deletedFK.Select(fk => new DropForeignKey(fk)));
 
             return results;
+        }
+
+        private IEnumerable<ForeignKeyRef> DeletedForeignKeys(IDbConnection connection, IEnumerable<DbObject> deletedTables)
+        {
+            var results = GetSchemaFKs(connection).Where(fk => !deletedTables.Any(obj => fk.ChildObject.Equals(obj)));
+
+            return results.Where(fk =>
+            {
+                Type t = FindModelType(fk.ChildObject);
+                var fkNames = t.GetModelForeignKeys().Select(pi => pi.ForeignKeyName().ToLower());
+                return !fkNames.Contains(fk.ConstraintName.ToLower());
+            });
+        }
+
+        private IEnumerable<ForeignKeyRef> GetSchemaFKs(IDbConnection connection)
+        {
+            return connection.Query<ForeignKeyInfo>(
+                @"SELECT 
+                    [fk].[name] AS [ConstraintName],
+                    SCHEMA_NAME([t].[schema_id]) AS [ReferencingSchema],
+                    [t].[name] AS [ReferencingTable]
+                FROM 
+                    [sys].[foreign_keys] [fk] INNER JOIN [sys].[tables] [t] ON [fk].[parent_object_id]=[t].[object_id]")
+                    .Select(row => new ForeignKeyRef()
+                    {
+                        ConstraintName = row.ConstraintName,
+                        ChildObject = new DbObject(row.ReferencingSchema, row.ReferencingTable)
+                    });
         }
 
         private IEnumerable<ColumnRef> DeletedColumns(IDbConnection connection, IEnumerable<DbObject> deletedTables)

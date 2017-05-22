@@ -45,13 +45,15 @@ namespace Postulate.Orm.Merge
 
         internal static IEnumerable<PropertyInfo> GetModelForeignKeys(this Type modelType)
         {
+            List<string> temp = new List<string>();
             foreach (var pi in modelType.GetProperties().Where(pi => pi.HasAttribute<ForeignKeyAttribute>()))
             {
+                temp.Add(pi.Name.ToLower());
                 yield return pi;
             }
 
             foreach (var attr in modelType.GetCustomAttributes<ForeignKeyAttribute>()
-                .Where(attr => HasColumnName(modelType, attr.ColumnName)))
+                .Where(attr => HasColumnName(modelType, attr.ColumnName) && !temp.Contains(attr.ColumnName.ToLower())))
             {
                 PropertyInfo pi = modelType.GetProperty(attr.ColumnName);
                 if (pi != null) yield return pi;

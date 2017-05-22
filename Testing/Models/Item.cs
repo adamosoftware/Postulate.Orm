@@ -7,11 +7,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Testing.Models
 {
 	//[UniqueKey(nameof(OrganizationID), nameof(UpcCode))]
-	[UniqueKey("U_Item_OrgUpc", new string[] { nameof(OrganizationID), nameof(UpcCode) })]
+	[UniqueKey("U_Item_OrgUpc", new string[] { nameof(OrganizationId), nameof(UpcCode) })]
 	public class Item : BaseTable
 	{
 		[PrimaryKey]
-		public int OrganizationID { get; set; }
+		public int OrganizationId { get; set; }
 		[PrimaryKey]		
 		[MaxLength(100)]		
 		public string Name { get; set; }
