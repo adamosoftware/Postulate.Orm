@@ -29,5 +29,25 @@ namespace Testing
             var changes = history.First().Properties.ToDictionary(item => item.PropertyName);
             Assert.IsTrue(changes["FirstName"].OldValue.Equals("Julio") && changes["FirstName"].NewValue.Equals("Geoffrey"));
         }
+
+        [TestMethod]
+        public void TrackTableBChanges()
+        {
+            var db = new PostulateDb();
+            db.DeleteWhere<TableB>("[Description]='Whatever'", null);
+
+            string oldName = db.Find<Organization>(1).Name;
+            string newName = db.Find<Organization>(2).Name;
+
+            TableB b = new TableB() { OrganizationId = 1, Description = "Whatever" };
+            db.Save(b);
+
+            b.OrganizationId = 2;
+            db.Save(b);
+
+            var history = db.QueryChangeHistory<TableB>(b.Id);
+            var changes = history.First().Properties.ToDictionary(item => item.PropertyName);
+            Assert.IsTrue(changes["OrganizationId"].OldValue.Equals(oldName) && changes["OrganizationId"].NewValue.Equals(newName));
+        }
     }
 }

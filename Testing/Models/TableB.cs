@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Testing.Models
 {
+    [TrackChanges(IgnoreProperties = "DateCreated,CreatedBy")]
     class TableB : BaseTable
     {
         [ForeignKey(typeof(Organization), createIndex:true)]

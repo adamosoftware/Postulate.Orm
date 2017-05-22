@@ -4,6 +4,7 @@ using Postulate.Orm.Attributes;
 
 namespace Testing.Models
 {
+    [DereferenceExpression("[Name]")]
     public class Organization : BaseTable
 	{
 		[MaxLength(100)]
