@@ -162,5 +162,10 @@ namespace Postulate.Orm.Extensions
             if (propertyInfo.SqlColumnType().ToLower().Contains("char(max)")) yield return $"Primary key column [{propertyInfo.Name}] may not use MAX size.";
             if (propertyInfo.PropertyType.IsNullableGeneric()) yield return $"Primary key column [{propertyInfo.Name}] may not be nullable.";
         }        
+
+        public static string IndexName(this PropertyInfo propertyInfo)
+        {
+            return $"IX_{DbObject.ConstraintName(propertyInfo.DeclaringType)}_{propertyInfo.SqlColumnName()}";
+        }
     }
 }

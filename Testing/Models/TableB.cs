@@ -10,7 +10,7 @@ namespace Testing.Models
 {
     class TableB : BaseTable
     {
-        [ForeignKey(typeof(Organization))]
+        [ForeignKey(typeof(Organization), createIndex:true)]
         public int OrganizationId { get; set; }
 
         [MaxLength(255)]

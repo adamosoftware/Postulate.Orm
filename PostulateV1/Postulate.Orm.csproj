@@ -60,12 +60,14 @@
     <Compile Include="Interfaces\ISchemaMerge.cs" />
     <Compile Include="Merge\Action\AddColumn.cs" />
     <Compile Include="Merge\Action\AlterColumn.cs" />
+    <Compile Include="Merge\Action\AlterForeignKey.cs" />
     <Compile Include="Merge\Action\AlterPrimaryKey.cs" />
     <Compile Include="Merge\Action\CreateForeignKey.cs" />
     <Compile Include="Merge\Action\CreatePrimaryKey.cs" />
     <Compile Include="Merge\Action\DropColumn.cs" />
     <Compile Include="Merge\Action\DropPrimaryKey.cs" />
     <Compile Include="Merge\Action\DropTable.cs" />
+    <Compile Include="Merge\Action\MergeForeignKeyBase.cs" />
     <Compile Include="Merge\AddVersion.cs" />
     <Compile Include="Merge\AlterIndexes.cs" />
     <Compile Include="Merge\AlterForeignKeys.cs" />

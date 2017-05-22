@@ -1,45 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Attributes;
-using Dapper;
 
 namespace Postulate.Orm.Merge.Action
 {
-    public class CreateForeignKey : MergeAction
+    public class CreateForeignKey : MergeForeignKeyBase
     {
-        private readonly PropertyInfo _pi;
-
-        public CreateForeignKey(PropertyInfo propertyInfo) : base(MergeObjectType.ForeignKey, MergeActionType.Create, $"Add foreign key {propertyInfo.ForeignKeyName()}")            
+        public CreateForeignKey(PropertyInfo propertyInfo) : base(propertyInfo, MergeActionType.Create, $"Add foreign key {propertyInfo.ForeignKeyName()}")
         {
-            _pi = propertyInfo;
-        }
-
-        public override IEnumerable<string> SqlCommands(IDbConnection connection)
-        {
-            ForeignKeyAttribute fk = _pi.GetForeignKeyAttribute();
-            string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
-            yield return
-                $"ALTER TABLE {DbObject.SqlServerName(_pi.DeclaringType)} ADD CONSTRAINT [{_pi.ForeignKeyName()}] FOREIGN KEY (\r\n" +
-                    $"\t[{_pi.SqlColumnName()}]\r\n" +
-                $") REFERENCES {DbObject.SqlServerName(fk.PrimaryTableType)} (\r\n" +
-                    $"\t[{fk.PrimaryTableType.IdentityColumnName()}]\r\n" +
-                ")" + cascadeDelete;
-
-            if (fk.CreateIndex)
-            {
-                yield return $"CREATE INDEX [IX_{DbObject.SqlServerName(_pi.DeclaringType)}_{_pi.SqlColumnName()}] ([{_pi.SqlColumnName()}])";
-            }
-        }
-
-        public override IEnumerable<string> ValidationErrors(IDbConnection connection)
-        {
-            return new string[] { };
         }
 
         public override string ToString()
