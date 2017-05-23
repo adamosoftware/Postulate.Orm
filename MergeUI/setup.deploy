@@ -102,6 +102,13 @@ Description of this component to help the user to determine if it should be inst
 1
 FALSE
 +
+C:\Users\Adam\Dropbox\Visual Studio 2017\Projects\PostulateORM\MergeUI\bin\Release\AoOptions.dll
+3
+1
+TRUE
+TRUE
+FALSE
+FALSE
 C:\Users\Adam\Dropbox\Visual Studio 2017\Projects\PostulateORM\MergeUI\bin\Release\Dapper.dll
 3
 1
@@ -110,6 +117,13 @@ TRUE
 FALSE
 FALSE
 C:\Users\Adam\Dropbox\Visual Studio 2017\Projects\PostulateORM\MergeUI\bin\Release\FastColoredTextBox.dll
+3
+1
+TRUE
+TRUE
+FALSE
+FALSE
+C:\Users\Adam\Dropbox\Visual Studio 2017\Projects\PostulateORM\MergeUI\bin\Release\Newtonsoft.Json.dll
 3
 1
 TRUE
@@ -144,6 +158,13 @@ TRUE
 TRUE
 FALSE
 FALSE
+C:\Users\Adam\Dropbox\Visual Studio 2017\Projects\PostulateORM\MergeUI\bin\Release\XmlSerializerHelper.dll
+3
+1
+TRUE
+TRUE
+FALSE
+FALSE
 -
 %APPMENU%
 1
@@ -154,7 +175,7 @@ FALSE
 +
 C:\Users\Adam\Dropbox\Visual Studio 2017\Projects\PostulateORM\MergeUI\bin\Release\PostulateMergeUI.exe
 4
-
+Postulate Schema Merge
 
 
 
