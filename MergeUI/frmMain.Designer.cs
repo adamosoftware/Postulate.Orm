@@ -1,4 +1,6 @@
-﻿namespace Postulate.MergeUI
+﻿using Postulate.MergeUI.Controls;
+
+namespace Postulate.MergeUI
 {
     partial class frmMain
     {
@@ -31,30 +33,30 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.splcActions = new System.Windows.Forms.SplitContainer();
             this.tvwActions = new System.Windows.Forms.TreeView();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.lblErrors = new System.Windows.Forms.Label();
             this.tbSQL = new FastColoredTextBoxNS.FastColoredTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.tbAssembly = new System.Windows.Forms.ToolStripTextBox();
+            this.tbAssembly = new ToolStripSpringTextBox();
             this.btnSelectAssembly = new System.Windows.Forms.ToolStripButton();
             this.btnExecute = new System.Windows.Forms.ToolStripButton();
             this.btnSaveAs = new System.Windows.Forms.ToolStripButton();
             this.btnRefresh = new System.Windows.Forms.ToolStripButton();
-            this.splcActions = new System.Windows.Forms.SplitContainer();
-            this.lblErrors = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbSQL)).BeginInit();
-            this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splcActions)).BeginInit();
             this.splcActions.Panel1.SuspendLayout();
             this.splcActions.Panel2.SuspendLayout();
             this.splcActions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbSQL)).BeginInit();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -75,6 +77,26 @@
             this.splitContainer1.SplitterDistance = 275;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // splcActions
+            // 
+            this.splcActions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splcActions.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splcActions.Location = new System.Drawing.Point(0, 0);
+            this.splcActions.Name = "splcActions";
+            this.splcActions.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splcActions.Panel1
+            // 
+            this.splcActions.Panel1.Controls.Add(this.tvwActions);
+            // 
+            // splcActions.Panel2
+            // 
+            this.splcActions.Panel2.Controls.Add(this.pictureBox1);
+            this.splcActions.Panel2.Controls.Add(this.lblErrors);
+            this.splcActions.Size = new System.Drawing.Size(275, 286);
+            this.splcActions.SplitterDistance = 181;
+            this.splcActions.TabIndex = 1;
             // 
             // tvwActions
             // 
@@ -103,6 +125,27 @@
             this.imageList1.Images.SetKeyName(5, "Database");
             this.imageList1.Images.SetKeyName(6, "ForeignKey");
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(12, 13);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(36, 36);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 1;
+            this.pictureBox1.TabStop = false;
+            // 
+            // lblErrors
+            // 
+            this.lblErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblErrors.Location = new System.Drawing.Point(54, 13);
+            this.lblErrors.Name = "lblErrors";
+            this.lblErrors.Size = new System.Drawing.Size(218, 79);
+            this.lblErrors.TabIndex = 0;
+            this.lblErrors.Text = "label1";
+            // 
             // tbSQL
             // 
             this.tbSQL.AutoCompleteBracketsList = new char[] {
@@ -125,6 +168,7 @@
             this.tbSQL.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.tbSQL.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.tbSQL.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbSQL.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.tbSQL.IsReplaceMode = false;
             this.tbSQL.Language = FastColoredTextBoxNS.Language.SQL;
             this.tbSQL.LeftBracket = '(';
@@ -205,47 +249,6 @@
             this.btnRefresh.Text = "toolStripButton1";
             this.btnRefresh.Click += new System.EventHandler(this.tsbRefresh_Click);
             // 
-            // splcActions
-            // 
-            this.splcActions.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splcActions.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.splcActions.Location = new System.Drawing.Point(0, 0);
-            this.splcActions.Name = "splcActions";
-            this.splcActions.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splcActions.Panel1
-            // 
-            this.splcActions.Panel1.Controls.Add(this.tvwActions);
-            // 
-            // splcActions.Panel2
-            // 
-            this.splcActions.Panel2.Controls.Add(this.pictureBox1);
-            this.splcActions.Panel2.Controls.Add(this.lblErrors);
-            this.splcActions.Size = new System.Drawing.Size(275, 286);
-            this.splcActions.SplitterDistance = 181;
-            this.splcActions.TabIndex = 1;
-            // 
-            // lblErrors
-            // 
-            this.lblErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblErrors.Location = new System.Drawing.Point(54, 13);
-            this.lblErrors.Name = "lblErrors";
-            this.lblErrors.Size = new System.Drawing.Size(218, 79);
-            this.lblErrors.TabIndex = 0;
-            this.lblErrors.Text = "label1";
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(12, 13);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(36, 36);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -258,20 +261,19 @@
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Schema Merge";
-            this.Load += new System.EventHandler(this.frmMain_Load);
-            this.ResizeEnd += new System.EventHandler(this.frmMain_ResizeEnd);
+            this.Load += new System.EventHandler(this.frmMain_Load);                        
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.tbSQL)).EndInit();
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
             this.splcActions.Panel1.ResumeLayout(false);
             this.splcActions.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splcActions)).EndInit();
             this.splcActions.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbSQL)).EndInit();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

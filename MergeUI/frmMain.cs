@@ -84,18 +84,10 @@ namespace Postulate.MergeUI
             }
         }        
 
-        private void frmMain_ResizeEnd(object sender, EventArgs e)
-        {            
-            int width = this.Width - btnExecute.Width - toolStripLabel1.Width - btnRefresh.Width - btnSaveAs.Width - btnSelectAssembly.Width - 50;
-            tbAssembly.Size = new Size(width, tbAssembly.Height);
-        }
-
         private void frmMain_Load(object sender, EventArgs e)
         {
             try
             {
-                frmMain_ResizeEnd(sender, e);
-
                 if (MergeActions != null)
                 {
                     tbAssembly.Text = AssemblyFilename;

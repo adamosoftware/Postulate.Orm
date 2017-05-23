@@ -7,7 +7,7 @@
     <ProjectGuid>{B47D7C13-8D32-4BBD-B645-5ADB033B0A4C}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Postulate.MergeUI</RootNamespace>
-    <AssemblyName>MergeUI</AssemblyName>
+    <AssemblyName>PostulateMergeUI</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -55,6 +55,9 @@
   <ItemGroup>
     <Compile Include="ActionNode.cs" />
     <Compile Include="ActionTypeNode.cs" />
+    <Compile Include="Controls\ToolStripSpringTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -98,6 +101,9 @@
       <Project>{74D32DED-6B61-4C06-99B7-4BF11A7325E0}</Project>
       <Name>Postulate.Orm</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
