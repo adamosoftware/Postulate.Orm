@@ -1,14 +1,14 @@
 # Postulate ORM
 
-Postulate is a lightweight code-first ORM for SQL Server made with Dapper that uses inline SQL. You can target any data source that supports `IDbConnection`, but the default implementation is for SQL Server, and the Schema Merge feature works only with SQL Server. This repo an overhaul of the [prior version](https://github.com/adamosoftware/Postulate08) with a number of breaking changes -- the new syntax is simpler, and model classes no longer require a RowManager.
+Nuget package **Postulate.Orm**
 
-As of now (5/15/17), there is a pre-release nuget package **Postulate.Orm**. The Query class has been moved to [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql).
+Postulate is a lightweight code-first ORM for SQL Server made with Dapper that uses inline SQL. You can target any data source that supports `IDbConnection`, but the default implementation is for SQL Server, and the Schema Merge feature works only with SQL Server. This repo an overhaul of the [prior version](https://github.com/adamosoftware/Postulate08) with a number of breaking changes -- the new syntax is simpler, and model classes no longer require a RowManager. The Query class has been moved to [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql).
 
 This is Postulate in a nutshell:
 
 - [SqlServerDb&lt;TKey&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/SqlServerDb.cs) is the "root object" you inherit from that represents access to a SQL Server database as a whole. It offers CRUD methods such as [Find](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/SqlServerDb.cs#L33), [Save](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/SqlServerDb.cs#L78), and [Delete](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/SqlServerDb.cs#L60). Supported key types are `int`, `long`, and `Guid`.
 
-- The only requirement for model classes is that they must inherit from [Record&lt;TKey&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Abstract/Record.cs). The `Record<TKey>` class has many overrides for checking permissions, handling events, and performing validation. A variety of attributes let you define foreign keys, primary keys, as well as fine-tune behaviors in multi-tenant systems such as limiting update capability on partition fields. See "Designing Model Classes" for more information.
+- The only requirement for model classes is that they must inherit from [Record&lt;TKey&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Abstract/Record.cs). The `Record<TKey>` class has many overrides for checking permissions, handling events, and performing validation. A variety of attributes let you define foreign keys, primary keys, as well as fine-tune behaviors in multi-tenant systems such as limiting update capability on partition fields. See [Designing Model Classes](https://github.com/adamosoftware/Postulate.Orm/wiki/Designing-Model-Classes) for more information.
 
 - Use the [SchemaMerge](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Merge/SchemaMerge.cs) class to migrate models to your database. It offers methods for comparing and synchronizing models and the physical database, and works only with SQL Server. See "Schema Merging" for more information.
 
