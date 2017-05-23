@@ -70,7 +70,7 @@ namespace Postulate.Orm.Merge.Action
         {
             if (_dropFirst)
             {
-                DropTable drop = new DropTable(new DbObject(_schema, _name));
+                DropTable drop = new DropTable(new DbObject(_schema, _name, connection));
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
 

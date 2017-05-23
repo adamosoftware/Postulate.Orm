@@ -26,6 +26,15 @@ namespace Postulate.Orm.Merge
             PKConstraintName = "PK_" + ConstraintName(schema, name);
         }
 
+        public DbObject(string schema, string name, IDbConnection connection)
+        {
+            _schema = schema;
+            _name = name;
+            SquareBraces = true;
+            PKConstraintName = "PK_" + ConstraintName(schema, name);
+            SetObjectId(connection, this);
+        }
+
 		public DbObject()
 		{
 		}
