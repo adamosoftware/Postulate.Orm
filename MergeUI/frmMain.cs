@@ -24,17 +24,22 @@ namespace Postulate.MergeUI
         {
             try
             {
-                OpenFileDialog dlg = new OpenFileDialog();
-                dlg.Filter = "Assemblies|*.dll;*.exe|All Files|*.*";
-                if (dlg.ShowDialog() == DialogResult.OK)
-                {
-                    tbAssembly.Text = dlg.FileName;
-                    Refresh();
-                }
+                OpenAssembly();
             }
             catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);
+            }
+        }
+
+        private void OpenAssembly()
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "Assemblies|*.dll;*.exe|All Files|*.*";
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                tbAssembly.Text = dlg.FileName;
+                Refresh();
             }
         }
 
@@ -94,6 +99,10 @@ namespace Postulate.MergeUI
                 {
                     tbAssembly.Text = AssemblyFilename;
                     BuildTreeView();
+                }
+                else
+                {
+                    OpenAssembly();
                 }
             }
             catch (Exception exc)

@@ -1,4 +1,5 @@
-﻿using Postulate.MergeUI.Controls;
+﻿
+using AdamOneilSoftware.Controls;
 
 namespace Postulate.MergeUI
 {
@@ -41,7 +42,7 @@ namespace Postulate.MergeUI
             this.tbSQL = new FastColoredTextBoxNS.FastColoredTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.tbAssembly = new Postulate.MergeUI.Controls.ToolStripSpringTextBox();
+            this.tbAssembly = new ToolStripSpringTextBox();
             this.btnSelectAssembly = new System.Windows.Forms.ToolStripButton();
             this.btnExecute = new System.Windows.Forms.ToolStripButton();
             this.btnSaveAs = new System.Windows.Forms.ToolStripButton();
