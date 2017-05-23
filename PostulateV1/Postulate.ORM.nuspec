@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Postulate.Orm</id>
-    <version>$version$-alpha</version>
+    <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
@@ -11,5 +11,9 @@
     <description>Lightweight code-first ORM made with Dapper</description>
     <copyright>$copyright$</copyright>
     <tags>orm dapper codefirst</tags>
+  <frameworkAssemblies>
+	<frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework="net40"/>
+	<frameworkAssembly assemblyName="System.Configuration" targetFramework="net40"/>
+  </frameworkAssemblies>
   </metadata>
 </package>
