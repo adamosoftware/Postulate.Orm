@@ -151,6 +151,16 @@ FALSE
 %DESKTOP%
 1
 FALSE
++
+C:\Users\Adam\Dropbox\Visual Studio 2017\Projects\PostulateORM\MergeUI\bin\Release\PostulateMergeUI.exe
+4
+
+
+
+
+0
+0
+-
 %FONTS%
 1
 FALSE
@@ -287,7 +297,7 @@ You are attempting to run the installer for %APP% %VERSION%.  This installer exp
 4095
 *.chm;*.png;*.jpg;*.gif;*.mp3;*.avi;*.zip
 
-PostulateSchemaMergeSetup
+PostulateSchemaMergeSetup.exe
 
 FALSE
 

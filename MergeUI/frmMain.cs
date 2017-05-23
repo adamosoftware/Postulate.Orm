@@ -12,6 +12,8 @@ namespace Postulate.MergeUI
 {
     public partial class frmMain : Form
     {
+        private Options _options = null;
+
         public frmMain()
         {
             InitializeComponent();
@@ -93,6 +95,11 @@ namespace Postulate.MergeUI
         {
             try
             {
+                _options = UserOptionsBase.Load<Options>("Options.xml", this);
+                _options.TrackFormPosition(this, (fp) => _options.MainFormPosition = fp);
+                _options.RestoreFormPosition(_options.MainFormPosition, this);
+                if (_options.SplitterPosition > 0) splitContainer1.SplitterDistance = _options.SplitterPosition;
+
                 splcActions.Panel2Collapsed = true;
 
                 if (MergeActions != null)
@@ -225,6 +232,11 @@ namespace Postulate.MergeUI
             {
                 MessageBox.Show(exc.Message);
             }
+        }
+
+        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            _options.SplitterPosition = e.SplitX;
         }
     }
 }

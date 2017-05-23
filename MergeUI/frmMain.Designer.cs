@@ -78,6 +78,7 @@ namespace Postulate.MergeUI
             this.splitContainer1.SplitterDistance = 281;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 0;
+            this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
             // 
             // splcActions
             // 

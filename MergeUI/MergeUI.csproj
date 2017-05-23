@@ -32,9 +32,18 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>SchemaMerge.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AoOptions, Version=1.5.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AoOptions.1.5.10\lib\net461\AoOptions.dll</HintPath>
+    </Reference>
     <Reference Include="FastColoredTextBox, Version=2.16.21.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
       <HintPath>..\packages\FCTB.2.16.21.0\lib\FastColoredTextBox.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -51,6 +60,9 @@
     <Reference Include="WinFormsExt, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\AoWinFormsExt.1.0.8\lib\net461\WinFormsExt.dll</HintPath>
     </Reference>
+    <Reference Include="XmlSerializerHelper, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AoXmlSerializer.1.0.9\lib\net461\XmlSerializerHelper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionNode.cs" />
@@ -64,6 +76,7 @@
     <Compile Include="DbNode.cs" />
     <Compile Include="MergeViewModel.cs" />
     <Compile Include="ObjectTypeNode.cs" />
+    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmMain.resx">
@@ -103,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\SchemaMerge.ico" />
+    <Content Include="SchemaMerge.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
