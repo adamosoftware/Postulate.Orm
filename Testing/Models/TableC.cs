@@ -11,5 +11,6 @@ namespace Testing.Models
         public long SomeValue { get; set; }
         public DateTime SomeDate { get; set; }
         public Double SomeDouble { get; set; }
+        public int AnotherValue { get; set; }
     }
 }

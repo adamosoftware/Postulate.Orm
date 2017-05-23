@@ -14,7 +14,7 @@ namespace Testing.Models
         [ForeignKey(typeof(Organization), createIndex:true)]
         public int OrganizationId { get; set; }
 
-        [MaxLength(255)]
+        [MaxLength(500)]
         public string Description { get; set; }
     }
 }

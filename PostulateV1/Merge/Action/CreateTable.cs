@@ -17,13 +17,15 @@ namespace Postulate.Orm.Merge.Action
         private readonly Type _modelType;
         private readonly string _schema;
         private readonly string _name;
+        private readonly bool _dropFirst;
 
-        public CreateTable(Type modelType) : base(MergeObjectType.Table, MergeActionType.Create, $"Create table {TableName(modelType)}")
+        public CreateTable(Type modelType, bool dropFirst = false) : base(MergeObjectType.Table, MergeActionType.Create, $"Create table {TableName(modelType)}")
         {
             if (modelType.HasAttribute<NotMappedAttribute>()) throw new InvalidOperationException($"The model class {modelType.Name} is marked as [NotMapped]");
 
             _modelType = modelType;
             ParseNameAndSchema(modelType, out _schema, out _name);
+            _dropFirst = dropFirst;
         }
 
         internal bool InPrimaryKey(string columnName, out string pkName)
@@ -66,6 +68,12 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            if (_dropFirst)
+            {
+                DropTable drop = new DropTable(new DbObject(_schema, _name));
+                foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
+            }
+
             yield return
                 $"CREATE TABLE {TableName(_modelType)} (\r\n\t" +
                     string.Join(",\r\n\t", CreateTableMembers()) +

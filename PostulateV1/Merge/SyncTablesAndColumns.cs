@@ -129,9 +129,8 @@ namespace Postulate.Orm.Merge
                 .Where(obj => connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name));
 
             foreach (var tbl in rebuildTables)
-            {
-                yield return new DropTable(tbl.Key, $"Empty table being re-created to add new columns: {string.Join(", ", tbl.Select(pi => pi.SqlColumnName()))}");
-                yield return new CreateTable(tbl.Key.ModelType);
+            {                
+                yield return new CreateTable(tbl.Key.ModelType, true);
             }
         }
 
