@@ -339,7 +339,7 @@ namespace Postulate.Orm.Abstract
             if (row == null) return null;
 
             string message;
-            if (row.AllowFind(connection, UserName, out message))
+            if (row.AllowView(connection, UserName, out message))
             {
                 return row;
             }

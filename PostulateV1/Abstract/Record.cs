@@ -89,7 +89,7 @@ namespace Postulate.Orm.Abstract
         /// <summary>
         /// Override this to determine if a given user has permission to view this record
         /// </summary>
-        public virtual bool AllowFind(IDbConnection connection, string userName, out string message)
+        public virtual bool AllowView(IDbConnection connection, string userName, out string message)
         {
             message = null;
             return true;
