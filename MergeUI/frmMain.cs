@@ -88,6 +88,8 @@ namespace Postulate.MergeUI
         {
             try
             {
+                splcActions.Panel2Collapsed = true;
+
                 if (MergeActions != null)
                 {
                     tbAssembly.Text = AssemblyFilename;

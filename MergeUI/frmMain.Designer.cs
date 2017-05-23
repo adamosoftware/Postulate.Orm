@@ -41,7 +41,7 @@ namespace Postulate.MergeUI
             this.tbSQL = new FastColoredTextBoxNS.FastColoredTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.tbAssembly = new ToolStripSpringTextBox();
+            this.tbAssembly = new Postulate.MergeUI.Controls.ToolStripSpringTextBox();
             this.btnSelectAssembly = new System.Windows.Forms.ToolStripButton();
             this.btnExecute = new System.Windows.Forms.ToolStripButton();
             this.btnSaveAs = new System.Windows.Forms.ToolStripButton();
@@ -73,8 +73,8 @@ namespace Postulate.MergeUI
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tbSQL);
-            this.splitContainer1.Size = new System.Drawing.Size(643, 286);
-            this.splitContainer1.SplitterDistance = 275;
+            this.splitContainer1.Size = new System.Drawing.Size(659, 286);
+            this.splitContainer1.SplitterDistance = 281;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -94,7 +94,7 @@ namespace Postulate.MergeUI
             // 
             this.splcActions.Panel2.Controls.Add(this.pictureBox1);
             this.splcActions.Panel2.Controls.Add(this.lblErrors);
-            this.splcActions.Size = new System.Drawing.Size(275, 286);
+            this.splcActions.Size = new System.Drawing.Size(281, 286);
             this.splcActions.SplitterDistance = 181;
             this.splcActions.TabIndex = 1;
             // 
@@ -108,7 +108,7 @@ namespace Postulate.MergeUI
             this.tvwActions.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tvwActions.Name = "tvwActions";
             this.tvwActions.SelectedImageIndex = 0;
-            this.tvwActions.Size = new System.Drawing.Size(275, 181);
+            this.tvwActions.Size = new System.Drawing.Size(281, 181);
             this.tvwActions.TabIndex = 0;
             this.tvwActions.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterCheck);
             this.tvwActions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterSelect);
@@ -142,7 +142,7 @@ namespace Postulate.MergeUI
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblErrors.Location = new System.Drawing.Point(54, 13);
             this.lblErrors.Name = "lblErrors";
-            this.lblErrors.Size = new System.Drawing.Size(218, 79);
+            this.lblErrors.Size = new System.Drawing.Size(224, 79);
             this.lblErrors.TabIndex = 0;
             this.lblErrors.Text = "label1";
             // 
@@ -168,7 +168,6 @@ namespace Postulate.MergeUI
             this.tbSQL.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.tbSQL.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.tbSQL.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbSQL.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.tbSQL.IsReplaceMode = false;
             this.tbSQL.Language = FastColoredTextBoxNS.Language.SQL;
             this.tbSQL.LeftBracket = '(';
@@ -179,7 +178,7 @@ namespace Postulate.MergeUI
             this.tbSQL.RightBracket = ')';
             this.tbSQL.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
             this.tbSQL.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("tbSQL.ServiceColors")));
-            this.tbSQL.Size = new System.Drawing.Size(363, 286);
+            this.tbSQL.Size = new System.Drawing.Size(373, 286);
             this.tbSQL.TabIndex = 0;
             this.tbSQL.Zoom = 100;
             // 
@@ -194,7 +193,7 @@ namespace Postulate.MergeUI
             this.btnRefresh});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(643, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(659, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -207,7 +206,7 @@ namespace Postulate.MergeUI
             // tbAssembly
             // 
             this.tbAssembly.Name = "tbAssembly";
-            this.tbAssembly.Size = new System.Drawing.Size(349, 25);
+            this.tbAssembly.Size = new System.Drawing.Size(366, 25);
             // 
             // btnSelectAssembly
             // 
@@ -253,7 +252,7 @@ namespace Postulate.MergeUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(643, 311);
+            this.ClientSize = new System.Drawing.Size(659, 311);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.toolStrip1);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -261,7 +260,7 @@ namespace Postulate.MergeUI
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Schema Merge";
-            this.Load += new System.EventHandler(this.frmMain_Load);                        
+            this.Load += new System.EventHandler(this.frmMain_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -284,7 +283,6 @@ namespace Postulate.MergeUI
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
-        private System.Windows.Forms.ToolStripTextBox tbAssembly;
         private System.Windows.Forms.ToolStripButton btnSelectAssembly;
         private System.Windows.Forms.TreeView tvwActions;
         private System.Windows.Forms.ToolStripButton btnExecute;
@@ -295,6 +293,7 @@ namespace Postulate.MergeUI
         private System.Windows.Forms.SplitContainer splcActions;
         private System.Windows.Forms.Label lblErrors;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private ToolStripSpringTextBox tbAssembly;
     }
 }
 
