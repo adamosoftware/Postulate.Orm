@@ -95,6 +95,8 @@ namespace Postulate.MergeUI
         {
             try
             {
+                Text = $"Postulate Schema Merge - {Application.ProductVersion}";
+
                 _options = UserOptionsBase.Load<Options>("Options.xml", this);
                 _options.TrackFormPosition(this, (fp) => _options.MainFormPosition = fp);
                 _options.RestoreFormPosition(_options.MainFormPosition, this);
