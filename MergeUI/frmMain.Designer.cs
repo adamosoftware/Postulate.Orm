@@ -42,7 +42,7 @@ namespace Postulate.MergeUI
             this.tbSQL = new FastColoredTextBoxNS.FastColoredTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.tbAssembly = new ToolStripSpringTextBox();
+            this.tbAssembly = new AdamOneilSoftware.Controls.ToolStripSpringTextBox();
             this.btnSelectAssembly = new System.Windows.Forms.ToolStripButton();
             this.btnExecute = new System.Windows.Forms.ToolStripButton();
             this.btnSaveAs = new System.Windows.Forms.ToolStripButton();
@@ -169,6 +169,7 @@ namespace Postulate.MergeUI
             this.tbSQL.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.tbSQL.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.tbSQL.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbSQL.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.tbSQL.IsReplaceMode = false;
             this.tbSQL.Language = FastColoredTextBoxNS.Language.SQL;
             this.tbSQL.LeftBracket = '(';
@@ -257,6 +258,7 @@ namespace Postulate.MergeUI
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.toolStrip1);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
