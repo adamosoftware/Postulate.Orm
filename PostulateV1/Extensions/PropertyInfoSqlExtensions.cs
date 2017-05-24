@@ -134,6 +134,12 @@ namespace Postulate.Orm.Extensions
             throw new ArgumentException($"The property {propertyInfo.Name} does not have a [ForeignKey] attribute.");
         }
 
+        public static Type GetForeignKeyType(this PropertyInfo propertyInfo)
+        {
+            var fkAttr = GetForeignKeyAttribute(propertyInfo);
+            return (fkAttr != null) ? fkAttr.PrimaryTableType : null;
+        }
+
         public static string ForeignKeyName(this PropertyInfo propertyInfo)
         {
             var fk = GetForeignKeyAttribute(propertyInfo);

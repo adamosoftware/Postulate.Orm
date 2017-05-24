@@ -39,7 +39,7 @@ namespace Postulate.Orm.Merge
             var newFK = _modelTypes.SelectMany(t =>
                 t.GetModelForeignKeys().Where(pi =>
                     !connection.ForeignKeyExists(pi) ||
-                    rebuiltTables.OfType<CreateTable>().Any(ct => ct.ModelType.Equals(pi.DeclaringType))));
+                    rebuiltTables.OfType<CreateTable>().Any(ct => ct.ModelType.Equals(pi.GetForeignKeyType()))));
             results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
 
             var deletedFK = DeletedForeignKeys(connection, deletedTables, deletedColumns);
