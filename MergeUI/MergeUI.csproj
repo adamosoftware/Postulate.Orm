@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>SchemaMerge.ico</ApplicationIcon>
+    <ApplicationIcon>Schema_Merge.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AoOptions, Version=1.5.10.0, Culture=neutral, processorArchitecture=MSIL">
@@ -117,6 +117,7 @@
   <ItemGroup>
     <Content Include="Resources\SchemaMerge.ico" />
     <Content Include="SchemaMerge.ico" />
+    <Content Include="Schema_Merge.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
