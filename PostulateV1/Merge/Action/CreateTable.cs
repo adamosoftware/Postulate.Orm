@@ -18,14 +18,16 @@ namespace Postulate.Orm.Merge.Action
         private readonly string _schema;
         private readonly string _name;
         private readonly bool _dropFirst;
+        private readonly IEnumerable<string> _addedColumns;
 
-        public CreateTable(Type modelType, bool dropFirst = false) : base(MergeObjectType.Table, MergeActionType.Create, $"Create table {TableName(modelType)}")
+        public CreateTable(Type modelType, bool dropFirst = false, IEnumerable<string> addedColumns = null) : base(MergeObjectType.Table, MergeActionType.Create, $"Create table {TableName(modelType)}")
         {
             if (modelType.HasAttribute<NotMappedAttribute>()) throw new InvalidOperationException($"The model class {modelType.Name} is marked as [NotMapped]");
 
             _modelType = modelType;
             ParseNameAndSchema(modelType, out _schema, out _name);
             _dropFirst = dropFirst;
+            _addedColumns = addedColumns;
         }
 
         internal bool InPrimaryKey(string columnName, out string pkName)
@@ -186,7 +188,9 @@ namespace Postulate.Orm.Merge.Action
                     !p.HasAttribute<NotMappedAttribute>())
                 .Select(pi =>
                 {
-                    return pi.SqlColumnSyntax();
+                    string result = pi.SqlColumnSyntax();
+                    if (_addedColumns?.Contains(pi.SqlColumnName()) ?? false) result += " /* added */";
+                    return result;
                 }));
 
             if (identityPos == Position.EndOfTable) results.Add(IdentityColumnSql());

@@ -133,8 +133,9 @@ namespace Postulate.Orm.Merge
                 .Where(obj => connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name));
 
             foreach (var tbl in rebuildTables)
-            {                
-                yield return new CreateTable(tbl.Key.ModelType, true);
+            {
+                var addedColumns = tbl.Select(pi => pi.SqlColumnName());
+                yield return new CreateTable(tbl.Key.ModelType, true, addedColumns);
             }
         }
 
