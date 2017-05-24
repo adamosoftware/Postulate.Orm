@@ -4,9 +4,9 @@ Adam O'Neil Software
 https://github.com/adamosoftware
 Postulate Schema Merge
 https://github.com/adamosoftware/Postulate.Orm/wiki/Schema-Merge
-1.0.1
+1.0.3
 TRUE
-42878
+42879
 C:\Users\Adam\Dropbox\Visual Studio 2017\Projects\PostulateORM\SchemaMerge.ico
 Copyright © 2017 Adam O'Neil Software
 
@@ -14,7 +14,7 @@ Copyright © 2017 Adam O'Neil Software
 TRUE
 
 
-FALSE
+TRUE
 %PROGRAMFILES%\Adam O'Neil Software\Postulate Schema Merge
 %COMMONFILES%\Adam O'Neil Software\Postulate Schema Merge
 %PROGRAMSMENU%\Postulate Schema Merge
