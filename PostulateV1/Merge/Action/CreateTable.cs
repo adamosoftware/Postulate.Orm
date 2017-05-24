@@ -280,5 +280,7 @@ namespace Postulate.Orm.Merge.Action
         {
             return $"{Schema}.{Name}";
         }
+
+        public Type ModelType { get { return _modelType; } }
     }
 }

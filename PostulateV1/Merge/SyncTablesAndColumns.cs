@@ -26,7 +26,8 @@ namespace Postulate.Orm.Merge
             results.AddRange(newTables);
 
             var newColumns = NewColumns(connection, newTables.OfType<CreateTable>());
-            results.AddRange(AddColumnsWithEmptyTableRebuild(connection, newColumns));
+            var rebuiltTables = AddColumnsWithEmptyTableRebuild(connection, newColumns);
+            results.AddRange(rebuiltTables);
             results.AddRange(AddColumnsWithTableAlter(connection, newColumns));
 
             var deletedTables = DeletedTables(connection);
@@ -35,7 +36,10 @@ namespace Postulate.Orm.Merge
             var deletedColumns = DeletedColumns(connection, deletedTables);
             results.AddRange(deletedColumns.Select(cr => new DropColumn(cr, cr.FindModelType(_modelTypes))));
 
-            var newFK = _modelTypes.SelectMany(t => t.GetModelForeignKeys().Where(pi => !connection.ForeignKeyExists(pi)));
+            var newFK = _modelTypes.SelectMany(t =>
+                t.GetModelForeignKeys().Where(pi =>
+                    !connection.ForeignKeyExists(pi) ||
+                    rebuiltTables.OfType<CreateTable>().Any(ct => ct.ModelType.Equals(pi.DeclaringType))));
             results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
 
             var deletedFK = DeletedForeignKeys(connection, deletedTables, deletedColumns);
