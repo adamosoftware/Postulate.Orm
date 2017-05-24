@@ -195,9 +195,76 @@ namespace Postulate.Orm.Abstract
             {
                 throw new ValidationException(message);
             }
+        }        
+
+        /// <summary>
+        /// Inserts or updates the given records from an open connection. Does not set the record Id property unless the batchSize argument is 1 or less.
+        /// </summary>
+        public async Task SaveMultipleAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        {
+            var exc = await SaveMultipleInnerAsync(connection, records, batchSize, cancellationToken, progress);
+            if (exc != null) throw new SaveException(exc.Message, exc.CommandText, exc.Record);
+        }
+
+        /// <summary>
+        /// Inserts or updates the given records. Does not set the record Id property unless the batchSize argument to 1 or less.
+        /// </summary>
+        public async Task SaveMultipleAsync<TRecord>(IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        {
+            SaveException exc = null;
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                exc = await SaveMultipleInnerAsync(cn, records, batchSize, cancellationToken, progress);
+            }
+            if (exc != null) throw new SaveException(exc.Message, exc.CommandText, exc.Record);
         }
 
         private async Task<SaveException> SaveMultipleInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        {
+            if (batchSize > 1)
+            {
+                return await SaveInBatches(connection, records, batchSize, progress, cancellationToken);
+            }
+            else
+            {
+                return await SaveEachInnerAsync(connection, records, progress, cancellationToken);
+            }            
+        }
+
+        private async Task<SaveException> SaveEachInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, IProgress<int> progress, CancellationToken cancellationToken) where TRecord : Record<TKey>
+        {
+            SaveException exc = null;
+
+            await Task.Run(() =>
+            {
+                int percentDone = 0;
+                int count = 0;
+                int totalCount = records.Count();
+                foreach (var record in records)
+                {
+                    if (cancellationToken.IsCancellationRequested) break;
+
+                    try
+                    {
+                        Save(connection, record);
+                    }
+                    catch (SaveException excInner)
+                    {
+                        exc = excInner;
+                        break;
+                    }
+                    
+                    count++;
+                    percentDone = Convert.ToInt32(Convert.ToDouble(count) / Convert.ToDouble(totalCount) * 100);
+                    progress?.Report(percentDone);
+                }
+            });
+
+            return exc;
+        }
+
+        private async Task<SaveException> SaveInBatches<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize, IProgress<int> progress, CancellationToken cancellationToken) where TRecord : Record<TKey>
         {
             Func<TRecord, bool> insertPredicate = (r) => { return r.IsNew(); };
             Func<TRecord, bool> updatePredicate = (r) => { return !r.IsNew(); };
@@ -245,29 +312,6 @@ namespace Postulate.Orm.Abstract
             });
 
             return exc;
-        }
-
-        /// <summary>
-        /// Inserts or updates the given records from an open connection. Does not set the record Id property.
-        /// </summary>
-        public async Task SaveMultipleAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
-        {
-            var exc = await SaveMultipleInnerAsync(connection, records, batchSize, cancellationToken, progress);
-            if (exc != null) throw new SaveException(exc.Message, exc.CommandText, exc.Record);
-        }
-
-        /// <summary>
-        /// Inserts or updates the given records. Does not set the record Id property.
-        /// </summary>
-        public async Task SaveMultipleAsync<TRecord>(IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
-        {
-            SaveException exc = null;
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                exc = await SaveMultipleInnerAsync(cn, records, batchSize, cancellationToken, progress);
-            }
-            if (exc != null) throw new SaveException(exc.Message, exc.CommandText, exc.Record);
         }
 
         public void Update<TRecord>(IDbConnection connection, TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>
