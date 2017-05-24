@@ -10,8 +10,8 @@ namespace Testing.Models
     [ForeignKey("OrganizationId", typeof(Organization))]
     public abstract class BaseTable : Record<int>
     {
-        [ColumnAccess(Access.InsertOnly)]        
-        public DateTime DateCreated { get; set; }
+        [ColumnAccess(Access.InsertOnly)]
+        public DateTime DateCreated { get; set; } = DateTime.Now;
 
         [ColumnAccess(Access.InsertOnly)]
         [MaxLength(20)]
