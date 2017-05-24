@@ -19,13 +19,13 @@ namespace Postulate.Orm.Abstract
         public TKey Id
         {
             get { return _id; }
-            set { if (IsNewRow()) { _id = value; } else { throw new InvalidOperationException("Can't set the Id property more than once."); } }
+            set { if (IsNew()) { _id = value; } else { throw new InvalidOperationException("Can't set the Id property more than once."); } }
         }
 
         /// <summary>
         /// Returns true if the record has never been saved before
         /// </summary>        
-        public bool IsNewRow()
+        public bool IsNew()
         {
             return (Id.Equals(default(TKey)));
         }

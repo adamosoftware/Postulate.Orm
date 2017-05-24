@@ -14,6 +14,8 @@ using System.Linq.Expressions;
 using Postulate.Orm.Interfaces;
 using ReflectionHelper;
 using Postulate.Orm.Models;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Postulate.Orm.Abstract
 {
@@ -154,10 +156,10 @@ namespace Postulate.Orm.Abstract
 
         public void Save<TRecord>(IDbConnection connection, TRecord record, out SaveAction action) where TRecord : Record<TKey>
         {
-            action = (record.IsNewRow()) ? SaveAction.Insert : SaveAction.Update;
+            action = (record.IsNew()) ? SaveAction.Insert : SaveAction.Update;
             SaveInner(connection, record, action, (r) =>
             {
-                if (r.IsNewRow())
+                if (r.IsNew())
                 {
                     r.Id = ExecuteInsert(connection, r);
                 }
@@ -192,6 +194,53 @@ namespace Postulate.Orm.Abstract
             else
             {
                 throw new ValidationException(message);
+            }
+        }
+
+        public async Task SaveAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        {
+            Func<TRecord, bool> insertPredicate = (r) => { return r.IsNew(); };
+            Func<TRecord, bool> updatePredicate = (r) => { return !r.IsNew(); };
+
+            var operations = new[]
+            {
+                new { Predicate = insertPredicate, Command = GetInsertStatement<TRecord>() },
+                new { Predicate = updatePredicate, Command = GetUpdateStatement<TRecord>() }
+            };
+
+            await Task.Run(() =>
+            {
+                // thanks to accepted answer at http://stackoverflow.com/questions/10689779/bulk-inserts-taking-longer-than-expected-using-dapper
+
+                int batch = 0;
+                do
+                {
+                    if (cancellationToken.IsCancellationRequested) break;
+                    using (IDbTransaction trans = connection.BeginTransaction())
+                    {
+                        var subset = records.Skip(batch * batchSize).Take(batchSize);
+                        if (!subset.Any()) break;
+
+                        foreach (var op in operations)
+                        {
+                            var subsetRecords = subset.Where(r => op.Predicate.Invoke(r));
+                            connection.Execute(op.Command, subsetRecords, trans);
+                        }
+
+                        trans.Commit();
+                    }
+                    batch++;
+                    progress?.Report(batch * batchSize);
+                } while (true);
+            });
+        }
+
+        public async Task SaveAsync<TRecord>(IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                await SaveAsync<TRecord>(cn, records, batchSize, cancellationToken, progress);
             }
         }
 
@@ -402,7 +451,7 @@ namespace Postulate.Orm.Abstract
 
         public IEnumerable<PropertyChange> GetChanges<TRecord>(IDbConnection connection, TRecord record, string ignoreProps = null) where TRecord : Record<TKey>
         {
-            if (record.IsNewRow()) return null;
+            if (record.IsNew()) return null;
 
             string[] ignorePropsArray = (ignoreProps ?? string.Empty).Split(',', ';').Select(s => s.Trim()).ToArray();
 
