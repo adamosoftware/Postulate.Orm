@@ -125,7 +125,7 @@ namespace Postulate.Orm.Merge
             }
         }
 
-        private IEnumerable<MergeAction> AddColumnsWithEmptyTableRebuild(IDbConnection connection, IEnumerable<PropertyInfo> newColumns)
+        private IEnumerable<CreateTable> AddColumnsWithEmptyTableRebuild(IDbConnection connection, IEnumerable<PropertyInfo> newColumns)
         {
             // empty tables may be dropped and rebuilt with new columns
             var rebuildTables = newColumns

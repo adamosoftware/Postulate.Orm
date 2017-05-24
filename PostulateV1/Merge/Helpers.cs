@@ -26,7 +26,9 @@ namespace Postulate.Orm.Merge
                 FROM 
                     [sys].[foreign_keys] [fk] INNER JOIN [sys].[tables] [child] ON [fk].[parent_object_id]=[child].[object_id]
                     INNER JOIN [sys].[tables] [parent] ON [fk].[referenced_object_id]=[parent].[object_id]
-                    INNER JOIN [sys].[foreign_key_columns] [fkcol] ON [fk].[parent_object_id]=[fkcol].[parent_object_id]        
+                    INNER JOIN [sys].[foreign_key_columns] [fkcol] ON 
+                        [fk].[parent_object_id]=[fkcol].[parent_object_id] AND
+                        [fk].[object_id]=[fkcol].[constraint_object_id]
                     INNER JOIN [sys].[columns] [refdcol] ON 
                         [fkcol].[referenced_column_id]=[refdcol].[column_id] AND
                         [fkcol].[referenced_object_id]=[refdcol].[object_id]
