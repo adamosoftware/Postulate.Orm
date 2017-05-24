@@ -20,27 +20,34 @@ namespace Postulate.MergeUI
         [STAThread]
         static void Main(string[] args)
         {
-            Dictionary<string, MergeViewModel> actions = null;
-            string fileName = null;
-
-            if (args?.Length == 1)
+            try
             {
-                string assembly = args[0];
-                if (File.Exists(assembly))
+                Dictionary<string, MergeViewModel> actions = null;
+                string fileName = null;
+
+                if (args?.Length == 1)
                 {
-                    fileName = assembly;
-                    actions = GetMergeActions(assembly);
-                    if (!actions.Any())
+                    string assembly = args[0];
+                    if (File.Exists(assembly))
                     {
-                        Console.WriteLine($"Postulate: No model changes to merge for {assembly}.");
-                        return;
+                        fileName = assembly;
+                        actions = GetMergeActions(assembly);
+                        if (!actions.Any())
+                        {
+                            Console.WriteLine($"Postulate: No model changes to merge for {assembly}.");
+                            return;
+                        }
                     }
                 }
-            }
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmMain() { MergeActions = actions, AssemblyFilename = fileName });
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new frmMain() { MergeActions = actions, AssemblyFilename = fileName });
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
         }
 
         internal static Dictionary<string, MergeViewModel> GetMergeActions(string assemblyFile)
