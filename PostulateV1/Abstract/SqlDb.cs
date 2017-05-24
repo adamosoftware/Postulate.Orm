@@ -204,14 +204,13 @@ namespace Postulate.Orm.Abstract
 
             var operations = new[]
             {
-                new { Predicate = insertPredicate, Command = GetInsertStatement<TRecord>() },
-                new { Predicate = updatePredicate, Command = GetUpdateStatement<TRecord>() }
+                new { Action = SaveAction.Insert, Predicate = insertPredicate, Command = GetInsertStatement<TRecord>() },
+                new { Action = SaveAction.Update, Predicate = updatePredicate, Command = GetUpdateStatement<TRecord>() }
             };
 
             await Task.Run(() =>
             {
                 // thanks to accepted answer at http://stackoverflow.com/questions/10689779/bulk-inserts-taking-longer-than-expected-using-dapper
-
                 int batch = 0;
                 do
                 {
@@ -224,6 +223,11 @@ namespace Postulate.Orm.Abstract
                         foreach (var op in operations)
                         {
                             var subsetRecords = subset.Where(r => op.Predicate.Invoke(r));
+
+                            string errorMessage = null;
+                            var invalidRecord = subset.FirstOrDefault(item => !item.IsValid(connection, op.Action, out errorMessage));
+                            if (invalidRecord != null) throw new SaveException(errorMessage, op.Command, invalidRecord);
+
                             connection.Execute(op.Command, subsetRecords, trans);
                         }
 
@@ -240,7 +244,7 @@ namespace Postulate.Orm.Abstract
             using (IDbConnection cn = GetConnection())
             {
                 cn.Open();
-                await SaveAsync<TRecord>(cn, records, batchSize, cancellationToken, progress);
+                await SaveAsync(cn, records, batchSize, cancellationToken, progress);
             }
         }
 
