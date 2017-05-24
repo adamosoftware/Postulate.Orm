@@ -207,9 +207,11 @@ namespace Postulate.MergeUI
                     mergeInfo.Merge.Execute(cn, selectedActions.Select(node => node.Action));                    
                 }
 
+                Refresh();
+
                 string message = "Changes executed successfully!";
                 bool exit = false;
-                if (tvwActions.FindNodes<ActionNode>(true, a => !a.Checked).Any())
+                if (!tvwActions.FindNodes<ActionNode>().Any())
                 {
                     message += " Schema Merge will exit since there are no more changes.";
                     exit = true;
@@ -217,8 +219,6 @@ namespace Postulate.MergeUI
                 MessageBox.Show(message);
 
                 if (exit) Application.Exit();
-
-                Refresh();
             }
             catch (Exception exc)
             {
