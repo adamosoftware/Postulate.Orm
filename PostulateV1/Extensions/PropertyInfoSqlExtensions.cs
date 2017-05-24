@@ -160,7 +160,7 @@ namespace Postulate.Orm.Extensions
 
         public static DbObject GetDbObject(this PropertyInfo propertyInfo, IDbConnection connection = null)
         {
-            return DbObject.FromType(propertyInfo.DeclaringType, connection);
+            return DbObject.FromType(propertyInfo.ReflectedType, connection);
         }
 
         public static IEnumerable<string> GetPrimaryKeyValidationErrors(this PropertyInfo propertyInfo)
