@@ -103,6 +103,7 @@ namespace Postulate.Orm.Merge
         {
             // tables with data may only have columns added
             var alterColumns = newColumns
+                .Where(pi => !pi.DeclaringType.IsAbstract)
                 .GroupBy(pi => pi.GetDbObject(connection))
                 .Where(obj => !connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name))
                 .SelectMany(tbl => tbl);
@@ -148,8 +149,8 @@ namespace Postulate.Orm.Merge
                     .Where(pi =>
                         !schemaColumns.Any(cr => cr.Equals(pi)) &&
                         !connection.ColumnExists(t.GetSchema(), t.GetTableName(), pi.SqlColumnName()) &&
-                        pi.CanWrite &&
-                        IsSupportedType(pi.PropertyType) &&
+                        pi.CanWrite &&                        
+                        IsSupportedType(pi.PropertyType) &&                        
                         !pi.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
                         !pi.HasAttribute<NotMappedAttribute>()));
         }

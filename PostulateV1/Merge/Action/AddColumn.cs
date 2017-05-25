@@ -38,5 +38,10 @@ namespace Postulate.Orm.Merge.Action
                 yield return "Adding a non-nullable column to a table with data requires a [DefaultExpression] attribute on the column.";
             }
         }
+
+        public override string ToString()
+        {
+            return $"{_propertyInfo.DeclaringType.Name}.{_propertyInfo.Name}";
+        }
     }
 }
