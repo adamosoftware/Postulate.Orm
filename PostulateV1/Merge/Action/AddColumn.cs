@@ -29,7 +29,11 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)
         {
-            if (!connection.IsTableEmpty(_object.Schema, _object.Name) && !_propertyInfo.AllowSqlNull() && !_propertyInfo.HasAttribute<DefaultExpressionAttribute>())
+            if (
+                connection.TableExists(_object.Schema, _object.Name) && 
+                !connection.IsTableEmpty(_object.Schema, _object.Name) && 
+                !_propertyInfo.AllowSqlNull() && 
+                !_propertyInfo.HasAttribute<DefaultExpressionAttribute>())
             {
                 yield return "Adding a non-nullable column to a table with data requires a [DefaultExpression] attribute on the column.";
             }
