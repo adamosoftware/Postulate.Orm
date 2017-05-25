@@ -35,7 +35,7 @@ namespace Postulate.Orm.Merge.Action
 
                 yield return $"UPDATE [{_object.Schema}].[{_object.Name}] SET [{_propertyInfo.SqlColumnName()}]={def.Expression}";
 
-                yield return $"$ALTER TABLE [{_object.Schema}].[{_object.Name}] ALTER COLUMN {_propertyInfo.SqlColumnSyntax()}";
+                yield return $"ALTER TABLE [{_object.Schema}].[{_object.Name}] ALTER COLUMN {_propertyInfo.SqlColumnSyntax()}";
             }            
         }
 
