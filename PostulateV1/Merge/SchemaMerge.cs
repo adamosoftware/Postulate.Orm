@@ -91,6 +91,15 @@ namespace Postulate.Orm.Merge
             return results;
         }
 
+        public void Validate(IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            if (actions.Any(a => !a.IsValid(connection)))
+            {
+                string message = string.Join("\r\n", ValidationErrors(connection, actions));
+                throw new ValidationException($"The model has one or more validation errors:\r\n{message}");
+            }
+        }
+
         public void SaveScriptAs(string fileName)
         {
             var db = new TDb();
@@ -206,11 +215,7 @@ namespace Postulate.Orm.Merge
 
         public void Execute(IDbConnection connection, IEnumerable<MergeAction> diffs)
         {
-            if (diffs.Any(a => !a.IsValid(connection)))
-            {
-                string message = string.Join("\r\n", ValidationErrors(connection, diffs));
-                throw new ValidationException($"The model has one or more validation errors:\r\n{message}");
-            }
+            Validate(connection, diffs);
 
             foreach (var diff in diffs)
             {

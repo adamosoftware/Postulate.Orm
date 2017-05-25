@@ -58,8 +58,17 @@ namespace Postulate.Orm.Merge.Action
         {
             keyExpression = string.Join(", ", _pk.Select(cr => $"[{cr.ColumnName}]"));
             dupQuery = $"SELECT {keyExpression}, COUNT(1) AS [Count] FROM [{_pk.Key.Schema}].[{_pk.Key.Name}] GROUP BY {keyExpression} HAVING COUNT(1)>1";
-            var results = connection.Query(dupQuery);
-            return (results.Any());
+
+            try
+            {
+                var results = connection.Query(dupQuery);
+                return (results.Any());
+            }
+            catch 
+            {
+                // an exception here usually means the new key relies on columns that don't exist yet
+                return false;
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Postulate.Orm.Extensions
 {
     public static class PropertyInfoSqlExtensions
     {
-        public static string SqlColumnSyntax(this PropertyInfo propertyInfo)
+        public static string SqlColumnSyntax(this PropertyInfo propertyInfo, bool forceNull = false)
         {
             string result = null;
 
@@ -25,7 +25,15 @@ namespace Postulate.Orm.Extensions
             }
             else
             {
-                result = $"[{propertyInfo.SqlColumnName()}] {propertyInfo.SqlColumnType()}{propertyInfo.SqlDefaultExpression(forCreateTable: true)}";
+                if (!forceNull)
+                {
+                    result = $"[{propertyInfo.SqlColumnName()}] {propertyInfo.SqlColumnType()}{propertyInfo.SqlDefaultExpression(forCreateTable: true)}";
+                }
+                else
+                {
+                    // forced nulls are used with AddColumn where DefaultExpression.IsConstant = false. The null constraint is added after expression is resolved
+                    result = $"[{propertyInfo.SqlColumnName()}] {propertyInfo.SqlColumnType(forceNull:true)}";
+                }                
             }
 
             return result;
@@ -78,9 +86,9 @@ namespace Postulate.Orm.Extensions
             return result;
         }
 
-        public static string SqlColumnType(this PropertyInfo propertyInfo)
+        public static string SqlColumnType(this PropertyInfo propertyInfo, bool forceNull = false)
         {
-            string nullable = ((AllowSqlNull(propertyInfo)) ? "NULL" : "NOT NULL");
+            string nullable = ((AllowSqlNull(propertyInfo) || forceNull) ? "NULL" : "NOT NULL");
 
             string result = SqlDataType(propertyInfo);
 
@@ -96,8 +104,8 @@ namespace Postulate.Orm.Extensions
             string template = (forCreateTable) ? " DEFAULT ({0})" : "{0}";
 
             DefaultExpressionAttribute def;
-            if (propertyInfo.DeclaringType.HasAttribute(out def) && propertyInfo.Name.Equals(def.ColumnName)) return string.Format(template, Quote(propertyInfo, def.Expression));
-            if (propertyInfo.HasAttribute(out def)) return string.Format(template, Quote(propertyInfo, def.Expression));
+            if (propertyInfo.DeclaringType.HasAttribute(out def) && def.IsConstant && propertyInfo.Name.Equals(def.ColumnName)) return string.Format(template, Quote(propertyInfo, def.Expression));
+            if (propertyInfo.HasAttribute(out def) && def.IsConstant) return string.Format(template, Quote(propertyInfo, def.Expression));
 
             // if the expression is part of a CREATE TABLE statement, it's not necessary to go any further
             if (forCreateTable) return null;

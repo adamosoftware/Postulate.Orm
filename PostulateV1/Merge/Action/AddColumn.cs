@@ -24,7 +24,19 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
-            yield return $"ALTER TABLE [{_object.Schema}].[{_object.Name}] ADD {_propertyInfo.SqlColumnSyntax()}";
+            DefaultExpressionAttribute def = _propertyInfo.GetAttribute<DefaultExpressionAttribute>();
+            if (def?.IsConstant ?? true)
+            {
+                yield return $"ALTER TABLE [{_object.Schema}].[{_object.Name}] ADD {_propertyInfo.SqlColumnSyntax()}";
+            }
+            else
+            {
+                yield return $"ALTER TABLE [{_object.Schema}].[{_object.Name}] ADD {_propertyInfo.SqlColumnSyntax(forceNull:true)}";
+
+                yield return $"UPDATE [{_object.Schema}].[{_object.Name}] SET [{_propertyInfo.SqlColumnName()}]={def.Expression}";
+
+                yield return $"$ALTER TABLE [{_object.Schema}].[{_object.Name}] ALTER COLUMN {_propertyInfo.SqlColumnSyntax()}";
+            }            
         }
 
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)
