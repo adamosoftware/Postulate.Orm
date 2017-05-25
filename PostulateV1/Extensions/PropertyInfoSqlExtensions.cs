@@ -104,7 +104,7 @@ namespace Postulate.Orm.Extensions
 
             if (propertyInfo.AllowSqlNull()) return "NULL";
 
-            throw new Exception($"{propertyInfo.DeclaringType.Name}.{propertyInfo.Name} property does not have a [DefaultExpression] nor [InsertExpression] attribute with no parameters.");
+            throw new Exception($"{propertyInfo.DeclaringType.Name}.{propertyInfo.Name} property does not have a [DefaultExpression] attribute.");
         }
 
         private static string Quote(PropertyInfo propertyInfo, string expression)
