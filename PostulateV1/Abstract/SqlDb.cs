@@ -37,12 +37,15 @@ namespace Postulate.Orm.Abstract
 
         public int Version { get; protected set; }
 
+        public string ConnectionName { get; protected set; }
+
         private readonly string _connectionString;
 
         public SqlDb(Configuration configuration, string connectionName, string userName = null)
         {
             _connectionString = configuration.ConnectionStrings.ConnectionStrings[connectionName].ConnectionString;
             UserName = userName;
+            ConnectionName = connectionName;
         }
 
         public SqlDb(string connection, string userName = null, ConnectionSource connectionSource = ConnectionSource.ConfigFile)
@@ -55,6 +58,7 @@ namespace Postulate.Orm.Abstract
                     try
                     {                        
                         _connectionString = ConfigurationManager.ConnectionStrings[connection].ConnectionString;
+                        ConnectionName = connection;
                     }
                     catch (NullReferenceException)
                     {
