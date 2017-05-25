@@ -13,23 +13,21 @@ namespace Postulate.Orm.Attributes
 		private readonly string _expression;
         private readonly bool _isConstant;
 
-		public DefaultExpressionAttribute(string expression, bool isConstant = true)
+		public DefaultExpressionAttribute(string expression)
 		{
-			_expression = expression;
-            _isConstant = isConstant;
+			_expression = expression;            
 		}
 
-		public DefaultExpressionAttribute(string columnName, string expression, bool isConstant = true)
+		public DefaultExpressionAttribute(string columnName, string expression)
 		{
 			_columnName = columnName;
-			_expression = expression;
-            _isConstant = isConstant;
+			_expression = expression;            
 		}
 
 		public string Expression { get { return _expression; } }
 
 		public string ColumnName { get { return _columnName; } }
 
-        public bool IsConstant { get { return _isConstant; } }
+        public bool IsConstant { get; set; }
 	}
 }
