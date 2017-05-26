@@ -61,10 +61,10 @@ namespace Postulate.Orm.Merge.Action
             {
                 yield return $"SET IDENTITY_INSERT [{newTable.Schema}.[{newTable.Name}] ON";
 
-                string columnNames = string.Join(", ", ct.ColumnProperties().Select(pi => $"[{pi.SqlColumnName()}]").Concat(new string[] { SqlDb<int>.IdentityColumnName }));
+                string columnNames = string.Join(", ", ct.ColumnProperties().Select(pi => $"[{pi.SqlColumnName()}]").Concat(new string[] { $"[{SqlDb<int>.IdentityColumnName}]" }));
                 yield return $"INSERT INTO [{newTable.Schema}].[{newTable.Name}] ({columnNames}) SELECT {columnNames} FROM [{oldTable.Schema}].[{oldTable.Name}]";
                 
-                yield return $"SET IDENTITY_INSERT [{newTable.Schema}.[{newTable.Name}] OFF";
+                yield return $"SET IDENTITY_INSERT [{newTable.Schema}].[{newTable.Name}] OFF";
             }
             
             DbObject.SetObjectId(connection, oldTable);
