@@ -57,7 +57,7 @@ namespace Postulate.Orm.Merge.Action
             DbObject newTable = DbObject.FromType(_modelType);
             DbObject oldTable = DbObject.Parse(_attr.OldName);            
 
-            if (!connection.IsTableEmpty(newTable.Schema, newTable.Name))
+            if (!connection.IsTableEmpty(oldTable.Schema, oldTable.Name))
             {
                 yield return $"SET IDENTITY_INSERT [{newTable.Schema}.[{newTable.Name}] ON";
 
