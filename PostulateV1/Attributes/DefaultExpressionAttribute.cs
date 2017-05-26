@@ -10,8 +10,7 @@ namespace Postulate.Orm.Attributes
 	public class DefaultExpressionAttribute : Attribute
 	{
 		private readonly string _columnName;
-		private readonly string _expression;
-        private readonly bool _isConstant;
+		private readonly string _expression;        
 
 		public DefaultExpressionAttribute(string expression)
 		{
