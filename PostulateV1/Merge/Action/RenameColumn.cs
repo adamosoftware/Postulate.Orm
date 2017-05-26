@@ -50,6 +50,20 @@ namespace Postulate.Orm.Merge.Action
             DbObject obj = DbObject.FromType(_propertyInfo.DeclaringType);
             obj.SquareBraces = false;
             yield return $"EXEC sp_rename '{obj}.{_attr.OldName}', '{_propertyInfo.SqlColumnName()}', 'COLUMN'";
+
+            ForeignKeyAttribute fkAttr = _propertyInfo.GetAttribute<ForeignKeyAttribute>();
+            if (fkAttr != null)
+            {
+                yield return $"ALTER TABLE [{obj.Schema}].[{obj.Name}] DROP CONSTRAINT [FK_{obj.ConstraintName()}_{_attr.OldName}]";
+
+                if (fkAttr.CreateIndex)
+                {
+                    yield return $"DROP INDEX [IX_{DbObject.ConstraintName(_propertyInfo.DeclaringType)}_{_attr.OldName}] ON [{obj.Schema}].[{obj.Name}]";
+                }
+
+                CreateForeignKey fk = new CreateForeignKey(_propertyInfo);
+                foreach (var cmd in fk.SqlCommands(connection)) yield return cmd;
+            }
         }
     }
 }
