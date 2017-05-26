@@ -7,6 +7,7 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <projectUrl>https://github.com/adamosoftware/Postulate.Orm</projectUrl>
+	<licenseUrl>https://github.com/adamosoftware/Postulate.Orm/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Lightweight code-first ORM made with Dapper</description>
     <copyright>$copyright$</copyright>

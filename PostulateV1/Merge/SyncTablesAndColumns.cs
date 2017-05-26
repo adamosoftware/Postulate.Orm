@@ -89,14 +89,14 @@ namespace Postulate.Orm.Merge
             var modelColumns = GetModelColumns(connection);
 
             return GetSchemaColumns(connection).Where(sc =>
-                !modelColumns.Any(mc => mc.Equals(sc)) &&
+                !modelColumns.Any(mc => mc.Equals(sc) && !mc.PropertyInfo.HasAttribute<RenameFromAttribute>()) &&
                 !deletedTables.Contains(new DbObject(sc.Schema, sc.TableName)));
         }
 
         private IEnumerable<DbObject> DeletedTables(IDbConnection connection)
         {            
             var schemaTables = GetSchemaTables(connection);
-            return schemaTables.Where(obj => !_modelTypes.Any(t => obj.Equals(t)));
+            return schemaTables.Where(obj => !_modelTypes.Any(t => obj.Equals(t) && !t.HasAttribute<RenameFromAttribute>()));
         }
 
         private IEnumerable<MergeAction> AddColumnsWithTableAlter(IDbConnection connection, IEnumerable<PropertyInfo> newColumns)
@@ -151,14 +151,15 @@ namespace Postulate.Orm.Merge
                         !connection.ColumnExists(t.GetSchema(), t.GetTableName(), pi.SqlColumnName()) &&
                         pi.CanWrite &&                        
                         IsSupportedType(pi.PropertyType) &&                        
-                        !pi.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
+                        !pi.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&                        
+                        !pi.HasAttribute<RenameFromAttribute>() &&
                         !pi.HasAttribute<NotMappedAttribute>()));
         }
 
         private IEnumerable<MergeAction> NewTables(IDbConnection connection)
         {
             var schemaTables = GetSchemaTables(connection);
-            var addTables = _modelTypes.Where(t => !schemaTables.Any(st => st.Equals(t)));
+            var addTables = _modelTypes.Where(t => !t.HasAttribute<RenameFromAttribute>() && !schemaTables.Any(st => st.Equals(t)));
             return addTables.Select(t => new CreateTable(t));
         }
     }    

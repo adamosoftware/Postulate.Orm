@@ -170,6 +170,15 @@ namespace Postulate.Orm.Merge.Action
             throw new NotImplementedException();
         }
 
+        public IEnumerable<PropertyInfo> ColumnProperties()
+        {
+            return _modelType.GetProperties()
+                .Where(p =>
+                    p.CanWrite &&
+                    !p.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
+                    !p.HasAttribute<NotMappedAttribute>());
+        }
+
         private IEnumerable<string> CreateTableColumns()
         {
             List<string> results = new List<string>();
@@ -181,18 +190,13 @@ namespace Postulate.Orm.Merge.Action
 
             if (identityPos == Position.StartOfTable) results.Add(IdentityColumnSql());
 
-            results.AddRange(_modelType.GetProperties()
-                .Where(p =>
-                    p.CanWrite &&
-                    !p.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
-                    !p.HasAttribute<NotMappedAttribute>())
-                .Select(pi =>
-                {
-                    string result = pi.SqlColumnSyntax();
-                    if (_addedColumns?.Contains(pi.SqlColumnName()) ?? false) result += " /* added */";
-                    return result;
-                }));
-
+            results.AddRange(ColumnProperties().Select(pi =>
+            {
+                string result = pi.SqlColumnSyntax();
+                if (_addedColumns?.Contains(pi.SqlColumnName()) ?? false) result += " /* added */";
+                return result;
+            }));
+                
             if (identityPos == Position.EndOfTable) results.Add(IdentityColumnSql());
 
             return results;

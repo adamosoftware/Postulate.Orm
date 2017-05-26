@@ -79,7 +79,7 @@ namespace Postulate.Orm.Merge
                 SyncTablesAndColumns, /*, CreatePrimaryKeys, CreateUniqueKeys, CreateIndexes, */
 
                 // alter
-                AlterColumnTypes, AlterPrimaryKeys, AlterForeignKeys
+                AlterColumnTypes, AlterPrimaryKeys, AlterForeignKeys, RenameTables
                 /* AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, */
 
                 // drop                

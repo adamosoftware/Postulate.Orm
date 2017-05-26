@@ -69,7 +69,7 @@ namespace Postulate.Orm.Merge
             return obj;
         }
 
-        private static void SetObjectId(IDbConnection connection, DbObject obj)
+        public static void SetObjectId(IDbConnection connection, DbObject obj)
         {
             obj.ObjectId = connection.QueryFirstOrDefault<int>("SELECT [object_id] FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = obj.Schema, name = obj.Name });
         }
