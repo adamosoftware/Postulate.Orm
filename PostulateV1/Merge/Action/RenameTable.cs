@@ -50,27 +50,34 @@ namespace Postulate.Orm.Merge.Action
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
-        {            
-            CreateTable ct = new CreateTable(_modelType);
-            foreach (var cmd in ct.SqlCommands(connection)) yield return cmd;
-
+        {
             DbObject newTable = DbObject.FromType(_modelType);
+
+            CreateTable ct = new CreateTable(_modelType);
+            if (!connection.TableExists(newTable.Schema, newTable.Name))
+            {                
+                foreach (var cmd in ct.SqlCommands(connection)) yield return cmd;
+            }
+
             DbObject oldTable = DbObject.Parse(_attr.OldName);            
 
-            if (!connection.IsTableEmpty(oldTable.Schema, oldTable.Name))
+            if (connection.TableExists(oldTable.Schema, oldTable.Name))
             {
-                yield return $"SET IDENTITY_INSERT [{newTable.Schema}.[{newTable.Name}] ON";
+                if (!connection.IsTableEmpty(oldTable.Schema, oldTable.Name))
+                {
+                    yield return $"SET IDENTITY_INSERT [{newTable.Schema}].[{newTable.Name}] ON";
 
-                string columnNames = string.Join(", ", ct.ColumnProperties().Select(pi => $"[{pi.SqlColumnName()}]").Concat(new string[] { $"[{SqlDb<int>.IdentityColumnName}]" }));
-                yield return $"INSERT INTO [{newTable.Schema}].[{newTable.Name}] ({columnNames}) SELECT {columnNames} FROM [{oldTable.Schema}].[{oldTable.Name}]";
-                
-                yield return $"SET IDENTITY_INSERT [{newTable.Schema}].[{newTable.Name}] OFF";
-            }
-            
-            DbObject.SetObjectId(connection, oldTable);
-            foreach (var cmd in connection.GetFKDropStatements(oldTable.ObjectId)) yield return cmd;
+                    string columnNames = string.Join(", ", ct.ColumnProperties().Select(pi => $"[{pi.SqlColumnName()}]").Concat(new string[] { $"[{SqlDb<int>.IdentityColumnName}]" }));
+                    yield return $"INSERT INTO [{newTable.Schema}].[{newTable.Name}] ({columnNames}) SELECT {columnNames} FROM [{oldTable.Schema}].[{oldTable.Name}]";
 
-            yield return $"DROP TABLE [{oldTable.Schema}].[{oldTable.Name}]";
+                    yield return $"SET IDENTITY_INSERT [{newTable.Schema}].[{newTable.Name}] OFF";
+                }
+
+                DbObject.SetObjectId(connection, oldTable);
+                foreach (var cmd in connection.GetFKDropStatements(oldTable.ObjectId)) yield return cmd;
+
+                yield return $"DROP TABLE [{oldTable.Schema}].[{oldTable.Name}]";
+            }           
         }
     }
 }
