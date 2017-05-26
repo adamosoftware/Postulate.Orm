@@ -35,5 +35,10 @@ namespace Postulate.Orm.Merge.Action
         }
 
         public abstract IEnumerable<string> SqlCommands(IDbConnection connection);
+
+        public override string ToString()
+        {
+            return Description;
+        }
     }
 }

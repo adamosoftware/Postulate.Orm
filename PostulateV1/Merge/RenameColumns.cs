@@ -1,5 +1,7 @@
-﻿using Postulate.Orm.Interfaces;
+﻿using Postulate.Orm.Attributes;
+using Postulate.Orm.Interfaces;
 using Postulate.Orm.Merge.Action;
+using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,7 +15,11 @@ namespace Postulate.Orm.Merge
     {
         private IEnumerable<MergeAction> RenameColumns(IDbConnection connection)
         {
-            throw new NotImplementedException();
+            var renamedColumns = _modelTypes.SelectMany(t => t.GetProperties().Where(pi => pi.HasAttribute<RenameFromAttribute>()));
+
+            List<RenameColumn> results = new List<RenameColumn>();
+            results.AddRange(renamedColumns.Select(pi => new RenameColumn(pi)));
+            return results;
         }
     }
 }

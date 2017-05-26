@@ -28,11 +28,6 @@ namespace Postulate.Orm.Merge.Action
             return $"{attr.OldName} -> {obj}";
         }
 
-        public override string ToString()
-        {
-            return Description;
-        }
-
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)
         {
             var oldTable = DbObject.Parse(_attr.OldName);
@@ -45,7 +40,12 @@ namespace Postulate.Orm.Merge.Action
             var newTable = DbObject.FromType(_modelType);
             if (oldTable.Equals(newTable))
             {
-                yield return $"Can't rename to the same name.";
+                yield return $"Can't rename table to the same name.";
+            }
+
+            if (_modelType.GetProperties().Any(pi => pi.HasAttribute<RenameFromAttribute>()))
+            {
+                yield return $"Can't rename columns while containing table is being renamed. Please do these changes one after the other.";
             }
         }
 

@@ -71,6 +71,7 @@
     <Compile Include="Merge\Action\DropPrimaryKey.cs" />
     <Compile Include="Merge\Action\DropTable.cs" />
     <Compile Include="Merge\Action\MergeForeignKeyBase.cs" />
+    <Compile Include="Merge\Action\RenameColumn.cs" />
     <Compile Include="Merge\Action\RenameTable.cs" />
     <Compile Include="Merge\AddVersion.cs" />
     <Compile Include="Merge\AlterForeignKeys.cs" />

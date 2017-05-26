@@ -14,8 +14,8 @@ namespace Postulate.Orm.Merge
         {
             var renamedTables = _modelTypes.Where(t => t.HasAttribute<RenameFromAttribute>());
 
-            List<MergeAction> results = new List<MergeAction>();
-            results.Add(renamedTables.Select(rt => new RenameTable(t)));
+            List<RenameTable> results = new List<RenameTable>();
+            results.AddRange(renamedTables.Select(rt => new RenameTable(rt)));
             return results;
         }
 
