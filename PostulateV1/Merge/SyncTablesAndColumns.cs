@@ -50,8 +50,8 @@ namespace Postulate.Orm.Merge
 
         private IEnumerable<ForeignKeyRef> DeletedForeignKeys(IDbConnection connection, IEnumerable<DbObject> deletedTables, IEnumerable<ColumnRef> deletedColumns)
         {
-            var results = GetSchemaFKs(connection).Where(fk => 
-                !deletedTables.Any(obj => fk.ChildObject.Equals(obj)) && 
+            var results = GetSchemaFKs(connection).Where(fk =>
+                !deletedTables.Any(obj => fk.ChildObject.Equals(obj)) &&
                 !deletedColumns.Any(cr => fk.Child.Equals(cr)));
 
             return results.Where(fk =>
@@ -78,7 +78,7 @@ namespace Postulate.Orm.Merge
 					INNER JOIN [sys].[tables] [t] ON [fkcol].[parent_object_id]=[t].[object_id]")
                     .Select(row => new ForeignKeyRef()
                     {
-                        ConstraintName = row.ConstraintName,                        
+                        ConstraintName = row.ConstraintName,
                         Child = new ColumnRef() { ColumnName = row.ReferencingColumn, Schema = row.ReferencingSchema, TableName = row.ReferencingTable },
                         ChildObject = new DbObject(row.ReferencingSchema, row.ReferencingTable)
                     });
@@ -89,7 +89,7 @@ namespace Postulate.Orm.Merge
             var modelColumns = GetModelColumns(connection);
 
             return GetSchemaColumns(connection).Where(sc =>
-                !modelColumns.Any(mc => mc.Equals(sc) && !mc.PropertyInfo.HasAttribute<RenameFromAttribute>()) &&
+                !modelColumns.Any(mc => mc.Equals(sc) || (mc.PropertyInfo.GetAttribute<RenameFromAttribute>()?.OldName?.Equals(mc.ColumnName) ?? true)) &&
                 !deletedTables.Contains(new DbObject(sc.Schema, sc.TableName)));
         }
 
