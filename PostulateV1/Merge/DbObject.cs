@@ -118,6 +118,13 @@ namespace Postulate.Orm.Merge
 			Type testType = obj as Type;
 			if (testType != null) return Equals(FromType(testType));
 
+            RenameFromAttribute rename = obj as RenameFromAttribute;
+            if (rename != null)
+            {
+                DbObject renamedObj = Parse(rename.OldName);
+                return renamedObj.Equals(this);
+            }
+
 			return false;
 		}
 

@@ -38,7 +38,7 @@ namespace Postulate.Orm.Merge
 
             var newFK = _modelTypes.SelectMany(t =>
                 t.GetModelForeignKeys().Where(pi =>
-                    !connection.ForeignKeyExists(pi) ||
+                    (!connection.ForeignKeyExists(pi)  && connection.TableExists(t)) ||                    
                     rebuiltTables.OfType<CreateTable>().Any(ct => ct.ModelType.Equals(pi.GetForeignKeyType()))));
             results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
 
@@ -57,8 +57,12 @@ namespace Postulate.Orm.Merge
             return results.Where(fk =>
             {
                 Type t = FindModelType(fk.ChildObject);
-                var fkNames = t.GetModelForeignKeys().Select(pi => pi.ForeignKeyName().ToLower());
-                return !fkNames.Contains(fk.ConstraintName.ToLower());
+                if (t != null) // will be null in case of renamed table
+                {
+                    var fkNames = t.GetModelForeignKeys().Select(pi => pi.ForeignKeyName().ToLower());
+                    return !fkNames.Contains(fk.ConstraintName.ToLower());
+                }
+                return false;
             });
         }
 
@@ -96,7 +100,7 @@ namespace Postulate.Orm.Merge
         private IEnumerable<DbObject> DeletedTables(IDbConnection connection)
         {            
             var schemaTables = GetSchemaTables(connection);
-            return schemaTables.Where(obj => !_modelTypes.Any(t => obj.Equals(t) && !t.HasAttribute<RenameFromAttribute>()));
+            return schemaTables.Where(obj => !_modelTypes.Any(t => obj.Equals(t) || obj.Equals(t.GetAttribute<RenameFromAttribute>())));
         }
 
         private IEnumerable<MergeAction> AddColumnsWithTableAlter(IDbConnection connection, IEnumerable<PropertyInfo> newColumns)
@@ -105,7 +109,7 @@ namespace Postulate.Orm.Merge
             var alterColumns = newColumns
                 .Where(pi => !pi.DeclaringType.IsAbstract)
                 .GroupBy(pi => pi.GetDbObject(connection))
-                .Where(obj => !connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name))
+                .Where(obj => connection.TableExists(obj.Key.Schema, obj.Key.Name) && !connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name))
                 .SelectMany(tbl => tbl);
 
             // adding primary key columns requires containing PKs to be rebuilt
@@ -131,7 +135,7 @@ namespace Postulate.Orm.Merge
             // empty tables may be dropped and rebuilt with new columns
             var rebuildTables = newColumns
                 .GroupBy(pi => pi.GetDbObject(connection))
-                .Where(obj => connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name));
+                .Where(obj => connection.TableExists(obj.Key.Schema, obj.Key.Name) && connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name));
 
             foreach (var tbl in rebuildTables)
             {
