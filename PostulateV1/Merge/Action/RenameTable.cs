@@ -52,7 +52,7 @@ namespace Postulate.Orm.Merge.Action
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {            
             CreateTable ct = new CreateTable(_modelType);
-            foreach (var cmd in ct.SqlCommands(connection)) yield return cmd;            
+            foreach (var cmd in ct.SqlCommands(connection)) yield return cmd;
 
             DbObject newTable = DbObject.FromType(_modelType);
             DbObject oldTable = DbObject.Parse(_attr.OldName);            
