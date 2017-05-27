@@ -1,14 +1,11 @@
-﻿using Postulate.Orm.Abstract;
-using Postulate.Orm.Merge.Action;
-using System;
+﻿using Postulate.Orm.Merge.Action;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Postulate.Orm.Extensions;
 using Dapper;
+using System;
+using Postulate.Orm.Abstract;
 
 namespace Postulate.Orm.Merge
 {
@@ -26,12 +23,36 @@ namespace Postulate.Orm.Merge
 
             var alteredKeys = from mk in modelPKColumns
                               join sk in schemaPKColumns on mk.Key equals sk.Key
-                              where !Enumerable.SequenceEqual(mk, sk) || mk.Key.IsClusteredPK != sk.Key.IsClusteredPK
+                              where 
+                                (
+                                    !Enumerable.SequenceEqual(mk, sk) && // pk columns are different
+                                    Enumerable.SequenceEqual(ModelColumnNames(mk.First().PropertyInfo.DeclaringType), SchemaColumnNames(connection, sk.Key)) // but the table columns are otherwise the same
+                                ) || mk.Key.IsClusteredPK != sk.Key.IsClusteredPK
                               select mk;
 
             results.AddRange(alteredKeys.Select(pk => new AlterPrimaryKey(pk)));
 
             return results;
+        }
+
+        private IEnumerable<string> ModelColumnNames(Type modelType)
+        {
+            CreateTable ct = new CreateTable(modelType);
+            return ct.ColumnProperties().Select(pi => pi.SqlColumnName().ToLower()).Concat(new string[] { SqlDb<int>.IdentityColumnName }).OrderBy(s => s);
+        }
+
+        private IEnumerable<string> SchemaColumnNames(IDbConnection connection, DbObject dbObject)
+        {
+            return connection.Query<string>(
+                @"SELECT 
+                    LOWER([col].[name]) AS [LoweredName]
+                FROM 
+                    [sys].[columns] [col] INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
+                WHERE
+                    SCHEMA_NAME([t].[schema_id])=@schema AND
+                    [t].[name]=@name
+                ORDER BY
+                    [col].[name]", new { schema = dbObject.Schema, name = dbObject.Name });
         }
 
         private IEnumerable<ColumnRef> GetModelPKColumns()
