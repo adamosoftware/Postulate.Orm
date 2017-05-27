@@ -6,7 +6,7 @@ namespace Postulate.Orm.Merge.Action
 {
     public class CreateForeignKey : MergeForeignKeyBase
     {
-        public CreateForeignKey(PropertyInfo propertyInfo) : base(propertyInfo, MergeActionType.Create, $"Add foreign key {propertyInfo.ForeignKeyName()}")
+        public CreateForeignKey(PropertyInfo propertyInfo) : base(propertyInfo, MergeActionType.Create, $"Add foreign key {propertyInfo.ForeignKeyName()}", nameof(CreateForeignKey))
         {
         }
 

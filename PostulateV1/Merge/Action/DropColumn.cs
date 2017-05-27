@@ -15,7 +15,7 @@ namespace Postulate.Orm.Merge.Action
         private readonly ColumnRef _columnRef;
         private readonly Type _modelType;
 
-        public DropColumn(ColumnRef columnRef, Type modelType) : base(MergeObjectType.Column, MergeActionType.Drop, $"Drop column {columnRef}")
+        public DropColumn(ColumnRef columnRef, Type modelType) : base(MergeObjectType.Column, MergeActionType.Drop, $"Drop column {columnRef}", nameof(DropColumn))
         {
             _columnRef = columnRef;
             _modelType = modelType;
@@ -27,7 +27,7 @@ namespace Postulate.Orm.Merge.Action
 
             CreateTable ct = new CreateTable(_modelType);
             string pkName;            
-            bool inPK = ct.InPrimaryKey(_columnRef.ColumnName, out pkName);
+            bool inPK = ct.InPrimaryKey(_columnRef.ColumnName, out pkName) || connection.IsColumnInPrimaryKey(_columnRef, out pkName);
 
             if (inPK) yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.ColumnName}] DROP CONSTRAINT [{pkName}]";
 

@@ -14,7 +14,7 @@ namespace Postulate.Orm.Merge.Action
         private readonly RenameFromAttribute _attr;
         private readonly Type _modelType;        
 
-        public RenameTable(Type modelType) : base(MergeObjectType.Table, MergeActionType.Rename, RenameDescription(modelType))
+        public RenameTable(Type modelType) : base(MergeObjectType.Table, MergeActionType.Rename, RenameDescription(modelType), nameof(RenameTable))
         {
             _modelType = modelType;
             _attr = modelType.GetAttribute<RenameFromAttribute>();

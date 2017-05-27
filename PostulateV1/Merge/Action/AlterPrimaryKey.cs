@@ -13,7 +13,7 @@ namespace Postulate.Orm.Merge.Action
     {
         private readonly IGrouping<DbObject, ColumnRef> _pk;
 
-        public AlterPrimaryKey(IGrouping<DbObject, ColumnRef> pk) : base(MergeObjectType.Key, MergeActionType.Alter, $"Primary key {pk.Key}: {string.Join(", ", pk.Select(cr => cr.ColumnName))}")
+        public AlterPrimaryKey(IGrouping<DbObject, ColumnRef> pk) : base(MergeObjectType.Key, MergeActionType.Alter, $"Primary key {pk.Key}: {string.Join(", ", pk.Select(cr => cr.ColumnName))}", nameof(AlterPrimaryKey))
         {
             _pk = pk;
         }

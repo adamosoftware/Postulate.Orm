@@ -16,7 +16,7 @@ namespace Postulate.Orm.Merge.Action
         private readonly PropertyInfo _propertyInfo;
         private readonly DbObject _object;
 
-        public AddColumn(PropertyInfo propertyInfo) : base(MergeObjectType.Column, MergeActionType.Create, $"Add column {propertyInfo.DeclaringType.Name}.{propertyInfo.Name}")
+        public AddColumn(PropertyInfo propertyInfo) : base(MergeObjectType.Column, MergeActionType.Create, $"Add column {propertyInfo.DeclaringType.Name}.{propertyInfo.Name}", nameof(AddColumn))
         {
             _propertyInfo = propertyInfo;
             _object = DbObject.FromType(_propertyInfo.DeclaringType);

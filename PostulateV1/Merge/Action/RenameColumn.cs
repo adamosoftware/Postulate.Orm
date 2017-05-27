@@ -16,7 +16,7 @@ namespace Postulate.Orm.Merge.Action
         private readonly PropertyInfo _propertyInfo;
         private readonly RenameFromAttribute _attr;
 
-        public RenameColumn(PropertyInfo propertyInfo) : base(MergeObjectType.Column, MergeActionType.Rename, RenameInfo(propertyInfo))
+        public RenameColumn(PropertyInfo propertyInfo) : base(MergeObjectType.Column, MergeActionType.Rename, RenameInfo(propertyInfo), nameof(RenameColumn))
         {
             _propertyInfo = propertyInfo;
             _attr = propertyInfo.GetAttribute<RenameFromAttribute>();

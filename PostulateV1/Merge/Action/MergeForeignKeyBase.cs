@@ -11,7 +11,7 @@ namespace Postulate.Orm.Merge.Action
         protected readonly PropertyInfo _pi;
         protected readonly string _description;
 
-        public MergeForeignKeyBase(PropertyInfo propertyInfo, MergeActionType actionType, string description) : base(MergeObjectType.ForeignKey, actionType, description)
+        public MergeForeignKeyBase(PropertyInfo propertyInfo, MergeActionType actionType, string description, string sourceAction) : base(MergeObjectType.ForeignKey, actionType, description, sourceAction)
         {
             _pi = propertyInfo;
             _description = description;

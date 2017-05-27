@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,20 +13,20 @@ namespace Postulate.Orm.Merge.Action
         private readonly MergeObjectType _objectType;
         private readonly MergeActionType _actionType;
         private readonly string _description;
-        private readonly string _scriptComment;
+        private readonly string _sourceAction;
 
-        public MergeAction(MergeObjectType objectType, MergeActionType actionType, string description, string scriptComment = null)
+        public MergeAction(MergeObjectType objectType, MergeActionType actionType, string description, string sourceAction)
         {
             _objectType = objectType;
             _actionType = actionType;
             _description = description;
-            _scriptComment = scriptComment;
+            _sourceAction = sourceAction;
         }
 
         public MergeObjectType ObjectType { get { return _objectType; } }
         public MergeActionType ActionType { get { return _actionType; } }
         public string Description { get { return _description; } }
-        public string ScriptComment {  get { return _scriptComment; } }
+        public string SourceAction {  get { return _sourceAction; } }
 
         public abstract IEnumerable<string> ValidationErrors(IDbConnection connection);
 
@@ -36,7 +37,7 @@ namespace Postulate.Orm.Merge.Action
 
         public virtual IEnumerable<string> SqlCommands(IDbConnection connection)
         {
-            yield return $"-- {Description}";
+            yield return $"-- {Description} ({SourceAction})";
         }
 
         public override string ToString()

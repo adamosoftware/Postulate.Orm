@@ -20,7 +20,7 @@ namespace Postulate.Orm.Merge.Action
         private readonly bool _dropFirst;
         private readonly IEnumerable<string> _addedColumns;
 
-        public CreateTable(Type modelType, bool dropFirst = false, IEnumerable<string> addedColumns = null) : base(MergeObjectType.Table, MergeActionType.Create, $"Create table {TableName(modelType)}")
+        public CreateTable(Type modelType, bool dropFirst = false, IEnumerable<string> addedColumns = null) : base(MergeObjectType.Table, MergeActionType.Create, $"Create table {TableName(modelType)}", nameof(CreateTable))
         {
             if (modelType.HasAttribute<NotMappedAttribute>()) throw new InvalidOperationException($"The model class {modelType.Name} is marked as [NotMapped]");
 

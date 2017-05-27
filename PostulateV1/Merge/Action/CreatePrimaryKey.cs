@@ -13,7 +13,7 @@ namespace Postulate.Orm.Merge.Action
     {
         private readonly DbObject _object;
 
-        public CreatePrimaryKey(DbObject @object) : base(MergeObjectType.Key, MergeActionType.Create, $"Creating primary key on {@object}")
+        public CreatePrimaryKey(DbObject @object) : base(MergeObjectType.Key, MergeActionType.Create, $"Creating primary key on {@object}", nameof(CreatePrimaryKey))
         {
             _object = @object;
         }

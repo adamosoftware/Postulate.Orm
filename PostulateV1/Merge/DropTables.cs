@@ -18,7 +18,7 @@ namespace Postulate.Orm.Merge
             var schemaTables = GetSchemaTables(connection);
             var dropTables = schemaTables.Where(obj => !_modelTypes.Any(t => obj.Equals(t)));
 
-            results.AddRange(dropTables.Select(obj => new DropTable(obj, $"Table {obj} was dropped from model")));
+            results.AddRange(dropTables.Select(obj => new DropTable(obj)));
 
             return results;
         }

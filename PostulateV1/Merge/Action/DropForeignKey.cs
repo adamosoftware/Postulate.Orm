@@ -7,7 +7,7 @@ namespace Postulate.Orm.Merge.Action
     {
         private readonly ForeignKeyRef _fk;
 
-        public DropForeignKey(ForeignKeyRef fk) : base(MergeObjectType.ForeignKey, MergeActionType.Drop, $"Drop foreign key {fk.ConstraintName}")
+        public DropForeignKey(ForeignKeyRef fk) : base(MergeObjectType.ForeignKey, MergeActionType.Drop, $"Drop foreign key {fk.ConstraintName}", nameof(DropForeignKey))
         {
             _fk = fk;
         }

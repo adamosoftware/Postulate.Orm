@@ -11,7 +11,7 @@ namespace Postulate.Orm.Merge.Action
     {
         private readonly DbObject _object;
 
-        public DropPrimaryKey(DbObject @object) : base(MergeObjectType.Key, MergeActionType.Drop, $"Drop primary key on {@object}")
+        public DropPrimaryKey(DbObject @object) : base(MergeObjectType.Key, MergeActionType.Drop, $"Drop primary key on {@object}", nameof(DropPrimaryKey))
         {
             _object = @object;
         }

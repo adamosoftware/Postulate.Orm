@@ -8,7 +8,7 @@ namespace Postulate.Orm.Merge.Action
 {
     public class AlterForeignKey : MergeForeignKeyBase
     {        
-        public AlterForeignKey(PropertyInfo propertyInfo, string description) : base(propertyInfo, MergeActionType.Alter, $"{propertyInfo.ForeignKeyName()}: {description}")
+        public AlterForeignKey(PropertyInfo propertyInfo, string description) : base(propertyInfo, MergeActionType.Alter, $"{propertyInfo.ForeignKeyName()}: {description}", nameof(AlterForeignKey))
         {        
         }
 

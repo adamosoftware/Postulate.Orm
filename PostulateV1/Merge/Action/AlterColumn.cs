@@ -13,7 +13,7 @@ namespace Postulate.Orm.Merge.Action
         private readonly ColumnRef _oldColumn;
         private readonly int _objectId;
 
-        public AlterColumn(ColumnRef newColumn, ColumnRef oldColumn) : base(MergeObjectType.Column, MergeActionType.Alter, $"{newColumn.ToString()}: {ColumnRef.CompareSyntaxes(oldColumn, newColumn)}")
+        public AlterColumn(ColumnRef newColumn, ColumnRef oldColumn) : base(MergeObjectType.Column, MergeActionType.Alter, $"{newColumn.ToString()}: {ColumnRef.CompareSyntaxes(oldColumn, newColumn)}", nameof(AlterColumn))
         {
             _newColumn = newColumn;
             _oldColumn = oldColumn;
