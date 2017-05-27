@@ -93,7 +93,7 @@ namespace Postulate.Orm.Merge
             var modelColumns = GetModelColumns(connection);
 
             return GetSchemaColumns(connection).Where(sc =>
-                !modelColumns.Any(mc => mc.Equals(sc) || (mc.PropertyInfo.GetAttribute<RenameFromAttribute>()?.OldName?.Equals(mc.ColumnName) ?? true)) &&
+                !modelColumns.Any(mc => mc.Equals(sc) || (mc.PropertyInfo.GetAttribute<RenameFromAttribute>()?.OldName?.Equals(mc.ColumnName) ?? false)) &&
                 !deletedTables.Contains(new DbObject(sc.Schema, sc.TableName)));
         }
 
