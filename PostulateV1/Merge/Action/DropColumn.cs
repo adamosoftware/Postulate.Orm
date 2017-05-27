@@ -23,6 +23,8 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
             CreateTable ct = new CreateTable(_modelType);
             string pkName;            
             bool inPK = ct.InPrimaryKey(_columnRef.ColumnName, out pkName);

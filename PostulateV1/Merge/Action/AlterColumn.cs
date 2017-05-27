@@ -22,6 +22,8 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
             // if pk column, drop referencing foreign keys, any covering indexes, and then the pk itself
             IEnumerable<ForeignKeyRef> referencingFKs = null;
 

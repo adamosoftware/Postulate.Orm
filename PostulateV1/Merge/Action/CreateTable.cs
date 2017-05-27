@@ -70,6 +70,8 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
             if (_dropFirst)
             {
                 DropTable drop = new DropTable(new DbObject(_schema, _name, connection));

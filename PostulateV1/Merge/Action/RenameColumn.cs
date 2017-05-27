@@ -47,6 +47,8 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
             DbObject obj = DbObject.FromType(_propertyInfo.DeclaringType);
             obj.SquareBraces = false;
             yield return $"EXEC sp_rename '{obj}.{_attr.OldName}', '{_propertyInfo.SqlColumnName()}', 'COLUMN'";

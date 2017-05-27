@@ -14,6 +14,8 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
             yield return $"ALTER TABLE {DbObject.SqlServerName(_pi.DeclaringType)} DROP CONSTRAINT [{_pi.ForeignKeyName()}]";
 
             ForeignKeyAttribute fk = _pi.GetForeignKeyAttribute();

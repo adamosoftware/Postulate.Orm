@@ -51,6 +51,8 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
             DbObject newTable = DbObject.FromType(_modelType);
 
             CreateTable ct = new CreateTable(_modelType);

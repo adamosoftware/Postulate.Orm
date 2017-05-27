@@ -18,6 +18,8 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
             foreach (var cmd in connection.GetFKDropStatements(_object.ObjectId)) yield return cmd;
 
             yield return $"ALTER TABLE [{_object.Schema}].[{_object.Name}] DROP CONSTRAINT [PK_{DbObject.ConstraintName(_object.ModelType)}]";

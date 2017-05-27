@@ -24,6 +24,8 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
             DefaultExpressionAttribute def = _propertyInfo.GetAttribute<DefaultExpressionAttribute>();
             if (def?.IsConstant ?? true)
             {

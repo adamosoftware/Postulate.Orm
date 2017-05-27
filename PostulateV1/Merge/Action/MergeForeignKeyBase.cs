@@ -19,6 +19,8 @@ namespace Postulate.Orm.Merge.Action
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
             ForeignKeyAttribute fk = _pi.GetForeignKeyAttribute();
             string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
             yield return

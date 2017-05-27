@@ -34,7 +34,10 @@ namespace Postulate.Orm.Merge.Action
             return !ValidationErrors(connection).Any();
         }
 
-        public abstract IEnumerable<string> SqlCommands(IDbConnection connection);
+        public virtual IEnumerable<string> SqlCommands(IDbConnection connection)
+        {
+            yield return $"-- {Description}";
+        }
 
         public override string ToString()
         {
