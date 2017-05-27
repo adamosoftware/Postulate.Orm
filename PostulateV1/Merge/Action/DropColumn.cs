@@ -29,7 +29,7 @@ namespace Postulate.Orm.Merge.Action
             string pkName;            
             bool inPK = ct.InPrimaryKey(_columnRef.ColumnName, out pkName) || connection.IsColumnInPrimaryKey(_columnRef, out pkName);
 
-            if (inPK) yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.ColumnName}] DROP CONSTRAINT [{pkName}]";
+            if (inPK) yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.TableName}] DROP CONSTRAINT [{pkName}]";
 
             ForeignKeyRef fk;
             if (_columnRef.IsForeignKey(connection, out fk))
