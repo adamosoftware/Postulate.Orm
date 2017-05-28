@@ -48,6 +48,9 @@
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.1.11\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="PostulateDemo2">
+      <HintPath>..\..\PostulateDemo2\PostulateDemo2\bin\Debug\PostulateDemo2.exe</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -67,6 +70,7 @@
     <Compile Include="Models\TableC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveMultiple.cs" />
+    <Compile Include="SchemaMerge2Test.cs" />
     <Compile Include="SchemaMergeTest.cs" />
     <Compile Include="TestChangeTracking.cs" />
   </ItemGroup>

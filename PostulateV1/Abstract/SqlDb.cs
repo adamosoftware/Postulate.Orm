@@ -107,6 +107,7 @@ namespace Postulate.Orm.Abstract
         private Dictionary<string, string> _updateCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _findCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _deleteCommands = new Dictionary<string, string>();
+        private Dictionary<string, string> _copyCommands = new Dictionary<string, string>();
 
         public bool ExistsWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
@@ -353,6 +354,21 @@ namespace Postulate.Orm.Abstract
             {
                 connection.Execute(cmd, r);
             });            
+        }        
+
+        public TRecord Copy<TRecord>(TKey sourceId, object setProperties, IEnumerable<string> omitColumns = null) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                return Copy<TRecord>(cn, sourceId, setProperties, omitColumns);
+            }
+        }
+
+        public TRecord Copy<TRecord>(IDbConnection connection, TKey sourceId, object setProperties, IEnumerable<string> omitColumns = null) where TRecord : Record<TKey>
+        {
+            TKey newId = ExecuteCopy<TRecord>(connection, sourceId, setProperties, omitColumns);
+            return ExecuteFind<TRecord>(connection, newId);
         }
 
         protected string PropertyNameFromLambda(Expression expression)
@@ -438,6 +454,31 @@ namespace Postulate.Orm.Abstract
             return $"DELETE {GetTableName<TRecord>()} WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
+        private string GetCopyStatement<TRecord>(object parameters, IEnumerable<string> omitColumns) where TRecord : Record<TKey>
+        {
+            var paramColumns = parameters.GetType().GetProperties().Select(pi => pi.Name);
+
+            var columns = GetColumnNames<TRecord>(pi => 
+                    !pi.HasAttribute<CalculatedAttribute>()) // can't insert into calculated columns
+                .Where(s => 
+                    !s.Equals(typeof(TRecord).IdentityColumnName()) && // can't insert into identity column
+                    (!omitColumns?.Select(omitCol => omitCol.ToLower()).Contains(s.ToLower()) ?? false) &&
+                    !paramColumns.Select(paramCol => paramCol.ToLower()).Contains(s.ToLower())) // don't insert into param columns because we're providing new values    
+                .Select(colName => ApplyDelimiter(colName));            
+
+            return
+                $@"INSERT INTO {GetTableName<TRecord>()} (
+                    {string.Join(", ", columns.Concat(paramColumns.Select(col => ApplyDelimiter(col))))}
+                ) OUTPUT 
+                    [inserted].[{typeof(TRecord).IdentityColumnName()}] 
+                SELECT 
+                    {string.Join(", ", columns.Concat(paramColumns.Select(col => $"@{col}")))}
+                FROM 
+                    {GetTableName<TRecord>()} 
+                WHERE 
+                    [{typeof(TRecord).IdentityColumnName()}]=@id";
+        }           
+
         private IEnumerable<PropertyInfo> GetEditableColumns<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
         {            
             return typeof(TRecord).GetProperties().Where(pi =>
@@ -514,6 +555,14 @@ namespace Postulate.Orm.Abstract
         {
             string cmd = GetCommand<TRecord>(_deleteCommands, () => GetDeleteStatement<TRecord>());
             connection.Execute(cmd, new { id = id });
+        } 
+        
+        private TKey ExecuteCopy<TRecord>(IDbConnection connection, TKey id, object parameters, IEnumerable<string> omitColumns) where TRecord: Record<TKey>
+        {
+            string cmd = GetCommand<TRecord>(_copyCommands, () => GetCopyStatement<TRecord>(parameters, omitColumns));
+            DynamicParameters dp = new DynamicParameters(parameters);
+            dp.Add(typeof(TRecord).IdentityColumnName(), id);
+            return connection.QuerySingle<TKey>(cmd, dp);
         }
 
         private string GetCommand<TRecord>(Dictionary<string, string> dictionary, Func<string> commandBuilder)
