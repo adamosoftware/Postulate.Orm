@@ -5,11 +5,11 @@ namespace Postulate.Orm.Merge.Action
 {
     public class DropTable : MergeAction
     {
-        private readonly DbObject _object;        
+        private readonly DbObject _object;
 
         public DropTable(DbObject @object) : base(MergeObjectType.Table, MergeActionType.Drop, $"Drop table {@object}", nameof(DropTable))
-        {            
-            _object = @object;            
+        {
+            _object = @object;
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)

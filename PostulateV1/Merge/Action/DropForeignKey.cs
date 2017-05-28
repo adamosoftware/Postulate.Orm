@@ -28,5 +28,5 @@ namespace Postulate.Orm.Merge.Action
         {
             return _fk.ConstraintName;
         }
-    }    
+    }
 }

@@ -1,11 +1,8 @@
-﻿using Postulate.Orm.Extensions;
-using System;
+﻿using Dapper;
+using Postulate.Orm.Extensions;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper;
 
 namespace Postulate.Orm.Merge.Action
 {
@@ -24,7 +21,7 @@ namespace Postulate.Orm.Merge.Action
 
             var referencingFKs = _pk.Key.GetReferencingForeignKeys(connection);
 
-            foreach (var fk in referencingFKs) yield return $"ALTER TABLE [{fk.Child.Schema}].[{fk.Child.TableName}] DROP CONSTRAINT [{fk.ConstraintName}]";                        
+            foreach (var fk in referencingFKs) yield return $"ALTER TABLE [{fk.Child.Schema}].[{fk.Child.TableName}] DROP CONSTRAINT [{fk.ConstraintName}]";
 
             yield return $"ALTER TABLE [{_pk.Key.Schema}].[{_pk.Key.Name}] DROP CONSTRAINT [{_pk.Key.PKConstraintName}]";
 
@@ -41,7 +38,7 @@ namespace Postulate.Orm.Merge.Action
         {
             foreach (var cr in _pk)
             {
-                foreach (var err in cr.PropertyInfo.GetPrimaryKeyValidationErrors()) yield return err;                
+                foreach (var err in cr.PropertyInfo.GetPrimaryKeyValidationErrors()) yield return err;
             }
 
             if (!connection.IsTableEmpty(_pk.Key.Schema, _pk.Key.Name))
@@ -66,7 +63,7 @@ namespace Postulate.Orm.Merge.Action
                 var results = connection.Query(dupQuery);
                 return (results.Any());
             }
-            catch 
+            catch
             {
                 // an exception here usually means the new key relies on columns that don't exist yet
                 return false;

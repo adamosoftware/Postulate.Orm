@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Postulate.Orm.Merge.Action
 {
@@ -26,7 +22,7 @@ namespace Postulate.Orm.Merge.Action
         public MergeObjectType ObjectType { get { return _objectType; } }
         public MergeActionType ActionType { get { return _actionType; } }
         public string Description { get { return _description; } }
-        public string SourceAction {  get { return _sourceAction; } }
+        public string SourceAction { get { return _sourceAction; } }
 
         public abstract IEnumerable<string> ValidationErrors(IDbConnection connection);
 

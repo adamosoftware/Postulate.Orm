@@ -1,13 +1,9 @@
 ﻿using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using ReflectionHelper;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
+using System.Reflection;
 
 namespace Postulate.Orm.Merge.Action
 {
@@ -38,7 +34,7 @@ namespace Postulate.Orm.Merge.Action
             {
                 yield return $"Can't rename from {tbl}.{_attr.OldName} -- column doesn't exist.";
             }
-            
+
             if (_propertyInfo.SqlColumnName().Equals(_attr.OldName))
             {
                 yield return $"Can't rename column to the same name.";

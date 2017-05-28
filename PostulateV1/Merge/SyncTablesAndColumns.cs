@@ -1,15 +1,15 @@
-﻿using Postulate.Orm.Abstract;
+﻿using Dapper;
+using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Merge.Action;
+using ReflectionHelper;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using ReflectionHelper;
-using Dapper;
-using System;
 
 namespace Postulate.Orm.Merge
 {
@@ -38,7 +38,7 @@ namespace Postulate.Orm.Merge
 
             var newFK = _modelTypes.SelectMany(t =>
                 t.GetModelForeignKeys().Where(pi =>
-                    (!connection.ForeignKeyExists(pi)  && connection.TableExists(t)) ||                    
+                    (!connection.ForeignKeyExists(pi) && connection.TableExists(t)) ||
                     rebuiltTables.OfType<CreateTable>().Any(ct => ct.ModelType.Equals(pi.GetForeignKeyType()))));
             results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
 
@@ -69,13 +69,13 @@ namespace Postulate.Orm.Merge
         private IEnumerable<ForeignKeyRef> GetSchemaFKs(IDbConnection connection)
         {
             return connection.Query<ForeignKeyInfo>(
-                @"SELECT 
+                @"SELECT
                     [fk].[name] AS [ConstraintName],
                     SCHEMA_NAME([t].[schema_id]) AS [ReferencingSchema],
                     [t].[name] AS [ReferencingTable],
                     [col].[name] AS [ReferencingColumn]
-                FROM 
-                    [sys].[foreign_key_columns] [fkcol] INNER JOIN [sys].[columns] [col] ON 
+                FROM
+                    [sys].[foreign_key_columns] [fkcol] INNER JOIN [sys].[columns] [col] ON
 						[fkcol].[parent_object_id]=[col].[object_id] AND
 						[fkcol].[parent_column_id]=[col].[column_id]
 					INNER JOIN [sys].[foreign_keys] [fk] ON [fkcol].[constraint_object_id]=[fk].[object_id]
@@ -94,14 +94,14 @@ namespace Postulate.Orm.Merge
 
             return GetSchemaColumns(connection).Where(sc =>
                 !modelColumns.Any(
-                    mc => mc.Equals(sc) || 
+                    mc => mc.Equals(sc) ||
                     (mc.PropertyInfo.GetAttribute<RenameFromAttribute>()?.OldName?.Equals(sc.ColumnName) ?? false) ||
                     (mc.PropertyInfo.DeclaringType.HasAttribute<RenameFromAttribute>())) &&
                 !deletedTables.Contains(new DbObject(sc.Schema, sc.TableName)));
         }
 
         private IEnumerable<DbObject> DeletedTables(IDbConnection connection)
-        {            
+        {
             var schemaTables = GetSchemaTables(connection);
             return schemaTables.Where(obj => !_modelTypes.Any(t => obj.Equals(t) || obj.Equals(t.GetAttribute<RenameFromAttribute>())));
         }
@@ -126,7 +126,7 @@ namespace Postulate.Orm.Merge
             // todo: same thing with unique keys -- they must be rebuilt if column additions impact them
 
             foreach (var col in alterColumns) yield return new AddColumn(col);
-            
+
             foreach (var pk in pkTables)
             {
                 yield return new CreatePrimaryKey(pk);
@@ -150,15 +150,15 @@ namespace Postulate.Orm.Merge
         private IEnumerable<PropertyInfo> NewColumns(IDbConnection connection, IEnumerable<CreateTable> newTables)
         {
             var schemaColumns = GetSchemaColumns(connection);
-            
+
             return _modelTypes.Where(t => !newTables.Any(ct => ct.Equals(t)))
                 .SelectMany(t => t.GetProperties()
                     .Where(pi =>
                         !schemaColumns.Any(cr => cr.Equals(pi)) &&
                         !connection.ColumnExists(t.GetSchema(), t.GetTableName(), pi.SqlColumnName()) &&
-                        pi.CanWrite &&                        
-                        IsSupportedType(pi.PropertyType) &&                        
-                        !pi.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&                        
+                        pi.CanWrite &&
+                        IsSupportedType(pi.PropertyType) &&
+                        !pi.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
                         !pi.HasAttribute<RenameFromAttribute>() &&
                         !pi.HasAttribute<NotMappedAttribute>()));
         }
@@ -169,5 +169,5 @@ namespace Postulate.Orm.Merge
             var addTables = _modelTypes.Where(t => !t.HasAttribute<RenameFromAttribute>() && !schemaTables.Any(st => st.Equals(t)));
             return addTables.Select(t => new CreateTable(t));
         }
-    }    
+    }
 }

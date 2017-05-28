@@ -1,47 +1,47 @@
-﻿using System;
+﻿using Dapper;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
+using ReflectionHelper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Dapper;
 using System.Reflection;
-using Postulate.Orm.Extensions;
-using Postulate.Orm.Attributes;
-using ReflectionHelper;
 
 namespace Postulate.Orm.Merge
 {
     internal static class Helpers
-    {        
+    {
         internal static IEnumerable<ForeignKeyRef> GetReferencingForeignKeys(this IDbConnection connection, int objectID)
         {
             return connection.Query<ForeignKeyInfo>(
-                @"SELECT 
-                    [fk].[name] AS [ConstraintName], 
+                @"SELECT
+                    [fk].[name] AS [ConstraintName],
                     SCHEMA_NAME([parent].[schema_id]) AS [ReferencedSchema],
                     [parent].[name] AS [ReferencedTable],
                     [refdcol].[name] AS [ReferencedColumn],
-                    SCHEMA_NAME([child].[schema_id]) AS [ReferencingSchema], 
+                    SCHEMA_NAME([child].[schema_id]) AS [ReferencingSchema],
                     [child].[name] AS [ReferencingTable],
                     [rfincol].[name] AS [ReferencingColumn]
-                FROM 
+                FROM
                     [sys].[foreign_keys] [fk] INNER JOIN [sys].[tables] [child] ON [fk].[parent_object_id]=[child].[object_id]
                     INNER JOIN [sys].[tables] [parent] ON [fk].[referenced_object_id]=[parent].[object_id]
-                    INNER JOIN [sys].[foreign_key_columns] [fkcol] ON 
+                    INNER JOIN [sys].[foreign_key_columns] [fkcol] ON
                         [fk].[parent_object_id]=[fkcol].[parent_object_id] AND
                         [fk].[object_id]=[fkcol].[constraint_object_id]
-                    INNER JOIN [sys].[columns] [refdcol] ON 
+                    INNER JOIN [sys].[columns] [refdcol] ON
                         [fkcol].[referenced_column_id]=[refdcol].[column_id] AND
                         [fkcol].[referenced_object_id]=[refdcol].[object_id]
-                    INNER JOIN [sys].[columns] [rfincol] ON 
+                    INNER JOIN [sys].[columns] [rfincol] ON
                         [fkcol].[parent_column_id]=[rfincol].[column_id] AND
                         [fkcol].[parent_object_id]=[rfincol].[object_id]
-				WHERE 
+				WHERE
                     [fk].[referenced_object_id]=@objID", new { objID = objectID })
                 .Select(fk => new ForeignKeyRef()
                 {
                     ConstraintName = fk.ConstraintName,
                     Child = new ColumnRef() { Schema = fk.ReferencingSchema, TableName = fk.ReferencingTable, ColumnName = fk.ReferencingColumn },
-                    Parent = new ColumnRef() {  Schema = fk.ReferencedSchema, TableName = fk.ReferencedTable, ColumnName = fk.ReferencedColumn }
+                    Parent = new ColumnRef() { Schema = fk.ReferencedSchema, TableName = fk.ReferencedTable, ColumnName = fk.ReferencedColumn }
                 });
         }
 

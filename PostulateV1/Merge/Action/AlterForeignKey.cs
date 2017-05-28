@@ -1,15 +1,15 @@
-﻿using Postulate.Orm.Extensions;
+﻿using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Data;
-using Postulate.Orm.Attributes;
+using System.Reflection;
 
 namespace Postulate.Orm.Merge.Action
 {
     public class AlterForeignKey : MergeForeignKeyBase
-    {        
+    {
         public AlterForeignKey(PropertyInfo propertyInfo, string description) : base(propertyInfo, MergeActionType.Alter, $"{propertyInfo.ForeignKeyName()}: {description}", nameof(AlterForeignKey))
-        {        
+        {
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)

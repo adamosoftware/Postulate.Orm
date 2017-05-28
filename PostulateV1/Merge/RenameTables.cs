@@ -1,10 +1,10 @@
-﻿using Postulate.Orm.Interfaces;
+﻿using Postulate.Orm.Attributes;
+using Postulate.Orm.Interfaces;
 using Postulate.Orm.Merge.Action;
-using System.Linq;
+using ReflectionHelper;
 using System.Collections.Generic;
 using System.Data;
-using ReflectionHelper;
-using Postulate.Orm.Attributes;
+using System.Linq;
 
 namespace Postulate.Orm.Merge
 {
@@ -18,6 +18,5 @@ namespace Postulate.Orm.Merge
             results.AddRange(renamedTables.Select(rt => new RenameTable(rt)));
             return results;
         }
-
     }
 }

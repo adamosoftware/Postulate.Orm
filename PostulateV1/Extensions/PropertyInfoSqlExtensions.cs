@@ -1,6 +1,7 @@
 ﻿using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge;
 using Postulate.Orm.Merge.Action;
+using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +9,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using ReflectionHelper;
 
 namespace Postulate.Orm.Extensions
 {
@@ -32,8 +32,8 @@ namespace Postulate.Orm.Extensions
                 else
                 {
                     // forced nulls are used with AddColumn where DefaultExpression.IsConstant = false. The null constraint is added after expression is resolved
-                    result = $"[{propertyInfo.SqlColumnName()}] {propertyInfo.SqlColumnType(forceNull:true)}";
-                }                
+                    result = $"[{propertyInfo.SqlColumnName()}] {propertyInfo.SqlColumnType(forceNull: true)}";
+                }
             }
 
             return result;
@@ -175,7 +175,7 @@ namespace Postulate.Orm.Extensions
         {
             if (propertyInfo.SqlColumnType().ToLower().Contains("char(max)")) yield return $"Primary key column [{propertyInfo.Name}] may not use MAX size.";
             if (propertyInfo.PropertyType.IsNullableGeneric()) yield return $"Primary key column [{propertyInfo.Name}] may not be nullable.";
-        }        
+        }
 
         public static string IndexName(this PropertyInfo propertyInfo)
         {

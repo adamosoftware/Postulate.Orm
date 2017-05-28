@@ -1,11 +1,11 @@
-﻿using Postulate.Orm.Merge.Action;
+﻿using Dapper;
+using Postulate.Orm.Abstract;
+using Postulate.Orm.Extensions;
+using Postulate.Orm.Merge.Action;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Postulate.Orm.Extensions;
-using Dapper;
-using System;
-using Postulate.Orm.Abstract;
 
 namespace Postulate.Orm.Merge
 {
@@ -23,7 +23,7 @@ namespace Postulate.Orm.Merge
 
             var alteredKeys = from mk in modelPKColumns
                               join sk in schemaPKColumns on mk.Key equals sk.Key
-                              where 
+                              where
                                 (
                                     !Enumerable.SequenceEqual(mk, sk) && // pk columns are different
                                     Enumerable.SequenceEqual(ModelColumnNames(mk.First().PropertyInfo.DeclaringType), SchemaColumnNames(connection, sk.Key)) // but the table columns are otherwise the same
@@ -44,9 +44,9 @@ namespace Postulate.Orm.Merge
         private IEnumerable<string> SchemaColumnNames(IDbConnection connection, DbObject dbObject)
         {
             return connection.Query<string>(
-                @"SELECT 
+                @"SELECT
                     LOWER([col].[name]) AS [LoweredName]
-                FROM 
+                FROM
                     [sys].[columns] [col] INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
                 WHERE
                     SCHEMA_NAME([t].[schema_id])=@schema AND
@@ -58,7 +58,7 @@ namespace Postulate.Orm.Merge
         private IEnumerable<ColumnRef> GetModelPKColumns()
         {
             return _modelTypes
-                .SelectMany(t => t.GetPrimaryKeyProperties())                
+                .SelectMany(t => t.GetPrimaryKeyProperties())
                 .Select(pi => new ColumnRef(pi));
         }
 
@@ -73,15 +73,15 @@ namespace Postulate.Orm.Merge
                         WHEN 1 THEN 1
                         ELSE 0
                     END) AS [IsClustered]
-                FROM 
-                    [sys].[indexes] [pk] INNER JOIN [sys].[index_columns] [pkcol] ON 
+                FROM
+                    [sys].[indexes] [pk] INNER JOIN [sys].[index_columns] [pkcol] ON
                         [pk].[index_id]=[pkcol].[index_id] AND
                         [pk].[object_id]=[pkcol].[object_id]
                     INNER JOIN [sys].[columns] [col] ON
                         [pkcol].[object_id]=[col].[object_id] AND
                         [pkcol].[column_id]=[col].[column_id]
                     INNER JOIN [sys].[tables] [t] ON [pk].[object_id]=[t].[object_id]
-                WHERE 
+                WHERE
                     [pk].[is_primary_key]=1
                 ORDER BY
                     SCHEMA_NAME([t].[schema_id]),
@@ -89,12 +89,12 @@ namespace Postulate.Orm.Merge
                     [col].[name]", null);
 
             return pkCols.Select(col => new ColumnRef()
-                {
-                    Schema = col.Schema,
-                    TableName = col.TableName,
-                    ColumnName = col.ColumnName,
-                    DbObject = new DbObject(col.Schema, col.TableName) {  ModelType = FindModelType(col.Schema, col.TableName), IsClusteredPK = col.IsClustered }
-                });
+            {
+                Schema = col.Schema,
+                TableName = col.TableName,
+                ColumnName = col.ColumnName,
+                DbObject = new DbObject(col.Schema, col.TableName) { ModelType = FindModelType(col.Schema, col.TableName), IsClusteredPK = col.IsClustered }
+            });
         }
     }
 

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Postulate.Orm.Merge.Action
 {
@@ -33,14 +30,14 @@ namespace Postulate.Orm.Merge.Action
             string pkConstraint; bool isClustered;
             if (_newColumn.InPrimaryKey(connection, out pkConstraint, out isClustered))
             {
-                inPK = true;     
+                inPK = true;
                 referencingFKs = connection.GetReferencingForeignKeys(_objectId);
                 if (referencingFKs.Any(fk => fk.Parent.ColumnName.Equals(_newColumn.ColumnName)))
                 {
                     rebuildFKs = true;
                     foreach (var fk in referencingFKs) yield return $"ALTER TABLE [{fk.Child.Schema}].[{fk.Child.TableName}] DROP CONSTRAINT [{fk.ConstraintName}]";
                 }
-                
+
                 // todo: indexes
 
                 yield return $"ALTER TABLE [{_newColumn.DbObject.Schema}].[{_newColumn.DbObject.Name}] DROP CONSTRAINT [{pkConstraint}]";

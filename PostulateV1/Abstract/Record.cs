@@ -1,21 +1,19 @@
 ﻿using Postulate.Orm.Enums;
+using Postulate.Orm.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Postulate.Orm.Extensions;
-using Postulate.Orm.Attributes;
 
 namespace Postulate.Orm.Abstract
 {
     public abstract class Record<TKey>
     {
-        internal static string IdentityColumnName {  get { return nameof(Id); } }
+        internal static string IdentityColumnName { get { return nameof(Id); } }
 
         private TKey _id;
+
         public TKey Id
         {
             get { return _id; }
@@ -24,7 +22,7 @@ namespace Postulate.Orm.Abstract
 
         /// <summary>
         /// Returns true if the record has never been saved before
-        /// </summary>        
+        /// </summary>
         public bool IsNew()
         {
             return (Id.Equals(default(TKey)));
@@ -69,9 +67,9 @@ namespace Postulate.Orm.Abstract
 
                 var validationAttr = prop.GetCustomAttributes<System.ComponentModel.DataAnnotations.ValidationAttribute>();
                 foreach (var attr in validationAttr)
-                {                    
+                {
                     object value = prop.GetValue(this);
-                    if (!attr.IsValid(value)) yield return attr.FormatErrorMessage(prop.Name);                    
+                    if (!attr.IsValid(value)) yield return attr.FormatErrorMessage(prop.Name);
                 }
             }
         }

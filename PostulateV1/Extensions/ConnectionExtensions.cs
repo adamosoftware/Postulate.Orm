@@ -1,38 +1,37 @@
-﻿using System.Data;
-using Dapper;
-using System.Reflection;
-using Postulate.Orm.Attributes;
+﻿using Dapper;
 using Postulate.Orm.Merge;
-using System.Collections.Generic;
-using System.Linq;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
 
 namespace Postulate.Orm.Extensions
 {
-	public static class ConnectionExtensions
-	{
-		public static bool Exists(this IDbConnection connection, string fromWhere, object parameters = null)
-		{
-			return ((connection.QueryFirstOrDefault<int?>($"SELECT 1 FROM {fromWhere}", parameters) ?? 0) == 1);
-		}
+    public static class ConnectionExtensions
+    {
+        public static bool Exists(this IDbConnection connection, string fromWhere, object parameters = null)
+        {
+            return ((connection.QueryFirstOrDefault<int?>($"SELECT 1 FROM {fromWhere}", parameters) ?? 0) == 1);
+        }
 
-		public static bool ForeignKeyExists(this IDbConnection connection, string name)
-		{
-			return connection.Exists("[sys].[foreign_keys] WHERE [name]=@name", new { name = name });
-		}
+        public static bool ForeignKeyExists(this IDbConnection connection, string name)
+        {
+            return connection.Exists("[sys].[foreign_keys] WHERE [name]=@name", new { name = name });
+        }
 
         public static bool ForeignKeyExists(this IDbConnection connection, PropertyInfo propertyInfo)
         {
             return ForeignKeyExists(connection, propertyInfo.ForeignKeyName());
         }
 
-		public static bool ColumnExists(this IDbConnection connection, string schema, string tableName, string columnName)
-		{
-			return connection.Exists(
-				@"[sys].[columns] [col] INNER JOIN [sys].[tables] [tbl] ON [col].[object_id]=[tbl].[object_id]
+        public static bool ColumnExists(this IDbConnection connection, string schema, string tableName, string columnName)
+        {
+            return connection.Exists(
+                @"[sys].[columns] [col] INNER JOIN [sys].[tables] [tbl] ON [col].[object_id]=[tbl].[object_id]
 				WHERE SCHEMA_NAME([tbl].[schema_id])=@schema AND [tbl].[name]=@tableName AND [col].[name]=@columnName",
-				new { schema = schema, tableName = tableName, columnName = columnName });
-		}
+                new { schema = schema, tableName = tableName, columnName = columnName });
+        }
 
         public static bool TableExists(this IDbConnection connection, string schema, string tableName)
         {
@@ -51,7 +50,7 @@ namespace Postulate.Orm.Extensions
         }
 
         public static bool IsColumnInPrimaryKey(this IDbConnection connection, string schema, string tableName, string columnName, out string pkName)
-        {            
+        {
             ColumnRef cr = new ColumnRef() { Schema = schema, TableName = tableName, ColumnName = columnName };
 
             var keyColumns = GetKeyColumns(connection, keyInfo => keyInfo.IsPrimaryKey && keyInfo.Equals(cr));
@@ -73,16 +72,16 @@ namespace Postulate.Orm.Extensions
         public static IEnumerable<KeyColumnInfo> GetKeyColumns(this IDbConnection connection, Func<KeyColumnInfo, bool> filter = null)
         {
             var results = connection.Query<KeyColumnInfo>(
-                @"SELECT 
+                @"SELECT
                     SCHEMA_NAME([t].[schema_id]) AS [Schema],
-                    [t].[name] AS [TableName], 
+                    [t].[name] AS [TableName],
                     [col].[name] AS [ColumnName],
                     [ndx].[name] AS [IndexName],
                     [ndx].[type] AS [IndexType],
                     [ndx].[is_unique] AS [IsUnique],
                     [ndx].[is_primary_key] AS [IsPrimaryKey]
-                FROM 
-                    [sys].[index_columns] [ndxcol] INNER JOIN [sys].[indexes] [ndx] ON 
+                FROM
+                    [sys].[index_columns] [ndxcol] INNER JOIN [sys].[indexes] [ndx] ON
                         [ndxcol].[object_id]=[ndx].[object_id] AND
                         [ndxcol].[index_id]=[ndx].[index_id]
                     INNER JOIN [sys].[tables] [t] ON [ndx].[object_id]=[t].[object_id]

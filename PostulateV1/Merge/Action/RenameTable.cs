@@ -1,18 +1,18 @@
-﻿using Postulate.Orm.Attributes;
+﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Postulate.Orm.Extensions;
 using System.Linq;
-using Postulate.Orm.Abstract;
 
 namespace Postulate.Orm.Merge.Action
 {
     public class RenameTable : MergeAction
     {
         private readonly RenameFromAttribute _attr;
-        private readonly Type _modelType;        
+        private readonly Type _modelType;
 
         public RenameTable(Type modelType) : base(MergeObjectType.Table, MergeActionType.Rename, RenameDescription(modelType), nameof(RenameTable))
         {
@@ -57,11 +57,11 @@ namespace Postulate.Orm.Merge.Action
 
             CreateTable ct = new CreateTable(_modelType);
             if (!connection.TableExists(newTable.Schema, newTable.Name))
-            {                
+            {
                 foreach (var cmd in ct.SqlCommands(connection)) yield return cmd;
             }
 
-            DbObject oldTable = DbObject.Parse(_attr.OldName);            
+            DbObject oldTable = DbObject.Parse(_attr.OldName);
 
             if (connection.TableExists(oldTable.Schema, oldTable.Name))
             {
@@ -79,7 +79,7 @@ namespace Postulate.Orm.Merge.Action
                 foreach (var cmd in connection.GetFKDropStatements(oldTable.ObjectId)) yield return cmd;
 
                 yield return $"DROP TABLE [{oldTable.Schema}].[{oldTable.Name}]";
-            }           
+            }
         }
     }
 }

@@ -1,12 +1,7 @@
-﻿using System;
+﻿using Postulate.Orm.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Postulate.Orm.Extensions;
-using Postulate.Orm.Attributes;
 
 namespace Postulate.Orm.Merge.Action
 {
@@ -26,7 +21,7 @@ namespace Postulate.Orm.Merge.Action
             foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
 
             CreateTable ct = new CreateTable(_modelType);
-            string pkName;            
+            string pkName;
             bool inPK = ct.InPrimaryKey(_columnRef.ColumnName, out pkName) || connection.IsColumnInPrimaryKey(_columnRef, out pkName);
 
             if (inPK) yield return $"ALTER TABLE [{_columnRef.Schema}].[{_columnRef.TableName}] DROP CONSTRAINT [{pkName}]";

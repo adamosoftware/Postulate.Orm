@@ -1,14 +1,12 @@
-﻿using System;
+﻿using Dapper;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
+using ReflectionHelper;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Postulate.Orm.Extensions;
-using Postulate.Orm.Attributes;
-using System.Data;
-using Dapper;
-using ReflectionHelper;
 
 namespace Postulate.Orm.Merge
 {
@@ -24,7 +22,7 @@ namespace Postulate.Orm.Merge
             DataType = pi.SqlDataType();
             CollateAttribute collate;
             if (pi.HasAttribute(out collate)) Collation = collate.Collation;
-            DbObject = obj;            
+            DbObject = obj;
             IsNullable = pi.AllowSqlNull();
             ModelType = pi.ReflectedType;
         }
@@ -62,7 +60,7 @@ namespace Postulate.Orm.Merge
             });
         }
 
-        public bool IsNullable { get; set; }        
+        public bool IsNullable { get; set; }
 
         public string Length
         {
@@ -156,10 +154,10 @@ namespace Postulate.Orm.Merge
         {
             fk = null;
             var result = connection.QueryFirstOrDefault(
-                @"SELECT 
+                @"SELECT
 					[fk].[name] AS [ConstraintName], [t].[name] AS [TableName], SCHEMA_NAME([t].[schema_id]) AS [Schema]
-				FROM 
-					[sys].[foreign_key_columns] [fkcol] INNER JOIN [sys].[columns] [col] ON 
+				FROM
+					[sys].[foreign_key_columns] [fkcol] INNER JOIN [sys].[columns] [col] ON
 						[fkcol].[parent_object_id]=[col].[object_id] AND
 						[fkcol].[parent_column_id]=[col].[column_id]
 					INNER JOIN [sys].[foreign_keys] [fk] ON [fkcol].[constraint_object_id]=[fk].[object_id]
@@ -174,7 +172,7 @@ namespace Postulate.Orm.Merge
                 fk = new ForeignKeyRef()
                 {
                     ConstraintName = result.ConstraintName,
-                    ChildObject = new DbObject(result.Schema, result.TableName)                    
+                    ChildObject = new DbObject(result.Schema, result.TableName)
                 };
                 return true;
             }
@@ -188,15 +186,15 @@ namespace Postulate.Orm.Merge
             isClustered = false;
 
             var result = connection.QueryFirstOrDefault(
-                @"SELECT 	
+                @"SELECT
 					[ndx].[name] AS [ConstraintName], CONVERT(bit, CASE [ndx].[type_desc] WHEN 'CLUSTERED' THEN 1 ELSE 0 END) AS [IsClustered]
-				FROM 
+				FROM
 					[sys].[indexes] [ndx] INNER JOIN [sys].[index_columns] [ndxcol] ON [ndx].[object_id]=[ndxcol].[object_id]
-					INNER JOIN [sys].[columns] [col] ON 
+					INNER JOIN [sys].[columns] [col] ON
 						[ndxcol].[column_id]=[col].[column_id] AND
 						[ndxcol].[object_id]=[col].[object_id]
 					INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
-				WHERE 
+				WHERE
 					[is_primary_key]=1 AND
 					SCHEMA_NAME([t].[schema_id])=@schema AND
 					[t].[name]=@tableName AND
@@ -218,10 +216,10 @@ namespace Postulate.Orm.Merge
             var result = connection.QueryFirstOrDefault(
                 @"SELECT
 						[df].[name] AS [ConstraintName]
-					FROM 
+					FROM
 						[sys].[columns] [col] INNER JOIN [sys].[default_constraints] [df] ON [col].[default_object_id]=[df].[object_id]
 						INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
-					WHERE 
+					WHERE
 						SCHEMA_NAME([t].[schema_id])=@schema AND
 						[t].[name]=@tableName AND
 						[col].[name]=@columnName", new { schema = this.Schema, tableName = this.TableName, columnName = this.ColumnName });

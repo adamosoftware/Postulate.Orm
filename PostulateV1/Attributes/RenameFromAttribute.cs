@@ -12,6 +12,6 @@ namespace Postulate.Orm.Attributes
             _oldName = oldName;
         }
 
-        public string OldName {  get { return _oldName; } }
+        public string OldName { get { return _oldName; } }
     }
 }

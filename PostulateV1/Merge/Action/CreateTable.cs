@@ -2,13 +2,13 @@
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
+using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using ReflectionHelper;
 
 namespace Postulate.Orm.Merge.Action
 {
@@ -159,7 +159,6 @@ namespace Postulate.Orm.Merge.Action
             results.AddRange(CreateTableUniqueConstraints(clusterAttribute));
 
             return results.ToArray();
-
         }
 
         internal ClusterAttribute GetClusterAttribute()
@@ -198,7 +197,7 @@ namespace Postulate.Orm.Merge.Action
                 if (_addedColumns?.Contains(pi.SqlColumnName()) ?? false) result += " /* added */";
                 return result;
             }));
-                
+
             if (identityPos == Position.EndOfTable) results.Add(IdentityColumnSql());
 
             return results;
@@ -224,7 +223,7 @@ namespace Postulate.Orm.Merge.Action
         internal string CreateTablePrimaryKey(ClusterAttribute clusterAttribute)
         {
             return $"CONSTRAINT [PK_{DbObject.ConstraintName(_modelType)}] PRIMARY KEY {clusterAttribute.Syntax(ClusterOption.PrimaryKey)}({string.Join(", ", PrimaryKeyColumns().Select(col => $"[{col}]"))})";
-        }        
+        }
 
         private Type FindKeyType(Type modelType)
         {
@@ -263,7 +262,7 @@ namespace Postulate.Orm.Merge.Action
         {
             return PrimaryKeyColumns(_modelType, markedOnly);
         }
-    
+
         internal string PrimaryKeyColumnSyntax()
         {
             return string.Join(", ", PrimaryKeyColumns().Select(col => $"[{col}]"));

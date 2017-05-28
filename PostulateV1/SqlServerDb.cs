@@ -1,21 +1,21 @@
-﻿using Postulate.Orm.Abstract;
-using System;
-using System.Linq;
-using System.Data;
-using System.Data.SqlClient;
-using Postulate.Orm.Enums;
-using System.Linq.Expressions;
-using Postulate.Orm.Interfaces;
-using System.Configuration;
-using System.Reflection;
+﻿using Dapper;
+using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
-using ReflectionHelper;
-using Postulate.Orm.Merge;
-using Dapper;
+using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
-using System.Collections.Generic;
+using Postulate.Orm.Interfaces;
+using Postulate.Orm.Merge;
 using Postulate.Orm.Merge.Action;
 using Postulate.Orm.Models;
+using ReflectionHelper;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Postulate.Orm
 {
@@ -28,7 +28,7 @@ namespace Postulate.Orm
         }
 
         public SqlServerDb(string connectionName, string userName = null) : base(connectionName, userName)
-        {            
+        {
         }
 
         protected override string ApplyDelimiter(string name)
@@ -133,7 +133,7 @@ namespace Postulate.Orm
             {
                 DbObject obj = DbObject.FromType(fk.PrimaryTableType);
                 result = connection.QueryFirst<string>(
-                    $@"SELECT {dr.Expression} FROM [{obj.Schema}].[{obj.Name}] 
+                    $@"SELECT {dr.Expression} FROM [{obj.Schema}].[{obj.Name}]
 					WHERE [{fk.PrimaryTableType.IdentityColumnName()}]=@id", new { id = result });
             }
 
@@ -166,7 +166,7 @@ namespace Postulate.Orm
             {
                 connection.Execute($@"CREATE TABLE [{_changesSchema}].[{tableName}] (
 					[RecordId] {CreateTable.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
-					[Version] int NOT NULL,					
+					[Version] int NOT NULL,
 					[ColumnName] nvarchar(100) NOT NULL,
                     [UserName] nvarchar(256) NOT NULL,
 					[OldValue] nvarchar(max) NULL,
@@ -199,7 +199,6 @@ namespace Postulate.Orm
                         newValue = CleanMinDate(change.NewValue) ?? "<null>"
                     });
             }
-
         }
 
         private static object CleanMinDate(object value)
@@ -235,7 +234,7 @@ namespace Postulate.Orm
                 return new ChangeHistory<TKey>()
                 {
                     RecordId = ch.Key.RecordId,
-                    DateTime = ch.First().DateTime.AddHours(timeZoneOffset),                    
+                    DateTime = ch.First().DateTime.AddHours(timeZoneOffset),
                     Version = ch.Key.Version,
                     UserName = ch.First().UserName,
                     Properties = ch.Select(chr => new PropertyChange()
@@ -246,7 +245,6 @@ namespace Postulate.Orm
                     })
                 };
             });
-
         }
     }
 }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Postulate.Orm.Attributes
 {
@@ -23,7 +19,7 @@ namespace Postulate.Orm.Attributes
 
         /// <summary>
         /// At the class level, describes a unique constraint with a set of columns
-        /// </summary>		
+        /// </summary>
         public UniqueKeyAttribute(params string[] columnNames)
         {
             _columnNames = columnNames;

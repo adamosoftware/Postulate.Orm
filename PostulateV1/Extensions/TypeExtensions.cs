@@ -1,11 +1,11 @@
 ﻿using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge.Action;
-using System;
 using ReflectionHelper;
-using System.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Postulate.Orm.Extensions
 {
@@ -25,7 +25,7 @@ namespace Postulate.Orm.Extensions
         {
             var markedProperties = type
                 .GetProperties().Where(pi => pi.HasAttribute<PrimaryKeyAttribute>())
-                .OrderBy(pi => pi.SqlColumnName());                
+                .OrderBy(pi => pi.SqlColumnName());
 
             if (markedProperties.Any())
             {
@@ -72,7 +72,7 @@ namespace Postulate.Orm.Extensions
 
         public static bool HasClusteredPrimaryKey(this Type type)
         {
-            return 
+            return
                 type.HasAttribute<ClusterAttribute>(attr => attr.Option == ClusterOption.PrimaryKey) ||
                 !type.HasAttribute<ClusterAttribute>();
         }

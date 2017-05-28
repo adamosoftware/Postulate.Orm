@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Postulate.Orm.Merge
+﻿namespace Postulate.Orm.Merge
 {
     public class ForeignKeyRef
     {
         public string ConstraintName { get; set; }
         public ColumnRef Parent { get; set; }
-        public ColumnRef Child { get; set; }        
+        public ColumnRef Child { get; set; }
         public DbObject ChildObject { get; set; }
     }
 

@@ -1,13 +1,11 @@
-﻿using Postulate.Orm.Merge.Action;
+﻿using Dapper;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
+using Postulate.Orm.Merge.Action;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System;
-using Postulate.Orm.Attributes;
-using Postulate.Orm.Extensions;
-using Dapper;
 using System.Reflection;
-using System.Text;
 
 namespace Postulate.Orm.Merge
 {
@@ -36,16 +34,16 @@ namespace Postulate.Orm.Merge
         private Dictionary<string, ForeignKeyAlterInfo> GetSchemaFKAlterInfo(IDbConnection connection)
         {
             return connection.Query<ForeignKeyAlterInfo>(
-                @"SELECT 
+                @"SELECT
                     [name] AS [ConstraintName],
-                    CONVERT(bit, [delete_referential_action]) AS [IsCascadeDelete],        
-                    CONVERT(bit, CASE 
+                    CONVERT(bit, [delete_referential_action]) AS [IsCascadeDelete],
+                    CONVERT(bit, CASE
                         WHEN EXISTS((SELECT 1 FROM [sys].[indexes] WHERE [name]='IX_' + SUBSTRING([fk].[name], 4, LEN([fk].[name])-2))) THEN 1
-                        ELSE 0 
+                        ELSE 0
                     END) AS [IsIndexed]
-                FROM 
+                FROM
                     [sys].[foreign_keys] [fk]").ToDictionary(
-                        row => row.ConstraintName, 
+                        row => row.ConstraintName,
                         row => new ForeignKeyAlterInfo() { IsCascadeDelete = row.IsCascadeDelete, IsIndexed = row.IsIndexed });
         }
 
@@ -53,7 +51,7 @@ namespace Postulate.Orm.Merge
         {
             return _modelTypes.SelectMany(t => t.GetModelForeignKeys())
                 .ToDictionary(
-                    item => item.ForeignKeyName(), 
+                    item => item.ForeignKeyName(),
                     item =>
                     {
                         ForeignKeyAttribute attr = item.GetForeignKeyAttribute();
@@ -79,15 +77,15 @@ namespace Postulate.Orm.Merge
             ForeignKeyAlterInfo ai = obj as ForeignKeyAlterInfo;
             if (ai != null)
             {
-                return 
-                    ai.IsIndexed == this.IsIndexed && 
+                return
+                    ai.IsIndexed == this.IsIndexed &&
                     ai.IsCascadeDelete == this.IsCascadeDelete;
             }
             return false;
         }
 
-        public static string operator-(ForeignKeyAlterInfo from, ForeignKeyAlterInfo to)
-        {            
+        public static string operator -(ForeignKeyAlterInfo from, ForeignKeyAlterInfo to)
+        {
             if (from.Equals(to)) return "No change";
 
             List<string> changes = new List<string>();

@@ -1,16 +1,16 @@
-﻿using Postulate.Orm.Abstract;
+﻿using Dapper;
+using Postulate.Orm.Abstract;
+using Postulate.Orm.Exceptions;
+using Postulate.Orm.Extensions;
+using Postulate.Orm.Interfaces;
+using Postulate.Orm.Merge.Action;
+using ReflectionHelper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Postulate.Orm.Extensions;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.IO;
-using Dapper;
-using Postulate.Orm.Exceptions;
-using Postulate.Orm.Merge.Action;
-using Postulate.Orm.Interfaces;
-using ReflectionHelper;
+using System.Linq;
 using System.Text;
 
 namespace Postulate.Orm.Merge
@@ -37,7 +37,7 @@ namespace Postulate.Orm.Merge
 
     public partial class SchemaMerge<TDb> : ISchemaMerge where TDb : IDb, new()
     {
-        private readonly IEnumerable<Type> _modelTypes;        
+        private readonly IEnumerable<Type> _modelTypes;
 
         private const string _metaSchema = "meta";
         private const string _metaVersion = "Version";
@@ -46,11 +46,11 @@ namespace Postulate.Orm.Merge
         {
             _modelTypes = typeof(TDb).Assembly.GetTypes()
                 .Where(t =>
-                    !t.Name.StartsWith("<>") &&         
+                    !t.Name.StartsWith("<>") &&
                     t.Namespace.Equals(typeof(TDb).Namespace) &&
                     !t.HasAttribute<NotMappedAttribute>() &&
                     !t.IsAbstract &&
-                    t.IsDerivedFromGeneric(typeof(Record<>)));            
+                    t.IsDerivedFromGeneric(typeof(Record<>)));
         }
 
         public IDbConnection GetConnection()
@@ -82,7 +82,7 @@ namespace Postulate.Orm.Merge
                 AlterColumnTypes, AlterPrimaryKeys, AlterForeignKeys, RenameTables, RenameColumns
                 /* AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, */
 
-                // drop                
+                // drop
             };
             foreach (var method in diffMethods) results.AddRange(method.Invoke(connection));
 
@@ -121,7 +121,7 @@ namespace Postulate.Orm.Merge
             foreach (var action in actions)
             {
                 foreach (var cmd in action.SqlCommands(connection))
-                {                    
+                {
                     sb.AppendLine(cmd);
                     sb.AppendLine("\r\nGO\r\n");
                     endRange += GetLineCount(cmd) + 4;
@@ -155,13 +155,13 @@ namespace Postulate.Orm.Merge
         }
 
         public void SaveScriptAs(IDbConnection connection, string fileName)
-        {            
+        {
             var diffs = Compare(connection);
             using (var file = File.CreateText(fileName))
             {
                 var sb = GetScript(connection, diffs);
                 file.Write(sb.ToString());
-            }            
+            }
         }
 
         public static bool Patch(Func<IEnumerable<MergeAction>, int, bool> uiAction = null)
@@ -177,7 +177,7 @@ namespace Postulate.Orm.Merge
         public static bool Patch(IDbConnection connection, Func<IEnumerable<MergeAction>, int, bool> uiAction = null)
         {
             int schemaVersion;
-            
+
             if (IsPatchAvailable(connection, out schemaVersion))
             {
                 var sm = new SchemaMerge<TDb>();
@@ -185,7 +185,7 @@ namespace Postulate.Orm.Merge
 
                 if (uiAction != null)
                 {
-                    // giving user opportunity to cancel           
+                    // giving user opportunity to cancel
                     if (!uiAction.Invoke(diffs, schemaVersion)) return false;
                 }
 
@@ -193,7 +193,6 @@ namespace Postulate.Orm.Merge
                 return true;
             }
             return false;
-
         }
 
         public void Execute()
@@ -254,7 +253,7 @@ namespace Postulate.Orm.Merge
             if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _metaSchema, name = _metaVersion }))
             {
                 connection.Execute($@"CREATE TABLE [{_metaSchema}].[{_metaVersion}] (
-					[Value] int NOT NULL,					
+					[Value] int NOT NULL,
 					CONSTRAINT [PK_{_metaSchema}_{_metaVersion}] PRIMARY KEY ([Value])
 				)");
             }
@@ -271,11 +270,11 @@ namespace Postulate.Orm.Merge
         private IEnumerable<ColumnRef> GetSchemaColumns(IDbConnection connection)
         {
             return connection.Query<ColumnRef>(
-                @"SELECT SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [c].[Name] AS [ColumnName], 
-					[t].[object_id] AS [ObjectID], TYPE_NAME([c].[system_type_id]) AS [DataType], 
+                @"SELECT SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [c].[Name] AS [ColumnName],
+					[t].[object_id] AS [ObjectID], TYPE_NAME([c].[system_type_id]) AS [DataType],
 					[c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
 					[c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation]
-				FROM 
+				FROM
 					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
                 WHERE
                     SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta')");
@@ -290,12 +289,12 @@ namespace Postulate.Orm.Merge
             if (collationLookupConnection != null)
             {
                 var collations = collationLookupConnection.Query<ColumnRef>(
-                    @"SELECT 
+                    @"SELECT
 	                    SCHEMA_NAME([tbl].[schema_id]) AS [Schema],
 	                    [tbl].[name] AS [TableName],
 	                    [col].[Name] AS [ColumnName],
 	                    [col].[collation_name] AS [Collation]
-                    FROM 
+                    FROM
 	                    [sys].[columns] [col] INNER JOIN [sys].[tables] [tbl] ON [col].[object_id]=[tbl].[object_id]
                     WHERE
 	                    [col].[collation_name] IS NOT NULL");
@@ -314,9 +313,9 @@ namespace Postulate.Orm.Merge
         private static IEnumerable<DbObject> GetSchemaTables(IDbConnection connection)
         {
             var tables = connection.Query(
-                @"SELECT 
+                @"SELECT
                     SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [Name], [t].[object_id] AS [ObjectId]
-                FROM 
+                FROM
                     [sys].[tables] [t]
                 WHERE
                     SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta')");
@@ -329,7 +328,7 @@ namespace Postulate.Orm.Merge
         }
 
         internal Type FindModelType(DbObject @object)
-        {            
+        {
             return _modelTypes.FirstOrDefault(t =>
             {
                 DbObject obj = DbObject.FromType(t);
