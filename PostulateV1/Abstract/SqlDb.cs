@@ -362,16 +362,16 @@ namespace Postulate.Orm.Abstract
             });
         }
 
-        public TRecord Copy<TRecord>(TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
+        public TRecord CopyOne<TRecord>(TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
         {
             using (IDbConnection cn = GetConnection())
             {
                 cn.Open();
-                return Copy<TRecord>(cn, sourceId, setProperties, omitColumns);
+                return CopyOne<TRecord>(cn, sourceId, setProperties, omitColumns);
             }
         }
 
-        public TRecord Copy<TRecord>(IDbConnection connection, TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
+        public TRecord CopyOne<TRecord>(IDbConnection connection, TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
         {
             TKey newId = ExecuteCopy<TRecord>(connection, sourceId, setProperties, omitColumns);
             return ExecuteFind<TRecord>(connection, newId);
@@ -565,7 +565,7 @@ namespace Postulate.Orm.Abstract
 
         private TKey ExecuteCopy<TRecord>(IDbConnection connection, TKey id, object parameters, IEnumerable<string> omitColumns) where TRecord : Record<TKey>
         {
-            string cmd = GetCommand<TRecord>(_copyCommands, () => GetCopyStatement<TRecord>(parameters, omitColumns));
+            string cmd = GetCopyStatement<TRecord>(parameters, omitColumns);
             DynamicParameters dp = new DynamicParameters(parameters);
             dp.Add(typeof(TRecord).IdentityColumnName(), id);
             return connection.QuerySingle<TKey>(cmd, dp);

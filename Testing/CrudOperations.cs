@@ -129,7 +129,7 @@ namespace Testing
         public void CopyOrg()
         {
             var db = new PostulateDb();
-            var newOrg = db.Copy<Organization>(1, new { name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" });
+            var newOrg = db.CopyOne<Organization>(1, new { name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" });
             Assert.IsTrue(newOrg.Description.Equals("copied record"));
         }
 
@@ -137,7 +137,7 @@ namespace Testing
         public void CopyOrgOmitColumns()
         {
             var db = new PostulateDb();
-            var newOrg = db.Copy<Organization>(1, 
+            var newOrg = db.CopyOne<Organization>(1, 
                 new { createdBy = "/system", dateCreated = DateTime.Now, name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" }, 
                 "ModifiedBy", "DateModified");
             Assert.IsTrue(newOrg.Description.Equals("copied record"));
