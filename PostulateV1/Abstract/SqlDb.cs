@@ -127,12 +127,12 @@ namespace Postulate.Orm.Abstract
             return FindInner(connection, row);
         }
 
-        public void Delete<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
+        public void DeleteOne<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
         {
             string message;
             if (record.AllowDelete(connection, UserName, out message))
             {
-                ExecuteDelete<TRecord>(connection, record.Id);
+                ExecuteDeleteOne<TRecord>(connection, record.Id);
                 record.AfterDelete(connection);
             }
             else
@@ -141,16 +141,22 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void Delete<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        public void DeleteOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
             TRecord record = Find<TRecord>(connection, id);
-            if (record != null) Delete(connection, record);
+            if (record != null) DeleteOne(connection, record);
         }
 
-        public void DeleteWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
+        public void DeleteOneWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
             TRecord record = FindWhere<TRecord>(connection, criteria, parameters);
-            if (record != null) Delete<TRecord>(connection, record.Id);
+            if (record != null) DeleteOne<TRecord>(connection, record.Id);
+        }
+
+        public int DeleteAllWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
+        {
+            string cmd = $"DELETE {GetTableName<TRecord>()} WHERE {criteria}";
+            return connection.Execute(cmd, parameters);
         }
 
         public void Save<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
@@ -551,7 +557,7 @@ namespace Postulate.Orm.Abstract
             return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);
         }
 
-        private void ExecuteDelete<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        private void ExecuteDeleteOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
             string cmd = GetCommand<TRecord>(_deleteCommands, () => GetDeleteStatement<TRecord>());
             connection.Execute(cmd, new { id = id });

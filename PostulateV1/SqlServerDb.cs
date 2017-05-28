@@ -68,30 +68,39 @@ namespace Postulate.Orm
             }
         }
 
-        public void Delete<TRecord>(TRecord record) where TRecord : Record<TKey>
+        public void DeleteOne<TRecord>(TRecord record) where TRecord : Record<TKey>
         {
             using (IDbConnection cn = GetConnection())
             {
                 cn.Open();
-                Delete(cn, record);
+                DeleteOne(cn, record);
             }
         }
 
-        public void Delete<TRecord>(TKey id) where TRecord : Record<TKey>
+        public void DeleteOne<TRecord>(TKey id) where TRecord : Record<TKey>
         {
             using (IDbConnection cn = GetConnection())
             {
                 cn.Open();
-                Delete<TRecord>(cn, id);
+                DeleteOne<TRecord>(cn, id);
             }
         }
 
-        public void DeleteWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
+        public void DeleteOneWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
         {
             using (IDbConnection cn = GetConnection())
             {
                 cn.Open();
-                DeleteWhere<TRecord>(cn, criteria, parameters);
+                DeleteOneWhere<TRecord>(cn, criteria, parameters);
+            }
+        }
+
+        public int DeleteAllWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                return DeleteAllWhere<TRecord>(cn, criteria, parameters);
             }
         }
 

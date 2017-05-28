@@ -31,7 +31,7 @@ namespace Testing
             {
                 cn.Open();
                 db.Save(cn, org);
-                db.Delete(cn, org);
+                db.DeleteOne(cn, org);
             }
         }
 
@@ -69,7 +69,7 @@ namespace Testing
 
             PostulateDb db = new PostulateDb();
             db.Save(org);
-            db.Delete<Organization>(org.Id);
+            db.DeleteOne<Organization>(org.Id);
         }
 
         [TestMethod]
@@ -81,7 +81,7 @@ namespace Testing
 
             PostulateDb db = new PostulateDb();
             db.Save(org);
-            db.Delete(org);
+            db.DeleteOne(org);
         }
 
         [TestMethod]
@@ -99,7 +99,7 @@ namespace Testing
             db.Update(org, r => r.BillingRate);
 
             org = db.Find<Organization>(orgId);
-            db.Delete<Organization>(orgId);
+            db.DeleteOne<Organization>(orgId);
 
             Assert.IsTrue(org.BillingRate == 11);
         }
@@ -120,7 +120,7 @@ namespace Testing
             db.Update(org, r => r.BillingRate);
 
             org = db.Find<Organization>(orgId);
-            db.Delete<Organization>(orgId);
+            db.DeleteOne<Organization>(orgId);
 
             Assert.IsTrue(org.DateModified != null && org.ModifiedBy != null);
         }
@@ -141,6 +141,13 @@ namespace Testing
                 new { createdBy = "/system", dateCreated = DateTime.Now, name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" }, 
                 "ModifiedBy", "DateModified");
             Assert.IsTrue(newOrg.Description.Equals("copied record"));
+        }
+
+        [TestMethod]
+        public void DeleteWhere()
+        {
+            var db = new PostulateDb();
+            db.DeleteAllWhere<Organization>("[Name] LIKE @name + '%'", new { name = "Org Copy" });
         }
     }
 }
