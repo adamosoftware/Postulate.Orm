@@ -325,6 +325,9 @@ namespace Postulate.Orm.Abstract
             return exc;
         }
 
+        /// <summary>
+        /// Updates specific properties of a record
+        /// </summary>                                
         public void Update<TRecord>(IDbConnection connection, TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>
         {
             Type modelType = typeof(TRecord);
@@ -362,16 +365,16 @@ namespace Postulate.Orm.Abstract
             });
         }
 
-        public TRecord CopyOne<TRecord>(TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
+        public TRecord Copy<TRecord>(TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
         {
             using (IDbConnection cn = GetConnection())
             {
                 cn.Open();
-                return CopyOne<TRecord>(cn, sourceId, setProperties, omitColumns);
+                return Copy<TRecord>(cn, sourceId, setProperties, omitColumns);
             }
         }
 
-        public TRecord CopyOne<TRecord>(IDbConnection connection, TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
+        public TRecord Copy<TRecord>(IDbConnection connection, TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
         {
             TKey newId = ExecuteCopy<TRecord>(connection, sourceId, setProperties, omitColumns);
             return ExecuteFind<TRecord>(connection, newId);
