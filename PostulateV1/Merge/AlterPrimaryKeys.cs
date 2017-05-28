@@ -26,7 +26,7 @@ namespace Postulate.Orm.Merge
                               where
                                 (
                                     !Enumerable.SequenceEqual(mk, sk) && // pk columns are different
-                                    Enumerable.SequenceEqual(ModelColumnNames(mk.First().PropertyInfo.DeclaringType), SchemaColumnNames(connection, sk.Key), StringComparer.InvariantCultureIgnoreCase) // but the table columns are otherwise the same
+                                    Enumerable.SequenceEqual(ModelColumnNames(mk.First().PropertyInfo.ReflectedType), SchemaColumnNames(connection, sk.Key), StringComparer.InvariantCultureIgnoreCase) // but the table columns are otherwise the same
                                 ) || mk.Key.IsClusteredPK != sk.Key.IsClusteredPK
                               select mk;
 
