@@ -1,19 +1,19 @@
-﻿using Postulate.Orm.Attributes;
+﻿using Dapper;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Enums;
+using Postulate.Orm.Exceptions;
+using Postulate.Orm.Extensions;
+using Postulate.Orm.Interfaces;
+using Postulate.Orm.Models;
+using ReflectionHelper;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Reflection;
-using System.Linq;
-using Postulate.Orm.Extensions;
 using System.ComponentModel.DataAnnotations.Schema;
-using Postulate.Orm.Exceptions;
-using Dapper;
 using System.Configuration;
+using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
-using Postulate.Orm.Interfaces;
-using ReflectionHelper;
-using Postulate.Orm.Models;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,7 +31,7 @@ namespace Postulate.Orm.Abstract
     /// <typeparam name="TKey">Data type of unique keys used on all model classes for this database</typeparam>
     public abstract class SqlDb<TKey> : IDb
     {
-        public const string IdentityColumnName = "Id";        
+        public const string IdentityColumnName = "Id";
 
         public string UserName { get; protected set; }
 
@@ -56,15 +56,15 @@ namespace Postulate.Orm.Abstract
             {
                 case ConnectionSource.ConfigFile:
                     try
-                    {                        
+                    {
                         _connectionString = ConfigurationManager.ConnectionStrings[connection].ConnectionString;
                         ConnectionName = connection;
                     }
                     catch (NullReferenceException)
                     {
-                        string fileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;                        
+                        string fileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
                         string allConnections = AllConnectionNames();
-                        throw new NullReferenceException($"Connection string named '{connection}' was not found in {fileName}. These connection names are defined: {allConnections}");                        
+                        throw new NullReferenceException($"Connection string named '{connection}' was not found in {fileName}. These connection names are defined: {allConnections}");
                     }
                     break;
 
@@ -99,7 +99,7 @@ namespace Postulate.Orm.Abstract
         protected string ConnectionString
         {
             get { return _connectionString; }
-        }        
+        }
 
         public abstract IDbConnection GetConnection();
 
@@ -119,7 +119,7 @@ namespace Postulate.Orm.Abstract
         {
             var row = ExecuteFind<TRecord>(connection, id);
             return FindInner<TRecord>(connection, row);
-        }        
+        }
 
         public TRecord FindWhere<TRecord>(IDbConnection connection, string critieria, object parameters) where TRecord : Record<TKey>
         {
@@ -146,7 +146,7 @@ namespace Postulate.Orm.Abstract
             TRecord record = Find<TRecord>(connection, id);
             if (record != null) Delete(connection, record);
         }
-        
+
         public void DeleteWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
             TRecord record = FindWhere<TRecord>(connection, criteria, parameters);
@@ -200,7 +200,7 @@ namespace Postulate.Orm.Abstract
             {
                 throw new ValidationException(message);
             }
-        }        
+        }
 
         /// <summary>
         /// Inserts or updates the given records from an open connection. Does not set the record Id property unless the batchSize argument is 1 or less.
@@ -234,7 +234,7 @@ namespace Postulate.Orm.Abstract
             else
             {
                 return await SaveEachInnerAsync(connection, records, progress, cancellationToken);
-            }            
+            }
         }
 
         private async Task<SaveException> SaveEachInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, IProgress<int> progress, CancellationToken cancellationToken) where TRecord : Record<TKey>
@@ -259,7 +259,7 @@ namespace Postulate.Orm.Abstract
                         exc = excInner;
                         break;
                     }
-                    
+
                     count++;
                     percentDone = Convert.ToInt32(Convert.ToDouble(count) / Convert.ToDouble(totalCount) * 100);
                     progress?.Report(percentDone);
@@ -340,7 +340,7 @@ namespace Postulate.Orm.Abstract
                 dp.Add(propName, expr.Compile().Invoke(record));
                 return $"[{pi.SqlColumnName()}]=@{propName}";
             }).Concat(
-                modelType.GetProperties().Where(pi => 
+                modelType.GetProperties().Where(pi =>
                     pi.HasAttribute<ColumnAccessAttribute>(a => a.Access == Access.UpdateOnly))
                         .Select(pi =>
                         {
@@ -353,8 +353,8 @@ namespace Postulate.Orm.Abstract
             SaveInner(connection, record, SaveAction.Update, (r) =>
             {
                 connection.Execute(cmd, r);
-            });            
-        }        
+            });
+        }
 
         public TRecord Copy<TRecord>(TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
         {
@@ -396,7 +396,7 @@ namespace Postulate.Orm.Abstract
 
         private string GetTableName<TRecord>() where TRecord : Record<TKey>
         {
-            Type modelType = typeof(TRecord);            
+            Type modelType = typeof(TRecord);
             string result = modelType.Name;
 
             TableAttribute tblAttr;
@@ -421,8 +421,8 @@ namespace Postulate.Orm.Abstract
         {
             return
                 $@"SELECT {ApplyDelimiter(IdentityColumnName)},
-                    {string.Join(", ", GetColumnNames<TRecord>().Select(name => ApplyDelimiter(name)))} 
-                FROM 
+                    {string.Join(", ", GetColumnNames<TRecord>().Select(name => ApplyDelimiter(name)))}
+                FROM
                     {GetTableName<TRecord>()}";
         }
 
@@ -430,7 +430,7 @@ namespace Postulate.Orm.Abstract
         {
             var columns = GetColumnNames<TRecord>(pi => pi.HasColumnAccess(Access.InsertOnly));
 
-            return 
+            return
                 $@"INSERT INTO {GetTableName<TRecord>()} (
                     {string.Join(", ", columns.Select(s => ApplyDelimiter(s)))}
                 ) OUTPUT [inserted].[{typeof(TRecord).IdentityColumnName()}] VALUES (
@@ -442,10 +442,10 @@ namespace Postulate.Orm.Abstract
         {
             var columns = GetColumnNames<TRecord>(pi => pi.HasColumnAccess(Access.UpdateOnly));
 
-            return 
+            return
                 $@"UPDATE {GetTableName<TRecord>()} SET
                     {string.Join(", ", columns.Select(s => $"{ApplyDelimiter(s)} = @{s}"))}
-                WHERE 
+                WHERE
                     [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
@@ -458,31 +458,31 @@ namespace Postulate.Orm.Abstract
         {
             var paramColumns = parameters.GetType().GetProperties().Select(pi => pi.Name);
 
-            var columns = GetColumnNames<TRecord>(pi => 
+            var columns = GetColumnNames<TRecord>(pi =>
                     !pi.HasAttribute<CalculatedAttribute>()) // can't insert into calculated columns
-                .Where(s => 
+                .Where(s =>
                     !s.Equals(typeof(TRecord).IdentityColumnName()) && // can't insert into identity column
                     (!omitColumns?.Select(omitCol => omitCol.ToLower()).Contains(s.ToLower()) ?? true) &&
-                    !paramColumns.Select(paramCol => paramCol.ToLower()).Contains(s.ToLower())) // don't insert into param columns because we're providing new values    
-                .Select(colName => ApplyDelimiter(colName));            
+                    !paramColumns.Select(paramCol => paramCol.ToLower()).Contains(s.ToLower())) // don't insert into param columns because we're providing new values
+                .Select(colName => ApplyDelimiter(colName));
 
             return
                 $@"INSERT INTO {GetTableName<TRecord>()} (
                     {string.Join(", ", columns.Concat(paramColumns.Select(col => ApplyDelimiter(col))))}
-                ) OUTPUT 
-                    [inserted].[{typeof(TRecord).IdentityColumnName()}] 
-                SELECT 
+                ) OUTPUT
+                    [inserted].[{typeof(TRecord).IdentityColumnName()}]
+                SELECT
                     {string.Join(", ", columns.Concat(paramColumns.Select(col => $"@{col}")))}
-                FROM 
-                    {GetTableName<TRecord>()} 
-                WHERE 
+                FROM
+                    {GetTableName<TRecord>()}
+                WHERE
                     [{typeof(TRecord).IdentityColumnName()}]=@id";
-        }           
+        }
 
         private IEnumerable<PropertyInfo> GetEditableColumns<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
-        {            
+        {
             return typeof(TRecord).GetProperties().Where(pi =>
-                !pi.Name.Equals(IdentityColumnName) && 
+                !pi.Name.Equals(IdentityColumnName) &&
                 !pi.HasAttribute<CalculatedAttribute>() &&
                 (!pi.HasAttribute<ColumnAccessAttribute>() || (predicate?.Invoke(pi) ?? true)));
         }
@@ -492,7 +492,7 @@ namespace Postulate.Orm.Abstract
             return GetEditableColumns<TRecord>(predicate).Select(pi =>
             {
                 ColumnAttribute colAttr;
-                return (pi.HasAttribute(out colAttr)) ? colAttr.Name : pi.Name;                
+                return (pi.HasAttribute(out colAttr)) ? colAttr.Name : pi.Name;
             });
         }
 
@@ -548,16 +548,16 @@ namespace Postulate.Orm.Abstract
         private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
             string cmd = GetFindStatementBase<TRecord>() + $" WHERE {criteria}";
-            return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);                       
+            return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);
         }
 
         private void ExecuteDelete<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
             string cmd = GetCommand<TRecord>(_deleteCommands, () => GetDeleteStatement<TRecord>());
             connection.Execute(cmd, new { id = id });
-        } 
-        
-        private TKey ExecuteCopy<TRecord>(IDbConnection connection, TKey id, object parameters, IEnumerable<string> omitColumns) where TRecord: Record<TKey>
+        }
+
+        private TKey ExecuteCopy<TRecord>(IDbConnection connection, TKey id, object parameters, IEnumerable<string> omitColumns) where TRecord : Record<TKey>
         {
             string cmd = GetCommand<TRecord>(_copyCommands, () => GetCopyStatement<TRecord>(parameters, omitColumns));
             DynamicParameters dp = new DynamicParameters(parameters);
@@ -615,7 +615,6 @@ namespace Postulate.Orm.Abstract
             }
             ignoreProperties = null;
             return false;
-
         }
     }
 }
