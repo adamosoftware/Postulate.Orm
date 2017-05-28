@@ -28,7 +28,8 @@ namespace Postulate.Orm.Merge.Action
             bool rebuildFKs = false;
 
             string pkConstraint; bool isClustered;
-            if (_newColumn.InPrimaryKey(connection, out pkConstraint, out isClustered))
+            CreateTable ct = new CreateTable(_newColumn.ModelType);
+            if (_newColumn.InPrimaryKey(connection, out pkConstraint, out isClustered) || ct.InPrimaryKey(_newColumn.ColumnName, out pkConstraint))
             {
                 inPK = true;
                 referencingFKs = connection.GetReferencingForeignKeys(_objectId);
@@ -49,8 +50,7 @@ namespace Postulate.Orm.Merge.Action
 
             // rebuild pk and foreign keys
             if (inPK)
-            {
-                CreateTable ct = new CreateTable(_newColumn.ModelType);
+            {                
                 string clustering = (isClustered) ? "CLUSTERED" : "NONCLUSTERED";
                 yield return $"ALTER TABLE [{_newColumn.DbObject.Schema}].[{_newColumn.DbObject.Name}] ADD CONSTRAINT [{pkConstraint}] PRIMARY KEY {clustering} ({ct.PrimaryKeyColumnSyntax()})";
 
