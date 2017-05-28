@@ -17,8 +17,8 @@ namespace Testing
             var db = new PostulateDb();
             TableA a = new TableA() { FirstName = "Julio", LastName = "Arragato" };
 
-            db.DeleteWhere<TableA>("[FirstName]=@FirstName AND [LastName]=@LastName", a);
-            db.DeleteWhere<TableA>("[FirstName]=@FirstName AND [LastName]=@LastName", new { FirstName = "Geoffrey", LastName = "Arragato" });
+            db.DeleteOneWhere<TableA>("[FirstName]=@FirstName AND [LastName]=@LastName", a);
+            db.DeleteOneWhere<TableA>("[FirstName]=@FirstName AND [LastName]=@LastName", new { FirstName = "Geoffrey", LastName = "Arragato" });
 
             db.Save(a);
 
@@ -34,7 +34,7 @@ namespace Testing
         public void TrackTableBChanges()
         {
             var db = new PostulateDb();
-            db.DeleteWhere<TableB>("[Description]='Whatever'", null);
+            db.DeleteOneWhere<TableB>("[Description]='Whatever'", null);
 
             string oldName = db.Find<Organization>(1).Name;
             string newName = db.Find<Organization>(2).Name;
