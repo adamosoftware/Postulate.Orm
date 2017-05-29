@@ -1,4 +1,5 @@
 ﻿using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
@@ -30,8 +31,11 @@ namespace Postulate.Orm.Merge.Action
         }
 
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)
-        {
-            return new string[] { };
+        {            
+            foreach (var pkProp in CreateTable.PrimaryKeyProperties(_object.ModelType, true))
+            {
+                foreach (var err in pkProp.GetPrimaryKeyValidationErrors()) yield return err;
+            }
         }
     }
 }

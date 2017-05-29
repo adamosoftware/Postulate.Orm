@@ -137,13 +137,16 @@ namespace Postulate.Orm.Merge.Action
             };
         }
 
+        public static IEnumerable<PropertyInfo> PrimaryKeyProperties(Type modelType, bool markedOnly = false)
+        {
+            var pkProperties = modelType.GetProperties().Where(pi => pi.HasAttribute<PrimaryKeyAttribute>());
+            if (pkProperties.Any() || markedOnly) return pkProperties;
+            return new PropertyInfo[] { modelType.GetProperty(modelType.IdentityColumnName()) };
+        }
+
         public static IEnumerable<string> PrimaryKeyColumns(Type modelType, bool markedOnly = false)
         {
-            var pkColumns = modelType.GetProperties().Where(pi => pi.HasAttribute<PrimaryKeyAttribute>()).Select(pi => pi.SqlColumnName());
-
-            if (pkColumns.Any() || markedOnly) return pkColumns;
-
-            return new string[] { modelType.IdentityColumnName() };
+            return PrimaryKeyProperties(modelType, markedOnly).Select(pi => pi.SqlColumnName());
         }
 
         private string[] CreateTableMembers()

@@ -1,4 +1,5 @@
-﻿using Postulate.Orm.Enums;
+﻿using Dapper;
+using Postulate.Orm.Enums;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Interfaces;
 using System;
