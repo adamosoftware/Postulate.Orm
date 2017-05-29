@@ -15,7 +15,7 @@ namespace Postulate.Orm.Merge.Action
         public AddColumn(PropertyInfo propertyInfo) : base(MergeObjectType.Column, MergeActionType.Create, $"Add column {propertyInfo.DeclaringType.Name}.{propertyInfo.Name}", nameof(AddColumn))
         {
             _propertyInfo = propertyInfo;
-            _object = DbObject.FromType(_propertyInfo.DeclaringType);
+            _object = DbObject.FromType(_propertyInfo.ReflectedType);
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
@@ -46,7 +46,7 @@ namespace Postulate.Orm.Merge.Action
                 !_propertyInfo.HasAttribute<DefaultExpressionAttribute>())
             {
                 yield return "Adding a non-nullable column to a table with data requires a [DefaultExpression] attribute on the column.";
-            }
+            }            
         }
 
         public override string ToString()

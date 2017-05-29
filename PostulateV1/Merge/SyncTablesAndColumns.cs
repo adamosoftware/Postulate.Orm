@@ -109,15 +109,14 @@ namespace Postulate.Orm.Merge
         private IEnumerable<MergeAction> AddColumnsWithTableAlter(IDbConnection connection, IEnumerable<PropertyInfo> newColumns)
         {
             // tables with data may only have columns added
-            var alterColumns = newColumns
-                .Where(pi => !pi.DeclaringType.IsAbstract)
-                .GroupBy(pi => pi.GetDbObject(connection))
+            var alterColumns = newColumns                
+                .GroupBy(pi => DbObject.FromType(pi.ReflectedType, connection))
                 .Where(obj => connection.TableExists(obj.Key.Schema, obj.Key.Name) && !connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name))
                 .SelectMany(tbl => tbl);
 
             // adding primary key columns requires containing PKs to be rebuilt
             var pkColumns = alterColumns.Where(pi => pi.HasAttribute<PrimaryKeyAttribute>());
-            var pkTables = pkColumns.GroupBy(item => DbObject.FromType(item.DeclaringType)).Select(grp => grp.Key);
+            var pkTables = pkColumns.GroupBy(item => DbObject.FromType(item.ReflectedType)).Select(grp => grp.Key);
             foreach (var pk in pkTables)
             {
                 yield return new DropPrimaryKey(pk);
