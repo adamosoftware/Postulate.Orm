@@ -26,17 +26,17 @@ namespace Postulate.Orm.Abstract
             return ExecuteFind<TRecord>(connection, newId);
         }
 
-        private TKey ExecuteCopy<TRecord>(IDbConnection connection, TKey id, object parameters, IEnumerable<string> omitColumns) where TRecord : Record<TKey>
+        private TKey ExecuteCopy<TRecord>(IDbConnection connection, TKey id, object setProperties, IEnumerable<string> omitColumns) where TRecord : Record<TKey>
         {
-            string cmd = GetCopyStatement<TRecord>(parameters, omitColumns);
-            DynamicParameters dp = new DynamicParameters(parameters);
+            string cmd = GetCopyStatement<TRecord>(setProperties, omitColumns);
+            DynamicParameters dp = new DynamicParameters(setProperties);
             dp.Add(typeof(TRecord).IdentityColumnName(), id);
             return connection.QuerySingle<TKey>(cmd, dp);
         }
 
-        private string GetCopyStatement<TRecord>(object parameters, IEnumerable<string> omitColumns) where TRecord : Record<TKey>
+        private string GetCopyStatement<TRecord>(object setProperties, IEnumerable<string> omitColumns) where TRecord : Record<TKey>
         {
-            var paramColumns = parameters.GetType().GetProperties().Select(pi => pi.Name);
+            var paramColumns = setProperties.GetType().GetProperties().Select(pi => pi.Name);
 
             var columns = GetColumnNames<TRecord>(pi =>
                     !pi.HasAttribute<CalculatedAttribute>()) // can't insert into calculated columns

@@ -33,7 +33,7 @@ namespace Postulate.Orm.Abstract
     {
         public const string IdentityColumnName = "Id";
 
-        public string UserName { get; protected set; }
+        public string UserName { get; set; }
 
         public int Version { get; protected set; }
 
