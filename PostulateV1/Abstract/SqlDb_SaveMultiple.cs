@@ -16,6 +16,7 @@ namespace Postulate.Orm.Abstract
         /// <summary>
         /// Inserts or updates the given records from an open connection. Does not set the record Id property unless the batchSize argument is 1 or less.
         /// </summary>
+        /// <param name="batchSize">Number of records to process at a time. A value of 1 causes your Record overrides to execute, and the Record.Id is set. A value greater than one causes your overrides to be skipped.</param>
         public async Task SaveMultipleAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
         {
             var exc = await SaveMultipleInnerAsync(connection, records, batchSize, cancellationToken, progress);
@@ -25,6 +26,7 @@ namespace Postulate.Orm.Abstract
         /// <summary>
         /// Inserts or updates the given records. Does not set the record Id property unless the batchSize argument to 1 or less.
         /// </summary>
+        /// /// <param name="batchSize">Number of records to process at a time. A value of 1 causes your Record overrides to execute, and the Record.Id is set. A value greater than one causes your overrides to be skipped.</param>
         public async Task SaveMultipleAsync<TRecord>(IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
         {
             SaveException exc = null;
