@@ -51,7 +51,7 @@ namespace Postulate.Orm.Merge.Action
 
         public override string ToString()
         {
-            return $"{_propertyInfo.DeclaringType.Name}.{_propertyInfo.Name}";
+            return $"{_propertyInfo.ReflectedType.Name}.{_propertyInfo.Name}";
         }
     }
 }
