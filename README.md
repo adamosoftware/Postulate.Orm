@@ -88,3 +88,13 @@ A very simple Save action (for both inserts and updates):
         _db.Save<Customer>(customer);
         return RedirectToAction("Edit", new { id = customer.Id });
     }
+    
+If you nee to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/SqlServerDb.cs#L39) method:
+
+    using (var cn = _db.GetConnection())
+    {
+        cn.Open();
+        
+        // do stuff with the connection
+        _db.Save<Customer>(cn, record);
+    }
