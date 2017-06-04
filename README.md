@@ -14,7 +14,7 @@ This is Postulate in a nutshell:
 
 - Most methods have at least two overloads -- one that accepts an `IDbConnection` already open, and one that opens and closes a connection within the scope of the method.
 
-## Code Examples
+## Examples
 
 The following examples assume a `SqlServerDb<int>` variable called `MyDb` and this model class:
 
