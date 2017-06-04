@@ -59,3 +59,17 @@ Update select properties of a Customer without updating the whole record:
     customer.ZipCode = "12345";
     new MyDb().Update<Customer>(customer, r => r.Address, r => r.City, r => r.State, r => r.ZipCode);
 
+### An ASP.NET MVC Example
+
+In MVC, I recommend having a `SqlServerDb` instance variable in your controllers.
+
+    var _db = new MyDb();
+    
+Override the Initialize event to set the `_db.UserName` property. This makes it so `Record<TKey>` overrides such as [BeforeSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L116) and [AllowSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L107) have access to the current user name.
+
+        protected override void Initialize(RequestContext requestContext)
+        {            
+            base.Initialize(requestContext);
+            _db.UserName = User.Identity.Name;
+        }
+
