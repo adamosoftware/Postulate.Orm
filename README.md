@@ -59,7 +59,7 @@ Update select properties of a Customer without updating the whole record:
     customer.ZipCode = "12345";
     new MyDb().Update<Customer>(customer, r => r.Address, r => r.City, r => r.State, r => r.ZipCode);
 
-### An ASP.NET MVC Example
+### ASP.NET MVC Suggestions
 
 In MVC, I recommend having a `SqlServerDb<TKey>` instance variable in your controllers.
 
@@ -73,3 +73,18 @@ Override the controller Initialize event to set the `_db.UserName` property. Thi
         _db.UserName = User.Identity.Name;
     }
 
+A very simple Edit action:
+
+    public ActionResult Edit(int id)
+    {
+        var customer = _db.Find<Customer>(id);
+        return View(customer);
+    }
+
+A very simple Save action (for both inserts and updates):
+
+    public ActionResult Save(Customer customer)
+    {
+        _db.Save<Customer>(customer);
+        return RedirectToAction("Edit", new { id = customer.Id });
+    }
