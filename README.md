@@ -63,7 +63,7 @@ Update select properties of a Customer without updating the whole record:
 
 In MVC, I recommend having a `SqlServerDb<TKey>` instance variable in your controllers.
 
-    var _db = new MyDb();
+    private _db = new MyDb();
     
 Override the controller Initialize event to set the `_db.UserName` property. This enables `Record<TKey>` overrides such as [BeforeSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L116) and [AllowSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L107) to have access to the current user name.
 
