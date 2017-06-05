@@ -61,7 +61,7 @@ Update select properties of a Customer without updating the whole record:
 
 ### ASP.NET MVC Suggestions
 
-In MVC, I recommend having a `SqlServerDb<TKey>` instance variable in your controllers.
+I recommend putting your model classes in a separate project/DLL from your web app. Mysterious ReflectionTypeLoadException can happen in MVC, and it's also a good practice to keep model classes separate from the application anyway. I recommend having a `SqlServerDb<TKey>` instance variable in your controllers.
 
     private _db = new MyDb();
     
