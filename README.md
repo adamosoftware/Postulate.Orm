@@ -103,3 +103,5 @@ If you need to open a connection manually somewhere, use the [GetConnection](htt
         // execute SQL (with Dapper)
         cn.Execute(*blah blah blah*);
     }
+ 
+ For more realistic MVC examples, please see the [Postulate.Mvc project](https://github.com/adamosoftware/Postulate.Mvc).
