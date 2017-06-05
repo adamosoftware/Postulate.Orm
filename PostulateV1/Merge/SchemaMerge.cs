@@ -277,7 +277,9 @@ namespace Postulate.Orm.Merge
 				FROM
 					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
                 WHERE
-                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta')");
+                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted') AND
+                    [t].[name] NOT LIKE 'AspNet%' AND
+                    [t].[name] NOT LIKE '__MigrationHistory'");
         }
 
         private IEnumerable<ColumnRef> GetModelColumns(IDbConnection collationLookupConnection = null)
