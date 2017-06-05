@@ -318,7 +318,9 @@ namespace Postulate.Orm.Merge
                 FROM
                     [sys].[tables] [t]
                 WHERE
-                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta')");
+                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted') AND
+                    [name] NOT LIKE 'AspNet%' AND
+                    [name] NOT LIKE '__MigrationHistory'");
             return tables.Select(item => new DbObject(item.Schema, item.Name, item.ObjectId));
         }
 
