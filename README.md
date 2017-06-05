@@ -10,11 +10,11 @@ This is Postulate in a nutshell:
 
 - The only requirement for model classes is that they must inherit from [Record&lt;TKey&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Abstract/Record.cs). The `Record<TKey>` class has many overrides for checking permissions, handling events, and performing validation. A variety of attributes let you define foreign keys, primary keys, as well as fine-tune behaviors in multi-tenant systems such as limiting update capability on partition fields. See [Designing Model Classes](https://github.com/adamosoftware/Postulate.Orm/wiki/Designing-Model-Classes) for more information.
 
-- Use the [SchemaMerge](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Merge/SchemaMerge.cs) class to migrate models to your database. It offers methods for comparing and synchronizing models and the physical database, and works only with SQL Server. See [Schema Merging](https://github.com/adamosoftware/Postulate.Orm/wiki/Schema-Merge) for more information. Download the Schema Merge app [here](https://github.com/adamosoftware/Postulate.Orm/releases/tag/v0.9.135). The WinForms app repo is here: [Postulate.MergeUI](https://github.com/adamosoftware/Postulate.MergeUI)
+- Use the [SchemaMerge](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Merge/SchemaMerge.cs) class to migrate models to your database. It offers methods for comparing and synchronizing models and the physical database, and works only with SQL Server. See [Schema Merging](https://github.com/adamosoftware/Postulate.Orm/wiki/Schema-Merge) for more information. Download the Schema Merge app [here](https://github.com/adamosoftware/Postulate.Orm/releases/tag/v0.9.135). The WinForms app repo is here: [Postulate.MergeUI](https://github.com/adamosoftware/Postulate.MergeUI). Please see this [video demo](https://vimeo.com/219400011) of using the Schema Merge app.
 
 - Most methods have at least two overloads -- one that accepts an `IDbConnection` already open, and one that opens and closes a connection within the scope of the method.
 
-## Code Examples
+## Examples
 
 The following examples assume a `SqlServerDb<int>` variable called `MyDb` and this model class:
 
@@ -59,3 +59,47 @@ Update select properties of a Customer without updating the whole record:
     customer.ZipCode = "12345";
     new MyDb().Update<Customer>(customer, r => r.Address, r => r.City, r => r.State, r => r.ZipCode);
 
+### ASP.NET MVC Suggestions
+
+I recommend putting your model classes in a separate project/DLL from your web app. Mysterious ReflectionTypeLoadException can happen in MVC, and it's also a good practice to keep model classes separate from the application, anyway.
+
+I recommend having a `SqlServerDb<TKey>` instance variable in your controllers.
+
+    private _db = new MyDb();
+    
+Override the controller Initialize event to set the `_db.UserName` property. This enables `Record<TKey>` overrides such as [BeforeSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L116) and [AllowSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L107) to have access to the current user name without depending on any particular Identity provider.
+
+    protected override void Initialize(RequestContext requestContext)
+    {            
+        base.Initialize(requestContext);
+        _db.UserName = User.Identity.Name;
+    }
+
+A very simple Edit action:
+
+    public ActionResult Edit(int id)
+    {
+        var customer = _db.Find<Customer>(id);
+        return View(customer);
+    }
+
+A very simple Save action (for both inserts and updates):
+
+    public ActionResult Save(Customer customer)
+    {
+        _db.Save<Customer>(customer);
+        return RedirectToAction("Edit", new { id = customer.Id });
+    }
+    
+If you need to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/SqlServerDb.cs#L39) method:
+
+    using (var cn = _db.GetConnection())
+    {
+        cn.Open();
+        
+        // do stuff with the connection
+        _db.Save<Customer>(cn, record);
+        
+        // execute SQL (with Dapper)
+        cn.Execute(*blah blah blah*);
+    }
