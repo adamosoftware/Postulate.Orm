@@ -1,4 +1,6 @@
-﻿using Postulate.Orm.Exceptions;
+﻿using Dapper;
+using Postulate.Orm.Enums;
+using Postulate.Orm.Exceptions;
 using Postulate.Orm.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -6,8 +8,6 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Postulate.Orm.Enums;
-using Dapper;
 
 namespace Postulate.Orm.Abstract
 {

@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Postulate.Orm.Attributes;
+using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using ReflectionHelper;
@@ -9,9 +10,6 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Postulate.Orm.Enums;
 
 namespace Postulate.Orm.Abstract
 {
@@ -19,7 +17,7 @@ namespace Postulate.Orm.Abstract
     {
         /// <summary>
         /// Updates specific properties of a record
-        /// </summary>                                
+        /// </summary>
         public void Update<TRecord>(IDbConnection connection, TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>
         {
             Type modelType = typeof(TRecord);

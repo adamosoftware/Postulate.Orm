@@ -31,7 +31,7 @@ namespace Postulate.Orm.Merge.Action
         }
 
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)
-        {            
+        {
             foreach (var pkProp in CreateTable.PrimaryKeyProperties(_object.ModelType, true))
             {
                 foreach (var err in pkProp.GetPrimaryKeyValidationErrors()) yield return err;

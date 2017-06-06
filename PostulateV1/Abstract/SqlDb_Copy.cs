@@ -1,11 +1,11 @@
 ﻿using Dapper;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
+using ReflectionHelper;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using ReflectionHelper;
-using Postulate.Orm.Attributes;
 
 namespace Postulate.Orm.Abstract
 {

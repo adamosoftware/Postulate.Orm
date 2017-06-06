@@ -109,7 +109,7 @@ namespace Postulate.Orm.Merge
         private IEnumerable<MergeAction> AddColumnsWithTableAlter(IDbConnection connection, IEnumerable<PropertyInfo> newColumns)
         {
             // tables with data may only have columns added
-            var alterColumns = newColumns                
+            var alterColumns = newColumns
                 .GroupBy(pi => DbObject.FromType(pi.ReflectedType, connection))
                 .Where(obj => connection.TableExists(obj.Key.Schema, obj.Key.Name) && !connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name))
                 .SelectMany(tbl => tbl);

@@ -1,10 +1,8 @@
 ﻿using Dapper;
 using Postulate.Orm.Attributes;
-using Postulate.Orm.Enums;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
-using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -14,8 +12,6 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Postulate.Orm.Abstract
 {
@@ -157,7 +153,7 @@ namespace Postulate.Orm.Abstract
         {
             string cmd = $"DELETE {GetTableName<TRecord>()} WHERE {criteria}";
             return connection.Execute(cmd, parameters);
-        }    
+        }
 
         public TRecord FindUserProfile<TRecord>(IDbConnection connection) where TRecord : Record<TKey>, IUserProfile
         {

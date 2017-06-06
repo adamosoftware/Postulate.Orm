@@ -50,7 +50,7 @@ namespace Postulate.Orm.Merge.Action
 
             // rebuild pk and foreign keys
             if (inPK)
-            {                
+            {
                 string clustering = (isClustered) ? "CLUSTERED" : "NONCLUSTERED";
                 yield return $"ALTER TABLE [{_newColumn.DbObject.Schema}].[{_newColumn.DbObject.Name}] ADD CONSTRAINT [{pkConstraint}] PRIMARY KEY {clustering} ({ct.PrimaryKeyColumnSyntax()})";
 

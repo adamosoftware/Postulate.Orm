@@ -3,11 +3,7 @@ using Postulate.Orm.Enums;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Postulate.Orm.Abstract
 {

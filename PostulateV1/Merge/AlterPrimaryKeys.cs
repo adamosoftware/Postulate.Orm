@@ -33,7 +33,7 @@ namespace Postulate.Orm.Merge
             results.AddRange(alteredKeys.Select(pk => new AlterPrimaryKey(pk)));
 
             return results;
-        }        
+        }
 
         private IEnumerable<string> ModelColumnNames(Type modelType)
         {
