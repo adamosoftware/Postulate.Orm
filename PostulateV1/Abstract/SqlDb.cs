@@ -159,6 +159,11 @@ namespace Postulate.Orm.Abstract
             return connection.Execute(cmd, parameters);
         }    
 
+        public TRecord FindUserProfile<TRecord>(IDbConnection connection) where TRecord : Record<TKey>, IUserProfile
+        {
+            return ExecuteFindWhere<TRecord>(connection, "[UserName]=@name", new { name = UserName });
+        }
+
         private string GetTableName<TRecord>() where TRecord : Record<TKey>
         {
             Type modelType = typeof(TRecord);
@@ -276,6 +281,12 @@ namespace Postulate.Orm.Abstract
             string modelTypeName = typeof(TRecord).Name;
             if (!dictionary.ContainsKey(modelTypeName)) dictionary.Add(modelTypeName, commandBuilder.Invoke());
             return dictionary[modelTypeName];
+        }
+
+        private string ParseWhereClause<TRecord>(Expression<Func<TRecord, bool>> expression)
+        {
+            // thanks to https://stackoverflow.com/questions/22912649/lambda-to-sql-translation
+            throw new NotImplementedException();
         }
     }
 }

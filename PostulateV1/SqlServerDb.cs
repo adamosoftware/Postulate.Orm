@@ -132,6 +132,15 @@ namespace Postulate.Orm
             }
         }
 
+        public TRecord FindUserProfile<TRecord>() where TRecord : Record<TKey>, IUserProfile
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                return FindUserProfile<TRecord>(cn);
+            }
+        }
+
         protected override object OnGetChangesPropertyValue(PropertyInfo propertyInfo, object record, IDbConnection connection)
         {
             object result = base.OnGetChangesPropertyValue(propertyInfo, record, connection);

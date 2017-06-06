@@ -64,9 +64,11 @@
     <Compile Include="Attributes\IdentityPositionAttribute.cs" />
     <Compile Include="Attributes\SchemaAttribute.cs" />
     <Compile Include="Attributes\TrackChangesAttribute.cs" />
+    <Compile Include="Attributes\TrackDeletionsAttribute.cs" />
     <Compile Include="Extensions\ConnectionExtensions.cs" />
     <Compile Include="Interfaces\IDb.cs" />
     <Compile Include="Interfaces\ISchemaMerge.cs" />
+    <Compile Include="Interfaces\IUserProfile.cs" />
     <Compile Include="Merge\Action\AddColumn.cs" />
     <Compile Include="Merge\Action\AlterColumn.cs" />
     <Compile Include="Merge\Action\AlterForeignKey.cs" />
