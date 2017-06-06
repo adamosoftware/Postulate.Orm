@@ -50,6 +50,7 @@ namespace Postulate.Orm.Merge
                     t.Namespace.Equals(typeof(TDb).Namespace) &&
                     !t.HasAttribute<NotMappedAttribute>() &&
                     !t.IsAbstract &&
+                    !t.IsInterface &&
                     t.IsDerivedFromGeneric(typeof(Record<>)));
         }
 
