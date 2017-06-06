@@ -22,10 +22,23 @@ namespace Testing
             {
                 cn.Open();
                 var results = sm.Compare(cn);
+                sm.Validate(cn, results);
                 //var script = sm.GetScript(cn, results);
                 //sm.Execute(cn, results);
                 sm.SaveScriptAs(@"C:\Users\Adam\Desktop\Merge.sql");
-            }                     
+            }            
+        }
+
+        [TestMethod]
+        public void TestSampleWebApp()
+        {
+            SchemaMerge<Sample.Models.DemoDb2> sm = new SchemaMerge<Sample.Models.DemoDb2>();
+            using (IDbConnection cn = sm.GetConnection())
+            {
+                cn.Open();
+                sm.SaveScriptAs(@"C:\Users\Adam\Desktop\Merge.sql");
+            }
         }
     }
 }
+
