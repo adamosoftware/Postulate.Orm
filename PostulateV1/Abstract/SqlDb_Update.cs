@@ -49,10 +49,10 @@ namespace Postulate.Orm.Abstract
 
             string cmd = $"UPDATE {GetTableName<TRecord>()} SET {setClause} WHERE [{identityCol}]=@{identityCol}";
 
-            SaveInner(connection, record, SaveAction.Update, (r) =>
+            SaveInner(connection, record, SaveAction.Update, (r, t) =>
             {
                 connection.Execute(cmd, r);
-            });
+            }, null);
         }
 
         protected string PropertyNameFromLambda(Expression expression)

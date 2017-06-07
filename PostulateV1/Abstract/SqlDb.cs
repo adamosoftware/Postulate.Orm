@@ -160,6 +160,27 @@ namespace Postulate.Orm.Abstract
             }
         }
 
+        public TKey RestoreOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        {
+            var record = BeginRestore<TRecord>(connection, id);            
+
+            using (var txn = GetTransaction(connection))
+            {
+                try
+                {
+                    TKey newId = ExecuteInsert(connection, record, txn);
+                    CompleteRestore<TRecord>(connection, id, txn);
+                    txn.Commit();
+                    return newId;
+                }
+                catch
+                {
+                    txn.Rollback();
+                    throw;
+                }
+            }
+        }
+
         public void DeleteOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
             TRecord record = Find<TRecord>(connection, id);

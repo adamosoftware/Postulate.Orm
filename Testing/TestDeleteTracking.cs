@@ -19,5 +19,19 @@ namespace Testing
             db.Save(b);
             db.DeleteOne(b);
         }
+
+        [TestMethod]
+        public void AttemptRestore()
+        {
+            PostulateDb db = new PostulateDb();
+            TableB b = new TableB() { OrganizationId = 1, Description = "whatever1" };
+            db.Save(b);
+            db.DeleteOne(b);
+
+            var restoredId = db.RestoreOne<TableB>(b.Id);
+            Assert.IsTrue(restoredId != 0);
+
+            db.DeleteOne<TableB>(restoredId);
+        }
     }
 }

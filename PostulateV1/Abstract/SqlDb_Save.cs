@@ -9,16 +9,17 @@ namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {
-        public void Save<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
+        public void Save<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
         {
             SaveAction action;
-            Save(connection, record, out action);
+            Save(connection, record, out action, transaction);
         }
 
-        public void Save<TRecord>(IDbConnection connection, TRecord record, out SaveAction action) where TRecord : Record<TKey>
+        public void Save<TRecord>(IDbConnection connection, TRecord record, out SaveAction action, IDbTransaction transaction = null) where TRecord : Record<TKey>
         {
             action = (record.IsNew()) ? SaveAction.Insert : SaveAction.Update;
-            SaveInner(connection, record, action, (r) =>
+
+            SaveInner(connection, record, action, (r, txn) =>
             {
                 if (r.IsNew())
                 {
@@ -28,10 +29,10 @@ namespace Postulate.Orm.Abstract
                 {
                     ExecuteUpdate(connection, r);
                 }
-            });
+            }, transaction);
         }
 
-        private void SaveInner<TRecord>(IDbConnection connection, TRecord record, SaveAction action, Action<TRecord> saveAction) where TRecord : Record<TKey>
+        private void SaveInner<TRecord>(IDbConnection connection, TRecord record, SaveAction action, Action<TRecord, IDbTransaction> saveAction, IDbTransaction transaction = null) where TRecord : Record<TKey>
         {
             record.BeforeSave(connection, UserName, action);
 
@@ -43,7 +44,7 @@ namespace Postulate.Orm.Abstract
                     string ignoreProps;
                     if (action == SaveAction.Update && TrackChanges<TRecord>(out ignoreProps)) CaptureChanges(connection, record, ignoreProps);
 
-                    saveAction.Invoke(record);
+                    saveAction.Invoke(record, transaction);
 
                     record.AfterSave(connection, action);
                 }
@@ -58,12 +59,12 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        private TKey ExecuteInsert<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
+        private TKey ExecuteInsert<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
         {
             string cmd = GetCommand<TRecord>(_insertCommands, () => GetInsertStatement<TRecord>());
             try
             {
-                return connection.QuerySingle<TKey>(cmd, record);
+                return connection.QuerySingle<TKey>(cmd, record, transaction);
             }
             catch (Exception exc)
             {
@@ -71,12 +72,12 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        private void ExecuteUpdate<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
+        private void ExecuteUpdate<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
         {
             string cmd = GetCommand<TRecord>(_updateCommands, () => GetUpdateStatement<TRecord>());
             try
             {
-                connection.Execute(cmd, record);
+                connection.Execute(cmd, record, transaction);
             }
             catch (Exception exc)
             {

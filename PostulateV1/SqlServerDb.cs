@@ -253,6 +253,29 @@ namespace Postulate.Orm
                 new { id = record.Id, userName = UserName, data = recordXml }, transaction);            
         }
 
+        public TKey RestoreOne<TRecord>(TKey id) where TRecord : Record<TKey>
+        {
+            using (var cn = GetConnection())
+            {
+                cn.Open();
+                return RestoreOne<TRecord>(cn, id);
+            }
+        }
+
+        protected override TRecord BeginRestore<TRecord>(IDbConnection connection, TKey id)
+        {
+            DbObject obj = DbObject.FromType(typeof(TRecord));
+            var xmlString = connection.QuerySingleOrDefault<string>($"SELECT [Data] FROM [deleted].[{obj.Schema}_{obj.Name}] WHERE [RecordId]=@id", new { id = id });
+            if (string.IsNullOrEmpty(xmlString)) throw new Exception($"{obj.Schema}.{obj.Name} with record id {id} was not found to restore.");
+            return FromXml<TRecord>(xmlString);
+        }
+
+        protected override void CompleteRestore<TRecord>(IDbConnection connection, TKey id, IDbTransaction transaction)
+        {
+            DbObject obj = DbObject.FromType(typeof(TRecord));
+            connection.Execute($"DELETE [deleted].[{obj.Schema}_{obj.Name}] WHERE [RecordId]=@id", new { id = id }, transaction);
+        }
+
         private static string ToXml<T>(T @object)
         {
             // thanks to https://stackoverflow.com/questions/4123590/serialize-an-object-to-xml
@@ -265,6 +288,15 @@ namespace Postulate.Orm
                     xs.Serialize(xw, @object);
                     return sw.ToString();
                 }
+            }
+        }
+
+        private static T FromXml<T>(string xml)
+        {
+            XmlSerializer xs = new XmlSerializer(typeof(T));
+            using (var reader = new StringReader(xml))
+            {
+                return (T)xs.Deserialize(reader);
             }
         }
 
