@@ -104,4 +104,6 @@ If you need to open a connection manually somewhere, use the [GetConnection](htt
         cn.Execute(*blah blah blah*);
     }
  
- For more realistic MVC examples, please see the [Postulate.Mvc project](https://github.com/adamosoftware/Postulate.Mvc).
+For more realistic MVC examples, please see the [Postulate.Mvc project](https://github.com/adamosoftware/Postulate.Mvc).
+
+If you have any ideas or feedback, please contact me at adamosoftware@gmail.com. Contributions here are definitely welcome.
