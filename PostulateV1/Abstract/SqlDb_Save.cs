@@ -41,7 +41,7 @@ namespace Postulate.Orm.Abstract
                 if (record.AllowSave(connection, UserName, out message))
                 {
                     string ignoreProps;
-                    if (action == SaveAction.Update && HasChangeTracking<TRecord>(out ignoreProps)) CaptureChanges(connection, record, ignoreProps);
+                    if (action == SaveAction.Update && TrackChanges<TRecord>(out ignoreProps)) CaptureChanges(connection, record, ignoreProps);
 
                     saveAction.Invoke(record);
 

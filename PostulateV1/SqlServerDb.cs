@@ -13,15 +13,19 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Postulate.Orm
 {
     public class SqlServerDb<TKey> : SqlDb<TKey>, IDb
     {
         private const string _changesSchema = "changes";
+        private const string _deletedSchema = "deleted";
 
         public SqlServerDb(Configuration configuration, string connectionName, string userName = null) : base(configuration, connectionName, userName)
         {
@@ -39,6 +43,11 @@ namespace Postulate.Orm
         public override IDbConnection GetConnection()
         {
             return new SqlConnection(ConnectionString);
+        }
+
+        public override IDbTransaction GetTransaction(IDbConnection connection)
+        {
+            return connection.BeginTransaction();
         }
 
         public TRecord Find<TRecord>(TKey id) where TRecord : Record<TKey>
@@ -216,6 +225,46 @@ namespace Postulate.Orm
                         oldValue = CleanMinDate(change.OldValue) ?? "<null>",
                         newValue = CleanMinDate(change.NewValue) ?? "<null>"
                     });
+            }
+        }
+
+        protected override void OnCaptureDeletion<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction)
+        {
+            if (!connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = _deletedSchema }, transaction)) connection.Execute($"CREATE SCHEMA [{_deletedSchema}]", null, transaction);
+
+            DbObject obj = DbObject.FromType(typeof(TRecord));
+            string tableName = $"{obj.Schema}_{obj.Name}";
+
+            if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _deletedSchema, name = tableName }, transaction))
+            {
+                connection.Execute($@"CREATE TABLE [{_deletedSchema}].[{tableName}] (
+					[RecordId] {CreateTable.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
+                    [UserName] nvarchar(256) NOT NULL,
+                    [Data] xml NOT NULL,
+					[DateTime] datetime NOT NULL DEFAULT (getutcdate()),
+					CONSTRAINT [PK_{_changesSchema}_{obj.Name}] PRIMARY KEY ([RecordId])
+				)", null, transaction);
+            }
+
+            string recordXml = ToXml(record);
+
+            connection.Execute(
+                $"INSERT INTO [{_deletedSchema}].[{tableName}] ([RecordId], [UserName], [Data]) VALUES (@id, @userName, @data)",
+                new { id = record.Id, userName = UserName, data = recordXml }, transaction);            
+        }
+
+        private static string ToXml<T>(T @object)
+        {
+            // thanks to https://stackoverflow.com/questions/4123590/serialize-an-object-to-xml
+
+            XmlSerializer xs = new XmlSerializer(typeof(T));
+            using (var sw = new StringWriter())
+            {
+                using (var xw = XmlWriter.Create(sw))
+                {
+                    xs.Serialize(xw, @object);
+                    return sw.ToString();
+                }
             }
         }
 

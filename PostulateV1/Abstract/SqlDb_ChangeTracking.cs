@@ -41,11 +41,11 @@ namespace Postulate.Orm.Abstract
             if (changes?.Any() ?? false) OnCaptureChanges<TRecord>(connection, record.Id, changes);
         }
 
-        protected abstract void OnCaptureChanges<TRecord>(IDbConnection connection, TKey id, IEnumerable<PropertyChange> changes) where TRecord : Record<TKey>;
+        protected abstract void OnCaptureChanges<TRecord>(IDbConnection connection, TKey id, IEnumerable<PropertyChange> changes) where TRecord : Record<TKey>;        
 
         public abstract IEnumerable<ChangeHistory<TKey>> QueryChangeHistory<TRecord>(IDbConnection connection, TKey id, int timeZoneOffset = 0) where TRecord : Record<TKey>;
 
-        private bool HasChangeTracking<TRecord>(out string ignoreProperties) where TRecord : Record<TKey>
+        private bool TrackChanges<TRecord>(out string ignoreProperties) where TRecord : Record<TKey>
         {
             TrackChangesAttribute attr;
             if (typeof(TRecord).HasAttribute(out attr))

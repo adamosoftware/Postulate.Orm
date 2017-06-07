@@ -99,6 +99,8 @@ namespace Postulate.Orm.Abstract
 
         public abstract IDbConnection GetConnection();
 
+        public abstract IDbTransaction GetTransaction(IDbConnection connection);
+
         private Dictionary<string, string> _insertCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _updateCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _findCommands = new Dictionary<string, string>();
@@ -127,8 +129,29 @@ namespace Postulate.Orm.Abstract
         {
             string message;
             if (record.AllowDelete(connection, UserName, out message))
-            {
-                ExecuteDeleteOne<TRecord>(connection, record.Id);
+            {                                               
+                if (TrackDeletions<TRecord>())
+                {
+                    using (var txn = GetTransaction(connection))
+                    {
+                        try
+                        {
+                            OnCaptureDeletion(connection, record, txn);
+                            ExecuteDeleteOne<TRecord>(connection, record.Id, txn);
+                            txn.Commit();
+                        }
+                        catch
+                        {
+                            txn.Rollback();
+                            throw;
+                        }
+                    }
+                }
+                else
+                {
+                    ExecuteDeleteOne<TRecord>(connection, record.Id);
+                }
+                
                 record.AfterDelete(connection);
             }
             else
@@ -152,7 +175,36 @@ namespace Postulate.Orm.Abstract
         public int DeleteAllWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
             string cmd = $"DELETE {GetTableName<TRecord>()} WHERE {criteria}";
-            return connection.Execute(cmd, parameters);
+
+            if (TrackDeletions<TRecord>())
+            {                
+                var records = connection.Query<TRecord>($"SELECT * FROM {GetTableName<TRecord>()} WHERE {criteria}", parameters);
+
+                using (var txn = GetTransaction(connection))
+                {
+                    try
+                    {
+                        foreach (var record in records) OnCaptureDeletion(connection, record, txn);
+                        int result = connection.Execute(cmd, parameters, txn);
+                        txn.Commit();
+                        return result;
+                    }
+                    catch
+                    {
+                        txn.Rollback();
+                        throw;
+                    }
+                }
+            }
+            else
+            {                
+                return connection.Execute(cmd, parameters);
+            }
+        }
+
+        private bool TrackDeletions<TRecord>() where TRecord : Record<TKey>
+        {
+            return typeof(TRecord).HasAttribute<TrackDeletionsAttribute>();
         }
 
         public TRecord FindUserProfile<TRecord>(IDbConnection connection) where TRecord : Record<TKey>, IUserProfile
@@ -266,10 +318,10 @@ namespace Postulate.Orm.Abstract
             return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);
         }
 
-        private void ExecuteDeleteOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        private void ExecuteDeleteOne<TRecord>(IDbConnection connection, TKey id, IDbTransaction txn = null) where TRecord : Record<TKey>
         {
             string cmd = GetCommand<TRecord>(_deleteCommands, () => GetDeleteStatement<TRecord>());
-            connection.Execute(cmd, new { id = id });
+            connection.Execute(cmd, new { id = id }, txn);
         }
 
         private string GetCommand<TRecord>(Dictionary<string, string> dictionary, Func<string> commandBuilder)

@@ -76,6 +76,7 @@
     <Compile Include="SchemaMerge2Test.cs" />
     <Compile Include="SchemaMergeTest.cs" />
     <Compile Include="TestChangeTracking.cs" />
+    <Compile Include="TestDeleteTracking.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
