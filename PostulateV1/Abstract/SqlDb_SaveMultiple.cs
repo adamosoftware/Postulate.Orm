@@ -102,6 +102,7 @@ namespace Postulate.Orm.Abstract
                 do
                 {
                     if (cancellationToken.IsCancellationRequested) break;
+
                     using (IDbTransaction trans = connection.BeginTransaction())
                     {
                         var subset = records.Skip(batch * batchSize).Take(batchSize);
@@ -109,6 +110,8 @@ namespace Postulate.Orm.Abstract
 
                         foreach (var op in operations)
                         {
+                            if (cancellationToken.IsCancellationRequested) break;
+
                             var subsetRecords = subset.Where(r => op.Predicate.Invoke(r));
 
                             string errorMessage = null;
