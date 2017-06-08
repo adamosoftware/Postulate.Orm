@@ -19,8 +19,7 @@ namespace Postulate.Orm.Abstract
         /// <param name="batchSize">Number of records to process at a time. A value of 1 causes your Record overrides to execute, and the Record.Id is set. A value greater than one causes your overrides to be skipped.</param>
         public async Task SaveMultipleAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
         {
-            var exc = await SaveMultipleInnerAsync(connection, records, batchSize, cancellationToken, progress);
-            if (exc != null) throw new SaveException(exc.Message, exc.CommandText, exc.Record);
+            await SaveMultipleInnerAsync(connection, records, batchSize, cancellationToken, progress);            
         }
 
         /// <summary>
@@ -28,61 +27,108 @@ namespace Postulate.Orm.Abstract
         /// </summary>
         /// <param name="batchSize">Number of records to process at a time. A value of 1 causes your Record overrides to execute, and the Record.Id is set. A value greater than one causes your overrides to be skipped.</param>
         public async Task SaveMultipleAsync<TRecord>(IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
-        {
-            SaveException exc = null;
+        {            
             using (IDbConnection cn = GetConnection())
             {
                 cn.Open();
-                exc = await SaveMultipleInnerAsync(cn, records, batchSize, cancellationToken, progress);
-            }
-            if (exc != null) throw new SaveException(exc.Message, exc.CommandText, exc.Record);
+                await SaveMultipleInnerAsync(cn, records, batchSize, cancellationToken, progress);
+            }        
         }
 
-        private async Task<SaveException> SaveMultipleInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        public void SaveMultiple<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100) where TRecord : Record<TKey>
         {
             if (batchSize > 1)
             {
-                return await SaveInBatches(connection, records, batchSize, progress, cancellationToken);
+                SaveInBatches(connection, records, batchSize);
             }
             else
             {
-                return await SaveEachInnerAsync(connection, records, progress, cancellationToken);
+                foreach (var record in records) Save(connection, record);
             }
         }
 
-        private async Task<SaveException> SaveEachInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, IProgress<int> progress, CancellationToken cancellationToken) where TRecord : Record<TKey>
+        public void SaveMultiple<TRecord>(IEnumerable<TRecord> records, int batchSize = 100) where TRecord : Record<TKey>
         {
-            SaveException exc = null;
-
-            await Task.Run(() =>
+            using (var cn = GetConnection())
             {
-                int percentDone = 0;
-                int count = 0;
-                int totalCount = records.Count();
-                foreach (var record in records)
-                {
-                    if (cancellationToken.IsCancellationRequested) break;
-
-                    try
-                    {
-                        Save(connection, record);
-                    }
-                    catch (SaveException excInner)
-                    {
-                        exc = excInner;
-                        break;
-                    }
-
-                    count++;
-                    percentDone = Convert.ToInt32(Convert.ToDouble(count) / Convert.ToDouble(totalCount) * 100);
-                    progress?.Report(percentDone);
-                }
-            });
-
-            return exc;
+                cn.Open();
+                SaveMultiple(cn, records, batchSize);
+            }
         }
 
-        private async Task<SaveException> SaveInBatches<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize, IProgress<int> progress, CancellationToken cancellationToken) where TRecord : Record<TKey>
+        private async Task SaveMultipleInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        {
+            if (batchSize > 1)
+            {
+                await SaveInBatchesAsync(connection, records, batchSize, progress, cancellationToken);
+            }
+            else
+            {
+                await SaveEachInnerAsync(connection, records, progress, cancellationToken);
+            }
+        }
+
+        private async Task SaveEachInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, IProgress<int> progress, CancellationToken cancellationToken) where TRecord : Record<TKey>
+        {
+            int percentDone = 0;
+            int count = 0;
+            int totalCount = records.Count();
+            foreach (var record in records)
+            {
+                if (cancellationToken.IsCancellationRequested) break;
+
+                // not implemented
+                await SaveAsync(connection, record);
+
+                count++;
+                percentDone = Convert.ToInt32(Convert.ToDouble(count) / Convert.ToDouble(totalCount) * 100);
+                progress?.Report(percentDone);
+            }
+        }
+
+        private async Task SaveInBatchesAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize, IProgress<int> progress, CancellationToken cancellationToken) where TRecord : Record<TKey>
+        {
+            Func<TRecord, bool> insertPredicate = (r) => { return r.IsNew(); };
+            Func<TRecord, bool> updatePredicate = (r) => { return !r.IsNew(); };
+
+            var operations = new[]
+            {
+                new { Action = SaveAction.Insert, Predicate = insertPredicate, Command = GetInsertStatement<TRecord>() },
+                new { Action = SaveAction.Update, Predicate = updatePredicate, Command = GetUpdateStatement<TRecord>() }
+            };            
+            
+            // thanks to accepted answer at http://stackoverflow.com/questions/10689779/bulk-inserts-taking-longer-than-expected-using-dapper
+            int batch = 0;
+            do
+            {
+                if (cancellationToken.IsCancellationRequested) break;
+
+                using (IDbTransaction trans = GetTransaction(connection))
+                {
+                    var subset = records.Skip(batch * batchSize).Take(batchSize);
+                    if (!subset.Any()) break;
+
+                    foreach (var op in operations)
+                    {
+                        if (cancellationToken.IsCancellationRequested) break;
+
+                        var subsetRecords = subset.Where(r => op.Predicate.Invoke(r));
+
+                        string errorMessage = null;
+                        var invalidRecord = subset.FirstOrDefault(item => !item.IsValid(connection, op.Action, out errorMessage));
+                        if (invalidRecord != null) throw new SaveException(errorMessage, op.Command, invalidRecord);
+
+                        await connection.ExecuteAsync(op.Command, subsetRecords, trans);
+                    }
+
+                    trans.Commit();
+                }
+                batch++;
+                progress?.Report(batch * batchSize);
+            } while (true);
+        }
+
+        private void SaveInBatches<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize) where TRecord : Record<TKey>
         {
             Func<TRecord, bool> insertPredicate = (r) => { return r.IsNew(); };
             Func<TRecord, bool> updatePredicate = (r) => { return !r.IsNew(); };
@@ -93,46 +139,31 @@ namespace Postulate.Orm.Abstract
                 new { Action = SaveAction.Update, Predicate = updatePredicate, Command = GetUpdateStatement<TRecord>() }
             };
 
-            SaveException exc = null;
-
-            await Task.Run(() =>
+            // thanks to accepted answer at http://stackoverflow.com/questions/10689779/bulk-inserts-taking-longer-than-expected-using-dapper
+            int batch = 0;
+            do
             {
-                // thanks to accepted answer at http://stackoverflow.com/questions/10689779/bulk-inserts-taking-longer-than-expected-using-dapper
-                int batch = 0;
-                do
+                using (IDbTransaction trans = GetTransaction(connection))
                 {
-                    if (cancellationToken.IsCancellationRequested) break;
+                    var subset = records.Skip(batch * batchSize).Take(batchSize);
+                    if (!subset.Any()) break;
 
-                    using (IDbTransaction trans = connection.BeginTransaction())
+                    foreach (var op in operations)
                     {
-                        var subset = records.Skip(batch * batchSize).Take(batchSize);
-                        if (!subset.Any()) break;
+ 
+                        var subsetRecords = subset.Where(r => op.Predicate.Invoke(r));
 
-                        foreach (var op in operations)
-                        {
-                            if (cancellationToken.IsCancellationRequested) break;
+                        string errorMessage = null;
+                        var invalidRecord = subset.FirstOrDefault(item => !item.IsValid(connection, op.Action, out errorMessage));
+                        if (invalidRecord != null) throw new SaveException(errorMessage, op.Command, invalidRecord);
 
-                            var subsetRecords = subset.Where(r => op.Predicate.Invoke(r));
-
-                            string errorMessage = null;
-                            var invalidRecord = subset.FirstOrDefault(item => !item.IsValid(connection, op.Action, out errorMessage));
-                            if (invalidRecord != null)
-                            {
-                                exc = new SaveException(errorMessage, op.Command, invalidRecord);
-                                break;
-                            }
-
-                            connection.Execute(op.Command, subsetRecords, trans);
-                        }
-
-                        trans.Commit();
+                        connection.Execute(op.Command, subsetRecords, trans);
                     }
-                    batch++;
-                    progress?.Report(batch * batchSize);
-                } while (true);
-            });
 
-            return exc;
+                    trans.Commit();
+                }
+                batch++;                
+            } while (true);
         }
     }
 }

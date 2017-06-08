@@ -4,6 +4,7 @@ using Postulate.Orm.Exceptions;
 using Postulate.Orm.Interfaces;
 using System;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Postulate.Orm.Abstract
 {
@@ -23,13 +24,18 @@ namespace Postulate.Orm.Abstract
             {
                 if (r.IsNew())
                 {
-                    r.Id = ExecuteInsert(connection, r);
+                    r.Id = ExecuteInsert(connection, r, txn);
                 }
                 else
                 {
-                    ExecuteUpdate(connection, r);
+                    ExecuteUpdate(connection, r, txn);
                 }
             }, transaction);
+        }
+
+        public Task SaveAsync<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
+        {
+            throw new NotImplementedException();
         }
 
         private void SaveInner<TRecord>(IDbConnection connection, TRecord record, SaveAction action, Action<TRecord, IDbTransaction> saveAction, IDbTransaction transaction = null) where TRecord : Record<TKey>
@@ -78,6 +84,32 @@ namespace Postulate.Orm.Abstract
             try
             {
                 connection.Execute(cmd, record, transaction);
+            }
+            catch (Exception exc)
+            {
+                throw new SaveException(exc.Message, cmd, record);
+            }
+        }
+
+        private async Task<TKey> ExecuteInsertAsync<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
+        {
+            string cmd = GetCommand<TRecord>(_insertCommands, () => GetInsertStatement<TRecord>());
+            try
+            {
+                return await connection.QuerySingleAsync<TKey>(cmd, record, transaction);
+            }
+            catch (Exception exc)
+            {
+                throw new SaveException(exc.Message, cmd, record);
+            }
+        }
+
+        private async Task ExecuteUpdateAsync<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
+        {
+            string cmd = GetCommand<TRecord>(_updateCommands, () => GetUpdateStatement<TRecord>());
+            try
+            {
+                await connection.ExecuteAsync(cmd, record, transaction);
             }
             catch (Exception exc)
             {
