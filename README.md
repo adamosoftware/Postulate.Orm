@@ -2,11 +2,11 @@
 
 Nuget package **Postulate.Orm**
 
-Postulate is a lightweight code-first ORM for SQL Server made with Dapper that uses inline SQL. You can target any data source that supports `IDbConnection`, but the default implementation is for SQL Server, and the Schema Merge feature works only with SQL Server. This repo an overhaul of the [prior version](https://github.com/adamosoftware/Postulate08) with a number of breaking changes -- the new syntax is simpler, and model classes no longer require a RowManager. The Query class has been moved to [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql).
+Postulate is a lightweight code-first ORM for SQL Server made with Dapper that uses inline SQL. You can target any data source that supports `IDbConnection`, but the default implementation is for SQL Server, and the Schema Merge feature works only with SQL Server. This repo is an overhaul of the [prior version](https://github.com/adamosoftware/Postulate08) with a number of breaking changes -- the new syntax is simpler, and model classes no longer require a RowManager. The Query class has been moved to [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql).
 
 This is Postulate in a nutshell:
 
-- [SqlServerDb&lt;TKey&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/SqlServerDb.cs) is the "root object" you inherit from that represents access to a SQL Server database as a whole. It offers CRUD methods such as [Find](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb.cs#L118), [Save](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb_Save.cs#L16), [Delete](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb.cs#L130), and [Copy](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb_Copy.cs#L14). Supported key types are `int`, `long`, and `Guid`.
+- [SqlServerDb&lt;TKey&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/SqlServerDb.cs) is the "root object" you inherit from that represents access to a SQL Server database as a whole. It offers CRUD methods such as [Find](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb.cs#L118), [Save](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb_Save.cs#L16), [various delete methods](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb_Delete.cs), and [Copy](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb_Copy.cs#L14). Supported key types are `int`, `long`, and `Guid`.
 
 - The only requirement for model classes is that they must inherit from [Record&lt;TKey&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Abstract/Record.cs). The `Record<TKey>` class has many overrides for checking permissions, handling events, and performing validation. A variety of attributes let you define foreign keys, primary keys, as well as fine-tune behaviors in multi-tenant systems such as limiting update capability on partition fields. See [Designing Model Classes](https://github.com/adamosoftware/Postulate.Orm/wiki/Designing-Model-Classes) for more information.
 
@@ -61,7 +61,7 @@ Update select properties of a Customer without updating the whole record:
 
 ### ASP.NET MVC Suggestions
 
-I recommend putting your model classes in a separate project/DLL from your web app. Mysterious ReflectionTypeLoadException can happen in MVC, and it's also a good practice to keep model classes separate from the application, anyway.
+I recommend putting your model classes in a separate project/DLL from your web app. Mysterious ReflectionTypeLoadException can happen in MVC, and it's also a good practice to keep model classes separate from the application, anyway. The [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) repo is really the best place to see Postulate in action in a more realistic site.
 
 I recommend having a `SqlServerDb<TKey>` instance variable in your controllers.
 
@@ -104,4 +104,6 @@ If you need to open a connection manually somewhere, use the [GetConnection](htt
         cn.Execute(*blah blah blah*);
     }
  
- For more realistic MVC examples, please see the [Postulate.Mvc project](https://github.com/adamosoftware/Postulate.Mvc).
+For more realistic MVC examples, please see the [Postulate.Mvc project](https://github.com/adamosoftware/Postulate.Mvc).
+
+If you have any ideas or feedback, please contact me at adamosoftware@gmail.com. Contributions here are definitely welcome.
