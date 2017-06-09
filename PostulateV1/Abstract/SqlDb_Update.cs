@@ -15,6 +15,15 @@ namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {
+        public void Update<TRecord>(TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                Update(cn, record, setColumns);
+            }
+        }
+
         /// <summary>
         /// Updates specific properties of a record
         /// </summary>

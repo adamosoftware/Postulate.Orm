@@ -15,6 +15,42 @@ namespace Postulate.Orm.Abstract
 
         protected abstract void CompleteRestore<TRecord>(IDbConnection connection, TKey id, IDbTransaction transaction) where TRecord : Record<TKey>;
 
+        public void DeleteOne<TRecord>(TRecord record) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                DeleteOne(cn, record);
+            }
+        }
+
+        public void DeleteOne<TRecord>(TKey id) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                DeleteOne<TRecord>(cn, id);
+            }
+        }
+
+        public void DeleteOneWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                DeleteOneWhere<TRecord>(cn, criteria, parameters);
+            }
+        }
+
+        public int DeleteAllWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                return DeleteAllWhere<TRecord>(cn, criteria, parameters);
+            }
+        }
+
         public void DeleteOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
             TRecord record = Find<TRecord>(connection, id);
@@ -110,6 +146,15 @@ namespace Postulate.Orm.Abstract
                     txn.Rollback();
                     throw;
                 }
+            }
+        }
+
+        public TKey RestoreOne<TRecord>(TKey id) where TRecord : Record<TKey>
+        {
+            using (var cn = GetConnection())
+            {
+                cn.Open();
+                return RestoreOne<TRecord>(cn, id);
             }
         }
 

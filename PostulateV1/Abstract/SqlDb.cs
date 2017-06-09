@@ -107,29 +107,6 @@ namespace Postulate.Orm.Abstract
         private Dictionary<string, string> _deleteCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _copyCommands = new Dictionary<string, string>();
 
-        public bool ExistsWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
-        {
-            TRecord record = FindWhere<TRecord>(connection, criteria, parameters);
-            return (record != null);
-        }
-
-        public TRecord Find<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
-        {
-            var row = ExecuteFind<TRecord>(connection, id);
-            return FindInner<TRecord>(connection, row);
-        }
-
-        public TRecord FindWhere<TRecord>(IDbConnection connection, string critieria, object parameters) where TRecord : Record<TKey>
-        {
-            var row = ExecuteFindWhere<TRecord>(connection, critieria, parameters);
-            return FindInner(connection, row);
-        }
-
-        public TRecord FindUserProfile<TRecord>(IDbConnection connection) where TRecord : Record<TKey>, IUserProfile
-        {
-            return ExecuteFindWhere<TRecord>(connection, "[UserName]=@name", new { name = UserName });
-        }
-
         private string GetTableName<TRecord>() where TRecord : Record<TKey>
         {
             Type modelType = typeof(TRecord);

@@ -55,6 +55,7 @@
     <Compile Include="Abstract\SqlDb_ChangeTracking.cs" />
     <Compile Include="Abstract\SqlDb_Copy.cs" />
     <Compile Include="Abstract\SqlDb_Delete.cs" />
+    <Compile Include="Abstract\SqlDb_Find.cs" />
     <Compile Include="Abstract\SqlDb_Save.cs" />
     <Compile Include="Abstract\SqlDb_SaveMultiple.cs" />
     <Compile Include="Abstract\SqlDb_Update.cs" />

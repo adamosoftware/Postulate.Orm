@@ -10,6 +10,25 @@ namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {
+        public void Save<TRecord>(TRecord record, out SaveAction action) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                Save(cn, record, out action);
+            }
+        }
+
+        public void Save<TRecord>(TRecord record) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                SaveAction action;
+                Save(cn, record, out action);
+            }
+        }
+
         public void Save<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
         {
             SaveAction action;

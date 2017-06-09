@@ -48,107 +48,7 @@ namespace Postulate.Orm
         public override IDbTransaction GetTransaction(IDbConnection connection)
         {
             return connection.BeginTransaction();
-        }
-
-        public TRecord Find<TRecord>(TKey id) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                return Find<TRecord>(cn, id);
-            }
-        }
-
-        public bool ExistsWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                return ExistsWhere<TRecord>(cn, criteria, parameters);
-            }
-        }
-
-        public TRecord FindWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                return FindWhere<TRecord>(cn, criteria, parameters);
-            }
-        }
-
-        public void DeleteOne<TRecord>(TRecord record) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                DeleteOne(cn, record);
-            }
-        }
-
-        public void DeleteOne<TRecord>(TKey id) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                DeleteOne<TRecord>(cn, id);
-            }
-        }
-
-        public void DeleteOneWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                DeleteOneWhere<TRecord>(cn, criteria, parameters);
-            }
-        }
-
-        public int DeleteAllWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                return DeleteAllWhere<TRecord>(cn, criteria, parameters);
-            }
-        }
-
-        public void Save<TRecord>(TRecord record, out SaveAction action) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                Save(cn, record, out action);
-            }
-        }
-
-        public void Save<TRecord>(TRecord record) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                SaveAction action;
-                Save(cn, record, out action);
-            }
-        }
-
-        public void Update<TRecord>(TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                Update(cn, record, setColumns);
-            }
-        }
-
-        public TRecord FindUserProfile<TRecord>() where TRecord : Record<TKey>, IUserProfile
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                return FindUserProfile<TRecord>(cn);
-            }
-        }
+        }    
 
         protected override object OnGetChangesPropertyValue(PropertyInfo propertyInfo, object record, IDbConnection connection)
         {
@@ -251,16 +151,7 @@ namespace Postulate.Orm
             connection.Execute(
                 $"INSERT INTO [{_deletedSchema}].[{tableName}] ([RecordId], [UserName], [Data]) VALUES (@id, @userName, @data)",
                 new { id = record.Id, userName = UserName, data = recordXml }, transaction);            
-        }
-
-        public TKey RestoreOne<TRecord>(TKey id) where TRecord : Record<TKey>
-        {
-            using (var cn = GetConnection())
-            {
-                cn.Open();
-                return RestoreOne<TRecord>(cn, id);
-            }
-        }
+        }        
 
         protected override TRecord BeginRestore<TRecord>(IDbConnection connection, TKey id)
         {
