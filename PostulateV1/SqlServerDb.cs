@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
-using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Merge;
@@ -15,11 +14,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
-using System.Threading.Tasks;
 
 namespace Postulate.Orm
 {
@@ -49,7 +46,7 @@ namespace Postulate.Orm
         public override IDbTransaction GetTransaction(IDbConnection connection)
         {
             return connection.BeginTransaction();
-        }    
+        }
 
         protected override object OnGetChangesPropertyValue(PropertyInfo propertyInfo, object record, IDbConnection connection)
         {
@@ -151,8 +148,8 @@ namespace Postulate.Orm
 
             connection.Execute(
                 $"INSERT INTO [{_deletedSchema}].[{tableName}] ([RecordId], [UserName], [Data]) VALUES (@id, @userName, @data)",
-                new { id = record.Id, userName = UserName, data = recordXml }, transaction);            
-        }        
+                new { id = record.Id, userName = UserName, data = recordXml }, transaction);
+        }
 
         protected override TRecord BeginRestore<TRecord>(IDbConnection connection, TKey id)
         {
