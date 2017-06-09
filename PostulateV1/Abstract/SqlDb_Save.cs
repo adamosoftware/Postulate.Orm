@@ -52,11 +52,6 @@ namespace Postulate.Orm.Abstract
             }, transaction);
         }
 
-        public Task SaveAsync<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
-        {
-            throw new NotImplementedException();
-        }
-
         private void SaveInner<TRecord>(IDbConnection connection, TRecord record, SaveAction action, Action<TRecord, IDbTransaction> saveAction, IDbTransaction transaction = null) where TRecord : Record<TKey>
         {
             record.BeforeSave(connection, UserName, action);
@@ -107,6 +102,51 @@ namespace Postulate.Orm.Abstract
             catch (Exception exc)
             {
                 throw new SaveException(exc.Message, cmd, record);
+            }
+        }
+
+        public async Task SaveAsync<TRecord>(TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
+        {
+            using (var cn = GetConnection())
+            {
+                cn.Open();
+                await SaveAsync(cn, record, transaction);
+            }
+        }
+
+        public async Task SaveAsync<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
+        {
+            var action = (record.IsNew()) ? SaveAction.Insert : SaveAction.Update;
+
+            record.BeforeSave(connection, UserName, action);
+
+            string message;
+            if (record.IsValid(connection, action, out message))
+            {
+                if (record.AllowSave(connection, UserName, out message))
+                {
+                    string ignoreProps;
+                    if (action == SaveAction.Update && TrackChanges<TRecord>(out ignoreProps)) CaptureChanges(connection, record, ignoreProps);
+
+                    if (record.IsNew())
+                    {
+                        record.Id = await ExecuteInsertAsync(connection, record, transaction);
+                    }
+                    else
+                    {
+                        await ExecuteUpdateAsync(connection, record, transaction);
+                    }
+
+                    record.AfterSave(connection, action);
+                }
+                else
+                {
+                    throw new PermissionDeniedException(message);
+                }
+            }
+            else
+            {
+                throw new ValidationException(message);
             }
         }
 

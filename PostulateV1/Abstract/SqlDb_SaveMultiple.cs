@@ -76,8 +76,7 @@ namespace Postulate.Orm.Abstract
             foreach (var record in records)
             {
                 if (cancellationToken.IsCancellationRequested) break;
-
-                // not implemented
+                
                 await SaveAsync(connection, record);
 
                 count++;

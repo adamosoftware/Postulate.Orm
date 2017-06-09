@@ -33,24 +33,6 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void DeleteOneWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                DeleteOneWhere<TRecord>(cn, criteria, parameters);
-            }
-        }
-
-        public int DeleteAllWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                return DeleteAllWhere<TRecord>(cn, criteria, parameters);
-            }
-        }
-
         public void DeleteOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
             TRecord record = Find<TRecord>(connection, id);
@@ -92,10 +74,28 @@ namespace Postulate.Orm.Abstract
             }
         }
 
+        public void DeleteOneWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                DeleteOneWhere<TRecord>(cn, criteria, parameters);
+            }
+        }
+
         public void DeleteOneWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
             TRecord record = FindWhere<TRecord>(connection, criteria, parameters);
             if (record != null) DeleteOne<TRecord>(connection, record.Id);
+        }
+
+        public int DeleteAllWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
+        {
+            using (IDbConnection cn = GetConnection())
+            {
+                cn.Open();
+                return DeleteAllWhere<TRecord>(cn, criteria, parameters);
+            }
         }
 
         public int DeleteAllWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
@@ -126,7 +126,7 @@ namespace Postulate.Orm.Abstract
             {
                 return connection.Execute(cmd, parameters);
             }
-        }        
+        }
 
         public TKey RestoreOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {

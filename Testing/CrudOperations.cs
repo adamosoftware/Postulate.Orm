@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Testing.Models;
 using System.Data;
 using Dapper;
+using System.Threading.Tasks;
 
 namespace Testing
 {
@@ -33,6 +34,16 @@ namespace Testing
                 db.Save(cn, org);
                 db.DeleteOne(cn, org);
             }
+        }
+
+        [TestMethod]
+        public async Task CreateOrgAsync()
+        {
+            var org = new Organization() { Name = "Async Org", BillingRate = 1 };
+            PostulateDb db = new PostulateDb();
+            await db.SaveAsync(org);
+            Assert.IsTrue(org.Id != 0);
+            db.DeleteOne(org);
         }
 
         private string DefaultOrgName()
