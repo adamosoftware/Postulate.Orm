@@ -33,7 +33,7 @@ namespace Postulate.Orm.Merge
             var deletedTables = DeletedTables(connection);
             results.AddRange(deletedTables.Select(obj => new DropTable(obj)));
 
-            var deletedColumns = DeletedColumns(connection, deletedTables);
+            var deletedColumns = DeletedColumns(connection, deletedTables, rebuiltTables);
             results.AddRange(deletedColumns.Select(cr => new DropColumn(cr, cr.FindModelType(_modelTypes))));
 
             var newFK = _modelTypes.SelectMany(t =>
@@ -88,16 +88,20 @@ namespace Postulate.Orm.Merge
                     });
         }
 
-        private IEnumerable<ColumnRef> DeletedColumns(IDbConnection connection, IEnumerable<DbObject> deletedTables)
+        private IEnumerable<ColumnRef> DeletedColumns(IDbConnection connection, 
+            IEnumerable<DbObject> deletedTables, IEnumerable<CreateTable> rebuiltTables)
         {
             var modelColumns = GetModelColumns(connection);
+
+            var rebuiltDbObj = rebuiltTables.Select(ct => new DbObject(ct.Schema, ct.Name));
 
             return GetSchemaColumns(connection).Where(sc =>
                 !modelColumns.Any(
                     mc => mc.Equals(sc) ||
                     (mc.PropertyInfo.GetAttribute<RenameFromAttribute>()?.OldName?.Equals(sc.ColumnName) ?? false) ||
                     (mc.PropertyInfo.DeclaringType.HasAttribute<RenameFromAttribute>())) &&
-                !deletedTables.Contains(new DbObject(sc.Schema, sc.TableName)));
+                !deletedTables.Contains(new DbObject(sc.Schema, sc.TableName)) &&
+                !rebuiltDbObj.Contains(new DbObject(sc.Schema, sc.TableName)));
         }
 
         private IEnumerable<DbObject> DeletedTables(IDbConnection connection)
