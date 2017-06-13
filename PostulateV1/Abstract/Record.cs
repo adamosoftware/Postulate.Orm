@@ -85,6 +85,14 @@ namespace Postulate.Orm.Abstract
         }
 
         /// <summary>
+        /// Override this to set any properties of a record before it's viewed via the Find or FindWhere methods
+        /// </summary>        
+        public virtual void BeforeView(IDbConnection connection)
+        {
+            // do nothing by default
+        }
+
+        /// <summary>
         /// Override this to determine if a given user has permission to view this record
         /// </summary>
         public virtual bool AllowView(IDbConnection connection, string userName, out string message)
