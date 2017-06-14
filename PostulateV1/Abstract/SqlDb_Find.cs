@@ -1,5 +1,6 @@
 ﻿using Postulate.Orm.Interfaces;
 using System.Data;
+using Dapper;
 
 namespace Postulate.Orm.Abstract
 {
@@ -60,8 +61,9 @@ namespace Postulate.Orm.Abstract
 
         public bool ExistsWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
-            TRecord record = FindWhere<TRecord>(connection, criteria, parameters);
-            return (record != null);
+            string cmd = $"SELECT 1 FROM {GetTableName<TRecord>()} WHERE {criteria}";
+            int result = connection.QueryFirstOrDefault<int?>(cmd, parameters) ?? 0;
+            return (result == 1);
         }
     }
 }
