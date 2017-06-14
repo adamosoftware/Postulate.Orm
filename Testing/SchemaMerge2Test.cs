@@ -32,7 +32,7 @@ namespace Testing
         [TestMethod]
         public void TestSampleWebApp()
         {
-            SchemaMerge<Sample.Models.DemoDb2> sm = new SchemaMerge<Sample.Models.DemoDb2>();
+            SchemaMerge<Sample.Models.DemoDb> sm = new SchemaMerge<Sample.Models.DemoDb>();
             using (IDbConnection cn = sm.GetConnection())
             {
                 cn.Open();
