@@ -13,7 +13,7 @@ namespace Postulate.Orm.Merge.Action
         public override string ToString()
         {
             ForeignKeyAttribute fk = _pi.GetForeignKeyAttribute();
-            return $"{DbObject.SqlServerName(_pi.DeclaringType, false)}.{_pi.SqlColumnName()} -> {DbObject.SqlServerName(fk.PrimaryTableType, false)}.{fk.PrimaryTableType.IdentityColumnName()}";
+            return $"{DbObject.SqlServerName(_pi.ReflectedType, false)}.{_pi.SqlColumnName()} -> {DbObject.SqlServerName(fk.PrimaryTableType, false)}.{fk.PrimaryTableType.IdentityColumnName()}";
         }
     }
 }

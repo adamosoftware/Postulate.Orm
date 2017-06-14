@@ -38,8 +38,8 @@ namespace Postulate.Orm.Merge
 
             var newFK = _modelTypes.SelectMany(t =>
                 t.GetModelForeignKeys().Where(pi =>
-                    (!connection.ForeignKeyExists(pi) && connection.TableExists(t)) ||
-                    (!connection.ForeignKeyExists(pi) && connection.ReferencedTableExists(pi)) ||
+                    (!connection.ForeignKeyExists(pi) && connection.TableExists(t) && connection.ReferencedTableExists(pi)) ||                    
+                    newTables.OfType<CreateTable>().Any(ct => ct.ModelType.Equals(pi.GetForeignKeyType())) ||
                     rebuiltTables.OfType<CreateTable>().Any(ct => ct.ModelType.Equals(pi.GetForeignKeyType()))));
             results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
 

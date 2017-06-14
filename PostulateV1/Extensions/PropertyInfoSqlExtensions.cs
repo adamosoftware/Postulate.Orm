@@ -151,7 +151,7 @@ namespace Postulate.Orm.Extensions
         public static string ForeignKeyName(this PropertyInfo propertyInfo)
         {
             var fk = GetForeignKeyAttribute(propertyInfo);
-            return $"FK_{DbObject.ConstraintName(propertyInfo.DeclaringType)}_{propertyInfo.SqlColumnName()}";
+            return $"FK_{DbObject.ConstraintName(propertyInfo.ReflectedType)}_{propertyInfo.SqlColumnName()}";
         }
 
         public static bool AllowSqlNull(this PropertyInfo propertyInfo)
