@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,13 @@ namespace Postulate.Orm.Extensions
         {
             DbObject obj = DbObject.FromType(modelType);
             return TableExists(connection, obj.Schema, obj.Name);
+        }
+
+        public static bool ReferencedTableExists(this IDbConnection connection, PropertyInfo propertyInfo)
+        {
+            ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
+            if (fk != null) return TableExists(connection, fk.PrimaryTableType);
+            throw new ArgumentException($"{propertyInfo.Name} is not a foreign key.");
         }
 
         public static bool IsTableEmpty(this IDbConnection connection, string schema, string tableName)
