@@ -97,6 +97,7 @@ namespace Postulate.Orm.Merge
                 .ToLookup(item => item.Action, item => item.Message);
 
             AllCommands = results.SelectMany(a => a.SqlCommands(connection)
+                .Where(s => !s.StartsWith("--")) // exclude comments
                 .Select(cmd => new { Action = a, Command = cmd }))
                 .ToLookup(item => item.Action, item => item.Command);
 
