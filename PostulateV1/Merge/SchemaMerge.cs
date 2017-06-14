@@ -42,6 +42,11 @@ namespace Postulate.Orm.Merge
         private const string _metaSchema = "meta";
         private const string _metaVersion = "Version";
 
+        public IEnumerable<MergeAction> AllActions { get; private set; }
+        public ILookup<MergeAction, string> AllValidationErrors { get; private set; }
+        public ILookup<MergeAction, string> AllCommands { get; private set; }
+        public string SqlScript { get; private set; }
+
         public SchemaMerge()
         {
             _modelTypes = typeof(TDb).Assembly.GetTypes()
@@ -82,12 +87,20 @@ namespace Postulate.Orm.Merge
                 // alter
                 AlterColumnTypes, AlterPrimaryKeys, AlterForeignKeys, RenameTables, RenameColumns
                 /* AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, */
-
-                // drop
             };
             foreach (var method in diffMethods) results.AddRange(method.Invoke(connection));
 
-            //results.Add(ScriptVersionInfo(results));
+            AllActions = results;
+
+            AllValidationErrors = results.SelectMany(a => a.ValidationErrors(connection)
+                .Select(err => new { Action = a, Message = err }))
+                .ToLookup(item => item.Action, item => item.Message);
+
+            AllCommands = results.SelectMany(a => a.SqlCommands(connection)
+                .Select(cmd => new { Action = a, Command = cmd }))
+                .ToLookup(item => item.Action, item => item.Command);
+
+            SqlScript = GetScript(connection, results).ToString();
 
             return results;
         }
