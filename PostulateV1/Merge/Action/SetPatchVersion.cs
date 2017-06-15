@@ -21,21 +21,21 @@ namespace Postulate.Orm.Merge.Action
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
-        {
+        {            
+            if (!connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = MetaSchema })) yield return $"CREATE SCHEMA [{MetaSchema}]";            
+
+            if (!connection.TableExists(MetaSchema, TableName))
+            {
+                yield return 
+                    $@"CREATE TABLE [{MetaSchema}].[{TableName}] (
+                        [Version] int NOT NULL,
+                        [DateTime] datetime NOT NULL DEFAULT (getutcdate()),
+                        CONSTRAINT [PK_{MetaSchema}_{TableName}] PRIMARY KEY ([Version])
+                    )";
+            }
+
             if (_version > 0)
             {
-                if (!connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = MetaSchema })) yield return $"CREATE SCHEMA [{MetaSchema}]";            
-
-                if (!connection.TableExists(MetaSchema, TableName))
-                {
-                    yield return 
-                        $@"CREATE TABLE [{MetaSchema}].[{TableName}] (
-                            [Version] int NOT NULL,
-                            [DateTime] datetime NOT NULL DEFAULT (getutcdate()),
-                            CONSTRAINT [PK_{MetaSchema}_{TableName}] PRIMARY KEY ([Version])
-                        )";
-                }
-
                 yield return $@"
                     MERGE INTO [{MetaSchema}].[{TableName}] AS [target]
                     USING (SELECT {_version}) AS [source] ([Version])
