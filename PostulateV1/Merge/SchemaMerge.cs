@@ -30,7 +30,8 @@ namespace Postulate.Orm.Merge
         Column,
         Key,
         Index,
-        ForeignKey
+        ForeignKey,
+        Metadata
     }
 
     internal delegate IEnumerable<MergeAction> GetSchemaDiffMethod(IDbConnection connection);
@@ -38,9 +39,6 @@ namespace Postulate.Orm.Merge
     public partial class SchemaMerge<TDb> : ISchemaMerge where TDb : IDb, new()
     {
         private readonly IEnumerable<Type> _modelTypes;
-
-        private const string _metaSchema = "meta";
-        private const string _metaVersion = "Version";
 
         public IEnumerable<MergeAction> AllActions { get; private set; }
         public ILookup<MergeAction, string> AllValidationErrors { get; private set; }
@@ -90,6 +88,9 @@ namespace Postulate.Orm.Merge
             };
             foreach (var method in diffMethods) results.AddRange(method.Invoke(connection));
 
+            TDb db = new TDb();
+            if (db.Version > 0) results.Add(new SetPatchVersion(db.Version));
+            
             AllActions = results;
 
             AllValidationErrors = results.SelectMany(a => a.ValidationErrors(connection)
@@ -196,15 +197,15 @@ namespace Postulate.Orm.Merge
             if (IsPatchAvailable(connection, out schemaVersion))
             {
                 var sm = new SchemaMerge<TDb>();
-                var diffs = sm.Compare(connection);
+                var actions = sm.Compare(connection);
 
                 if (uiAction != null)
                 {
                     // giving user opportunity to cancel
-                    if (!uiAction.Invoke(diffs, schemaVersion)) return false;
+                    if (!uiAction.Invoke(actions, schemaVersion)) return false;
                 }
 
-                sm.Execute(connection, diffs);
+                sm.Execute(connection, actions);
                 return true;
             }
             return false;
@@ -216,22 +217,22 @@ namespace Postulate.Orm.Merge
             using (IDbConnection cn = db.GetConnection())
             {
                 cn.Open();
-                var diffs = Compare();
-                Execute(cn, diffs);
+                var actions = Compare();
+                Execute(cn, actions);
             }
         }
 
         public void Execute(IDbConnection connection)
         {
-            var diffs = Compare(connection);
-            Execute(connection, diffs);
+            var actions = Compare(connection);
+            Execute(connection, actions);
         }
 
-        public void Execute(IDbConnection connection, IEnumerable<MergeAction> diffs)
+        public void Execute(IDbConnection connection, IEnumerable<MergeAction> actions)
         {
-            Validate(connection, diffs);
+            Validate(connection, actions);
 
-            foreach (var diff in diffs)
+            foreach (var diff in actions)
             {
                 foreach (var cmd in diff.SqlCommands(connection))
                 {
@@ -248,30 +249,18 @@ namespace Postulate.Orm.Merge
             return actions.Where(a => !a.IsValid(connection)).SelectMany(a => a.ValidationErrors(connection), (a, m) => new ValidationError(a, m));
         }
 
-        public static bool IsPatchAvailable(IDbConnection connection, out int schemaVersion)
+        public static bool IsPatchAvailable(IDbConnection connection, out int modelVersion)
         {
-            int currentVersion = GetDbVersion(connection);
-            schemaVersion = (new TDb()).Version;
-            return (schemaVersion > currentVersion);
+            int schemaVersion = GetSchemaVersion(connection);
+            modelVersion = (new TDb()).Version;
+            return (modelVersion > schemaVersion);
         }
 
-        private static int GetDbVersion(IDbConnection connection)
+        private static int GetSchemaVersion(IDbConnection connection)
         {
-            CreateVersionTableIfNotExists(connection);
-            return connection.QuerySingle<int?>("SELECT MAX([Value]) FROM [meta].[Version]", null) ?? 0;
-        }
-
-        private static void CreateVersionTableIfNotExists(IDbConnection connection)
-        {
-            if (!connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = _metaSchema })) connection.Execute($"CREATE SCHEMA [{_metaSchema}]");
-
-            if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _metaSchema, name = _metaVersion }))
-            {
-                connection.Execute($@"CREATE TABLE [{_metaSchema}].[{_metaVersion}] (
-					[Value] int NOT NULL,
-					CONSTRAINT [PK_{_metaSchema}_{_metaVersion}] PRIMARY KEY ([Value])
-				)");
-            }
+            var ver = new SetPatchVersion(0);
+            foreach (var cmd in ver.SqlCommands(connection)) connection.Execute(cmd);
+            return connection.QuerySingle<int?>($"SELECT MAX([Version]) FROM [{SetPatchVersion.MetaSchema}].[{SetPatchVersion.TableName}]", null) ?? 0;
         }
 
         public static bool IsSupportedType(Type type)
