@@ -58,7 +58,7 @@ namespace Postulate.Orm.Merge.Action
                 {
                     foreach (var fk in referencingFKs)
                     {
-                        yield return $"ALTER TABLE [{fk.Child.Schema}].[{fk.Child.TableName}] ADD CONSTRAINT [{fk.ConstraintName}] FOREIGN KEY ([{fk.Child.ColumnName}]) REFERENCES ([{fk.Parent.ColumnName}])";
+                        yield return $"ALTER TABLE [{fk.Child.Schema}].[{fk.Child.TableName}] ADD CONSTRAINT [{fk.ConstraintName}] FOREIGN KEY ([{fk.Child.ColumnName}]) REFERENCES [{fk.Parent.Schema}].[{fk.Parent.TableName}] ([{fk.Parent.ColumnName}])";
                     }
                 }
             }
