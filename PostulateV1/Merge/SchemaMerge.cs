@@ -180,7 +180,7 @@ namespace Postulate.Orm.Merge
             }
         }
 
-        public bool Patch(Func<IEnumerable<MergeAction>, int, bool> uiAction = null)
+        public bool Patch(Func<string, int, bool> uiAction = null)
         {
             var db = new TDb();
             using (IDbConnection cn = db.GetConnection())
@@ -190,18 +190,19 @@ namespace Postulate.Orm.Merge
             }
         }
 
-        public bool Patch(IDbConnection connection, Func<IEnumerable<MergeAction>, int, bool> uiAction = null)
+        public bool Patch(IDbConnection connection, Func<string, int, bool> uiAction = null)
         {
             int schemaVersion;
 
             if (IsPatchAvailable(connection, out schemaVersion))
             {                
                 var actions = Compare(connection);
+                string script = GetScript(connection, actions).ToString();
 
                 if (uiAction != null)
                 {
                     // giving user opportunity to cancel
-                    if (!uiAction.Invoke(actions, schemaVersion)) return false;
+                    if (!uiAction.Invoke(script, schemaVersion)) return false;
                 }
 
                 Execute(connection, actions);
