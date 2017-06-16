@@ -63,6 +63,13 @@ namespace Postulate.Orm.Merge
             return db.GetConnection();
         }
 
+        /// <summary>
+        /// Returns the merge actions that will synchronize model classes with a SQL Server database
+        /// </summary>
+        /// <param name="version">Model version number to apply in the generated SQL script. Use -1 to let this class determine the version number. 
+        /// Use any other value to apply an explicit version number. This is necessary for the Schema Merge app so it doesn't have to use TDb's
+        /// default constructor to get the version number. If it did, the Schema Merge app would fail because the default constructor assumes
+        /// that a valid connection string is available in the current configuration scope. This isn't true in the context of the Schema Merge app.</param>
         public IEnumerable<MergeAction> Compare(int version = -1)
         {
             var db = new TDb();
