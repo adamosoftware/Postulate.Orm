@@ -180,17 +180,17 @@ namespace Postulate.Orm.Merge
             }
         }
 
-        public bool Patch(Func<string, int, bool> uiAction = null)
+        public bool IsPatched(Func<string, int, bool> uiAction = null)
         {
             var db = new TDb();
             using (IDbConnection cn = db.GetConnection())
             {
                 cn.Open();
-                return Patch(cn, uiAction);
+                return IsPatched(cn, uiAction);
             }
         }
 
-        public bool Patch(IDbConnection connection, Func<string, int, bool> uiAction = null)
+        public bool IsPatched(IDbConnection connection, Func<string, int, bool> uiAction = null)
         {
             int schemaVersion;
 
@@ -208,7 +208,8 @@ namespace Postulate.Orm.Merge
                 Execute(connection, actions);
                 return true;
             }
-            return false;
+
+            return true;
         }
 
         public void Execute()
