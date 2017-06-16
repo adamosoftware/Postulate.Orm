@@ -43,7 +43,7 @@ namespace Postulate.Orm.Merge
         public IEnumerable<MergeAction> AllActions { get; private set; }
         public ILookup<MergeAction, string> AllValidationErrors { get; private set; }
         public ILookup<MergeAction, string> AllCommands { get; private set; }
-        public string SqlScript { get; private set; }
+        public string SqlScript { get; private set; }        
 
         public SchemaMerge()
         {
@@ -63,17 +63,17 @@ namespace Postulate.Orm.Merge
             return db.GetConnection();
         }
 
-        public IEnumerable<MergeAction> Compare()
+        public IEnumerable<MergeAction> Compare(int version = -1)
         {
             var db = new TDb();
             using (IDbConnection cn = db.GetConnection())
             {
                 cn.Open();
-                return Compare(cn);
+                return Compare(cn, version);
             }
         }
 
-        public IEnumerable<MergeAction> Compare(IDbConnection connection)
+        public IEnumerable<MergeAction> Compare(IDbConnection connection, int version = -1)
         {
             List<MergeAction> results = new List<MergeAction>();
 
@@ -87,10 +87,15 @@ namespace Postulate.Orm.Merge
                 /* AlterUniqueKeys, AlterIndexes, AlterNonKeyColumnTypes, */
             };
             foreach (var method in diffMethods) results.AddRange(method.Invoke(connection));
-
-            TDb db = new TDb();
-            if (db.Version > 0) results.Add(new SetPatchVersion(db.Version));
             
+            if (version == -1)
+            {
+                TDb db = new TDb();
+                version = db.Version;
+            }
+
+            if (version > 0) results.Add(new SetPatchVersion(version));
+
             AllActions = results;
 
             AllValidationErrors = results.SelectMany(a => a.ValidationErrors(connection)

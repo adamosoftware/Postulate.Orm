@@ -8,7 +8,7 @@ namespace Postulate.Orm.Interfaces
 {
     public interface ISchemaMerge
     {
-        IEnumerable<MergeAction> Compare(IDbConnection connection);
+        IEnumerable<MergeAction> Compare(IDbConnection connection, int version = -1);
 
         StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges);
 
