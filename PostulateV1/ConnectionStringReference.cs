@@ -53,8 +53,11 @@ namespace Postulate
                 cnRef = (ConnectionStringReference)xs.Deserialize(reader);
             }
 
-            XmlDocument doc = new XmlDocument();
-            doc.Load(cnRef.Filename);
+            if (!File.Exists(cnRef.Filename)) return null;
+
+            XmlDocument doc = new XmlDocument();            
+            doc.Load(cnRef.Filename);            
+
             string result = doc.SelectSingleNode(cnRef.XPath).InnerText;
 
             if (cnRef.Encryption.HasValue)
