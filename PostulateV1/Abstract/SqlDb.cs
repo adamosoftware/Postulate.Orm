@@ -107,7 +107,7 @@ namespace Postulate.Orm.Abstract
         private Dictionary<string, string> _deleteCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _copyCommands = new Dictionary<string, string>();
 
-        private string GetTableName<TRecord>() where TRecord : Record<TKey>
+        protected virtual string GetTableName<TRecord>() where TRecord : Record<TKey>
         {
             Type modelType = typeof(TRecord);
             string result = modelType.Name;
@@ -125,12 +125,12 @@ namespace Postulate.Orm.Abstract
             return ApplyDelimiter(result);
         }
 
-        private string GetFindStatement<TRecord>() where TRecord : Record<TKey>
+        protected virtual string GetFindStatement<TRecord>() where TRecord : Record<TKey>
         {
             return GetFindStatementBase<TRecord>() + $" WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
-        private string GetFindStatementBase<TRecord>() where TRecord : Record<TKey>
+        protected virtual string GetFindStatementBase<TRecord>() where TRecord : Record<TKey>
         {
             return
                 $@"SELECT {ApplyDelimiter(IdentityColumnName)},
@@ -139,7 +139,7 @@ namespace Postulate.Orm.Abstract
                     {GetTableName<TRecord>()}";
         }
 
-        private string GetInsertStatement<TRecord>() where TRecord : Record<TKey>
+        protected virtual string GetInsertStatement<TRecord>() where TRecord : Record<TKey>
         {
             var columns = GetColumnNames<TRecord>(pi => pi.HasColumnAccess(Access.InsertOnly));
 
@@ -151,7 +151,7 @@ namespace Postulate.Orm.Abstract
                 )";
         }
 
-        private string GetUpdateStatement<TRecord>() where TRecord : Record<TKey>
+        protected virtual string GetUpdateStatement<TRecord>() where TRecord : Record<TKey>
         {
             var columns = GetColumnNames<TRecord>(pi => pi.HasColumnAccess(Access.UpdateOnly));
 
@@ -162,12 +162,12 @@ namespace Postulate.Orm.Abstract
                     [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
-        private string GetDeleteStatement<TRecord>() where TRecord : Record<TKey>
+        protected virtual string GetDeleteStatement<TRecord>() where TRecord : Record<TKey>
         {
             return $"DELETE {GetTableName<TRecord>()} WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
-        private IEnumerable<PropertyInfo> GetEditableColumns<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
+        protected IEnumerable<PropertyInfo> GetEditableColumns<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
         {
             return typeof(TRecord).GetProperties().Where(pi =>
                 !pi.Name.Equals(IdentityColumnName) &&
@@ -176,7 +176,7 @@ namespace Postulate.Orm.Abstract
                 (!pi.HasAttribute<ColumnAccessAttribute>() || (predicate?.Invoke(pi) ?? true)));
         }
 
-        private IEnumerable<string> GetColumnNames<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
+        protected IEnumerable<string> GetColumnNames<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
         {
             return GetEditableColumns<TRecord>(predicate).Select(pi =>
             {
