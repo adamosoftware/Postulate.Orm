@@ -187,34 +187,6 @@ namespace Postulate.Orm.Abstract
 
         protected abstract string ApplyDelimiter(string name);
 
-        private TRecord FindInner<TRecord>(IDbConnection connection, TRecord row) where TRecord : Record<TKey>
-        {
-            if (row == null) return null;
-
-            string message;
-            if (row.AllowView(connection, UserName, out message))
-            {
-                row.BeforeView(connection);
-                return row;
-            }
-            else
-            {
-                throw new PermissionDeniedException(message);
-            }
-        }
-
-        private TRecord ExecuteFind<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
-        {
-            string cmd = GetCommand<TRecord>(_findCommands, () => GetFindStatement<TRecord>());
-            return connection.QueryFirstOrDefault<TRecord>(cmd, new { id = id });
-        }
-
-        private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
-        {
-            string cmd = GetFindStatementBase<TRecord>() + $" WHERE {criteria}";
-            return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);
-        }
-
         private string GetCommand<TRecord>(Dictionary<string, string> dictionary, Func<string> commandBuilder)
         {
             string modelTypeName = typeof(TRecord).Name;

@@ -1,6 +1,7 @@
 ﻿using Postulate.Orm.Interfaces;
 using System.Data;
 using Dapper;
+using Postulate.Orm.Exceptions;
 
 namespace Postulate.Orm.Abstract
 {
@@ -64,6 +65,44 @@ namespace Postulate.Orm.Abstract
             string cmd = $"SELECT 1 FROM {GetTableName<TRecord>()} WHERE {criteria}";
             int result = connection.QueryFirstOrDefault<int?>(cmd, parameters) ?? 0;
             return (result == 1);
+        }
+
+        private TRecord FindInner<TRecord>(IDbConnection connection, TRecord row) where TRecord : Record<TKey>
+        {
+            if (row == null) return null;
+
+            string message;
+            if (row.AllowView(connection, UserName, out message))
+            {
+                row.BeforeView(connection);
+                return row;
+            }
+            else
+            {
+                throw new PermissionDeniedException(message);
+            }
+        }
+
+        private TRecord ExecuteFind<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        {
+            string cmd = GetCommand<TRecord>(_findCommands, () => GetFindStatement<TRecord>());
+            return ExecuteFindMethod<TRecord>(connection, id, cmd);
+        }
+
+        protected virtual TRecord ExecuteFindMethod<TRecord>(IDbConnection connection, TKey id, string cmd) where TRecord : Record<TKey>
+        {
+            return connection.QueryFirstOrDefault<TRecord>(cmd, new { id = id });
+        }
+
+        private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
+        {
+            string cmd = GetFindStatementBase<TRecord>() + $" WHERE {criteria}";
+            return ExecuteFindWhereMethod<TRecord>(connection, parameters, cmd);
+        }
+
+        protected virtual TRecord ExecuteFindWhereMethod<TRecord>(IDbConnection connection, object parameters, string cmd) where TRecord : Record<TKey>
+        {
+            return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);
         }
     }
 }

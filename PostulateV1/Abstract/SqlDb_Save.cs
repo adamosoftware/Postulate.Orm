@@ -84,7 +84,7 @@ namespace Postulate.Orm.Abstract
             string cmd = GetCommand<TRecord>(_insertCommands, () => GetInsertStatement<TRecord>());
             try
             {
-                return connection.QuerySingle<TKey>(cmd, record, transaction);
+                return ExecuteInsertMethod(connection, record, transaction, cmd);
             }
             catch (Exception exc)
             {
@@ -92,17 +92,27 @@ namespace Postulate.Orm.Abstract
             }
         }
 
+        protected virtual TKey ExecuteInsertMethod<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction, string cmd) where TRecord : Record<TKey>
+        {
+            return connection.QuerySingle<TKey>(cmd, record, transaction);
+        }
+
         private void ExecuteUpdate<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
         {
             string cmd = GetCommand<TRecord>(_updateCommands, () => GetUpdateStatement<TRecord>());
             try
             {
-                connection.Execute(cmd, record, transaction);
+                ExecuteUpdateMethod(connection, record, transaction, cmd);
             }
             catch (Exception exc)
             {
                 throw new SaveException(exc.Message, cmd, record);
             }
+        }
+
+        protected virtual void ExecuteUpdateMethod<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction, string cmd) where TRecord : Record<TKey>
+        {
+            connection.Execute(cmd, record, transaction);
         }
 
         public async Task SaveAsync<TRecord>(TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
