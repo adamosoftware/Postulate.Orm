@@ -28,6 +28,11 @@ namespace Postulate.Orm.Abstract
             return (Id.Equals(default(TKey)));
         }
 
+        public SaveAction SaveAction
+        {
+            get { return (IsNew()) ? SaveAction.Insert : SaveAction.Update; }
+        }
+
         /// <summary>
         /// Returns true if the record passes all validation rules
         /// </summary>
@@ -44,6 +49,11 @@ namespace Postulate.Orm.Abstract
                 message = string.Join("\r\n", messages);
                 return false;
             }
+        }
+
+        public bool IsValid(IDbConnection connection, out string message)
+        {
+            return IsValid(connection, this.SaveAction, out message);
         }
 
         /// <summary>
