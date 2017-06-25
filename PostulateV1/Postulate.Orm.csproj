@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\SeedData.cs" />
     <Compile Include="Abstract\SqlDb_ChangeTracking.cs" />
     <Compile Include="Abstract\SqlDb_Copy.cs" />
     <Compile Include="Abstract\SqlDb_Delete.cs" />
