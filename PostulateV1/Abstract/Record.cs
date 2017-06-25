@@ -28,9 +28,9 @@ namespace Postulate.Orm.Abstract
             return (Id.Equals(default(TKey)));
         }
 
-        public SaveAction SaveAction
+        public SaveAction GetSaveAction()
         {
-            get { return (IsNew()) ? SaveAction.Insert : SaveAction.Update; }
+            return (IsNew()) ? SaveAction.Insert : SaveAction.Update;
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Postulate.Orm.Abstract
 
         public bool IsValid(IDbConnection connection, out string message)
         {
-            return IsValid(connection, this.SaveAction, out message);
+            return IsValid(connection, GetSaveAction(), out message);
         }
 
         /// <summary>
