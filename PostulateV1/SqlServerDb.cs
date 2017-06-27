@@ -65,12 +65,39 @@ namespace Postulate.Orm
             return result;
         }
 
+        public override int GetRecordVersion<TRecord>(TKey id)
+        {
+            using (var cn = GetConnection())
+            {
+                cn.Open();
+                return GetRecordVersion<TRecord>(cn, id);
+            }
+        }
+
+        public override int GetRecordVersion<TRecord>(IDbConnection connection, TKey id)
+        {
+            try
+            {
+                string tableName = ChangeTrackingTableName<TRecord>();
+                return connection.QueryFirstOrDefault<int>($"SELECT [NextVersion] FROM [{_changesSchema}].[{tableName}_Versions] WHERE [RecordId]=@id", new { id = id });
+            }
+            catch 
+            {
+                return 0;
+            }
+        }
+
+        private static string ChangeTrackingTableName<TRecord>()
+        {
+            DbObject obj = DbObject.FromType(typeof(TRecord));
+            return $"{obj.Schema}_{obj.Name}";
+        }
+
         protected override void OnCaptureChanges<TRecord>(IDbConnection connection, TKey id, IEnumerable<PropertyChange> changes)
         {
             if (!connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = _changesSchema })) connection.Execute($"CREATE SCHEMA [{_changesSchema}]");
 
-            DbObject obj = DbObject.FromType(typeof(TRecord));
-            string tableName = $"{obj.Schema}_{obj.Name}";
+            string tableName = ChangeTrackingTableName<TRecord>();
 
             if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _changesSchema, name = $"{tableName}_Versions" }))
             {
@@ -91,7 +118,7 @@ namespace Postulate.Orm
 					[OldValue] nvarchar(max) NULL,
 					[NewValue] nvarchar(max) NULL,
 					[DateTime] datetime NOT NULL DEFAULT (getutcdate()),
-					CONSTRAINT [PK_{_changesSchema}_{obj.Name}] PRIMARY KEY ([RecordId], [Version], [ColumnName])
+					CONSTRAINT [PK_{tableName}] PRIMARY KEY ([RecordId], [Version], [ColumnName])
 				)");
             }
 
@@ -104,7 +131,7 @@ namespace Postulate.Orm
             int version = 0;
             while (version == 0)
             {
-                version = connection.QueryFirstOrDefault<int>($"SELECT [NextVersion] FROM [{_changesSchema}].[{tableName}_Versions] WHERE [RecordId]=@id", new { id = id });
+                version = GetRecordVersion<TRecord>(connection, id);
                 if (version == 0) connection.Execute($"INSERT INTO [{_changesSchema}].[{tableName}_Versions] ([RecordId]) VALUES (@id)", new { id = id });
             }
             connection.Execute($"UPDATE [{_changesSchema}].[{tableName}_Versions] SET [NextVersion]=[NextVersion]+1 WHERE [RecordId]=@id", new { id = id });

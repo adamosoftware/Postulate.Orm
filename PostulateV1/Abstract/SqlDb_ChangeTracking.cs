@@ -30,6 +30,10 @@ namespace Postulate.Orm.Abstract
             }).Where(vc => vc.IsChanged());
         }
 
+        public abstract int GetRecordVersion<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>;
+
+        public abstract int GetRecordVersion<TRecord>(TKey id) where TRecord : Record<TKey>;
+
         protected virtual object OnGetChangesPropertyValue(PropertyInfo propertyInfo, object record, IDbConnection connection)
         {
             return propertyInfo.GetValue(record);
