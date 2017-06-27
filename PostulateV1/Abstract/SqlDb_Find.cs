@@ -10,7 +10,14 @@ namespace Postulate.Orm.Abstract
         public TRecord Find<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
         {
             var row = ExecuteFind<TRecord>(connection, id);
-            return FindInner<TRecord>(connection, row);
+            return FindInner(connection, row);
+        }
+
+        public TRecord Find<TRecord>(IDbConnection connection, TKey id, out int version) where TRecord : Record<TKey>
+        {
+            var record = Find<TRecord>(connection, id);
+            version = GetRecordVersion<TRecord>(connection, id);
+            return FindInner(connection, record);
         }
 
         public TRecord Find<TRecord>(TKey id) where TRecord : Record<TKey>
@@ -19,6 +26,17 @@ namespace Postulate.Orm.Abstract
             {
                 cn.Open();
                 return Find<TRecord>(cn, id);
+            }
+        }
+
+        public TRecord Find<TRecord>(TKey id, out int version) where TRecord : Record<TKey>
+        {
+            using (var cn = GetConnection())
+            {
+                cn.Open();
+                var record = Find<TRecord>(cn, id);
+                version = GetRecordVersion<TRecord>(cn, id);
+                return FindInner(cn, record);
             }
         }
 
