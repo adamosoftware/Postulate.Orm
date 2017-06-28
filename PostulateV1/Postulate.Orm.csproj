@@ -96,6 +96,7 @@
     <Compile Include="Merge\LineRange.cs" />
     <Compile Include="Merge\RenameColumns.cs" />
     <Compile Include="Merge\RenameTables.cs" />
+    <Compile Include="Merge\SchemaMerge_CreateIfNotExists.cs" />
     <Compile Include="Merge\SyncTablesAndColumns.cs" />
     <Compile Include="Merge\Action\MergeAction.cs" />
     <Compile Include="Merge\DropTables.cs" />

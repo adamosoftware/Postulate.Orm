@@ -171,6 +171,13 @@ namespace Testing
 
             }
         }
+
+        [TestMethod]
+        public void CreateIfNotExists()
+        {
+            var sm = new SchemaMerge<Models.Tdg.CreateIfNotExistsDb>();
+            sm.CreateIfNotExists();
+        }
     }
 }
 

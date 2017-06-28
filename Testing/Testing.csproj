@@ -75,6 +75,7 @@
     <Compile Include="Models\TableA.cs" />
     <Compile Include="Models\TableB.cs" />
     <Compile Include="Models\TableC.cs" />
+    <Compile Include="Models\CreateIfNotExistsDb.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveMultiple.cs" />
     <Compile Include="SchemaMerge2Test.cs" />
