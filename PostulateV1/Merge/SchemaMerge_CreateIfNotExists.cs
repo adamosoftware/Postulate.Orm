@@ -14,7 +14,7 @@ namespace Postulate.Orm.Merge
 {
     public partial class SchemaMerge<TDb> : ISchemaMerge where TDb : IDb, new()
     {
-        public void CreateIfNotExists(Action<IDbConnection> seedAction = null)
+        public void CreateIfNotExists(Action<IDbConnection, TDb> seedAction = null)
         {
             var db = new TDb();
             bool created = false;
@@ -36,7 +36,7 @@ namespace Postulate.Orm.Merge
             {
                 cn.Open();
                 Execute(cn);
-                if (created) seedAction?.Invoke(cn);
+                if (created) seedAction?.Invoke(cn, db);
             }                
         }
 
