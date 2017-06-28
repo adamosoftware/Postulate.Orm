@@ -14,9 +14,10 @@ namespace Postulate.Orm.Merge
 {
     public partial class SchemaMerge<TDb> : ISchemaMerge where TDb : IDb, new()
     {
-        public void CreateIfNotExists()
+        public void CreateIfNotExists(Action<IDbConnection> seedAction = null)
         {
             var db = new TDb();
+            bool created = false;
 
             try
             {                
@@ -27,13 +28,15 @@ namespace Postulate.Orm.Merge
             }
             catch
             {
-                TryCreateDb(db.ConnectionName);                
+                TryCreateDb(db.ConnectionName);
+                created = true;
             }
 
             using (var cn = db.GetConnection())
             {
                 cn.Open();
                 Execute(cn);
+                if (created) seedAction?.Invoke(cn);
             }                
         }
 
