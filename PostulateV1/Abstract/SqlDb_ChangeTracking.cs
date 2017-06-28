@@ -30,9 +30,27 @@ namespace Postulate.Orm.Abstract
             }).Where(vc => vc.IsChanged());
         }
 
-        public abstract int GetRecordVersion<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>;
+        public abstract int GetRecordNextVersion<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>;
 
-        public abstract int GetRecordVersion<TRecord>(TKey id) where TRecord : Record<TKey>;
+        public abstract int GetRecordNextVersion<TRecord>(TKey id) where TRecord : Record<TKey>;
+
+        public void EnsureLatestVersion<TRecord>(IDbConnection connection, TKey id, int localVersion) where TRecord : Record<TKey>
+        {
+            int remoteVersion = GetRecordNextVersion<TRecord>(connection, id);
+            if (remoteVersion > localVersion)
+            {
+                throw new DBConcurrencyException($"The remote version of the {typeof(TRecord).Name} record {remoteVersion} is greater than the local version {localVersion}.");
+            }
+        }
+
+        public void EnsureLatestVersion<TRecord>(TKey id, int localVersion) where TRecord : Record<TKey>
+        {
+            using (var cn = GetConnection())
+            {
+                cn.Open();
+                EnsureLatestVersion<TRecord>(id, localVersion);
+            }
+        }
 
         protected virtual object OnGetChangesPropertyValue(PropertyInfo propertyInfo, object record, IDbConnection connection)
         {

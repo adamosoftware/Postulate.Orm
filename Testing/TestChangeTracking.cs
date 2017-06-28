@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Dapper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,18 +37,49 @@ namespace Testing
             var db = new PostulateDb();
             db.DeleteOneWhere<TableB>("[Description]='Whatever'", null);
 
-            string oldName = db.Find<Organization>(1).Name;
-            string newName = db.Find<Organization>(2).Name;
+            int[] orgIds = null;
+            using (var cn = db.GetConnection())
+            {
+                cn.Open();
+                orgIds = cn.Query<int>("SELECT [Id] FROM [Organization]").ToArray();
+            }
+                
+            string oldName = db.Find<Organization>(orgIds[0]).Name;
+            string newName = db.Find<Organization>(orgIds[1]).Name;
 
             TableB b = new TableB() { OrganizationId = 1, Description = "Whatever" };
             db.Save(b);
 
-            b.OrganizationId = 2;
+            b.OrganizationId = orgIds[1];
             db.Save(b);
 
             var history = db.QueryChangeHistory<TableB>(b.Id);
             var changes = history.First().Properties.ToDictionary(item => item.PropertyName);
             Assert.IsTrue(changes["OrganizationId"].OldValue.Equals(oldName) && changes["OrganizationId"].NewValue.Equals(newName));
+        }
+
+        [TestMethod]
+        public void GetRecordVersion()
+        {
+            var db = new PostulateDb();
+            db.DeleteOneWhere<TableB>("[Description]='Yadda Yadda'", null);
+
+            int[] orgIds;
+            using (var cn = db.GetConnection())
+            {
+                cn.Open();
+                orgIds = cn.Query<int>("SELECT [Id] FROM [Organization]").ToArray();
+            }
+                
+            var itemB = new TableB() { Description = "Yadda Yadda", OrganizationId = orgIds[0] };
+            db.Save(itemB);
+
+            itemB.OrganizationId = orgIds[1];
+            db.Save(itemB);
+
+            int version;
+            db.Find<TableB>(itemB.Id, out version);
+            Assert.IsTrue(version == 2);
         }
     }
 }

@@ -65,16 +65,16 @@ namespace Postulate.Orm
             return result;
         }
 
-        public override int GetRecordVersion<TRecord>(TKey id)
+        public override int GetRecordNextVersion<TRecord>(TKey id)
         {
             using (var cn = GetConnection())
             {
                 cn.Open();
-                return GetRecordVersion<TRecord>(cn, id);
+                return GetRecordNextVersion<TRecord>(cn, id);
             }
         }
 
-        public override int GetRecordVersion<TRecord>(IDbConnection connection, TKey id)
+        public override int GetRecordNextVersion<TRecord>(IDbConnection connection, TKey id)
         {
             try
             {
@@ -131,7 +131,7 @@ namespace Postulate.Orm
             int version = 0;
             while (version == 0)
             {
-                version = GetRecordVersion<TRecord>(connection, id);
+                version = GetRecordNextVersion<TRecord>(connection, id);
                 if (version == 0) connection.Execute($"INSERT INTO [{_changesSchema}].[{tableName}_Versions] ([RecordId]) VALUES (@id)", new { id = id });
             }
             connection.Execute($"UPDATE [{_changesSchema}].[{tableName}_Versions] SET [NextVersion]=[NextVersion]+1 WHERE [RecordId]=@id", new { id = id });
@@ -157,8 +157,7 @@ namespace Postulate.Orm
         {
             if (!connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = _deletedSchema }, transaction)) connection.Execute($"CREATE SCHEMA [{_deletedSchema}]", null, transaction);
 
-            DbObject obj = DbObject.FromType(typeof(TRecord));
-            string tableName = $"{obj.Schema}_{obj.Name}";
+            string tableName = ChangeTrackingTableName<TRecord>();
 
             if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _deletedSchema, name = tableName }, transaction))
             {
@@ -167,14 +166,15 @@ namespace Postulate.Orm
                     [UserName] nvarchar(256) NOT NULL,
                     [Data] xml NOT NULL,
 					[DateTime] datetime NOT NULL DEFAULT (getutcdate()),
-					CONSTRAINT [PK_{_changesSchema}_{obj.Name}] PRIMARY KEY ([RecordId])
+					CONSTRAINT [PK_{_changesSchema}_{tableName}] PRIMARY KEY ([RecordId])
 				)", null, transaction);
             }
 
             string recordXml = ToXml(record);
 
             connection.Execute(
-                $"INSERT INTO [{_deletedSchema}].[{tableName}] ([RecordId], [UserName], [Data]) VALUES (@id, @userName, @data)",
+                $@"DELETE [{_deletedSchema}].[{tableName}] WHERE [RecordId]=@id;
+                INSERT INTO [{_deletedSchema}].[{tableName}] ([RecordId], [UserName], [Data]) VALUES (@id, @userName, @data)",
                 new { id = record.Id, userName = UserName, data = recordXml }, transaction);
         }
 

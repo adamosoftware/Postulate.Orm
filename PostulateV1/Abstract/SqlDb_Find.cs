@@ -16,7 +16,7 @@ namespace Postulate.Orm.Abstract
         public TRecord Find<TRecord>(IDbConnection connection, TKey id, out int version) where TRecord : Record<TKey>
         {
             var record = Find<TRecord>(connection, id);
-            version = GetRecordVersion<TRecord>(connection, id);
+            version = GetRecordNextVersion<TRecord>(connection, id);
             return FindInner(connection, record);
         }
 
@@ -35,7 +35,7 @@ namespace Postulate.Orm.Abstract
             {
                 cn.Open();
                 var record = Find<TRecord>(cn, id);
-                version = GetRecordVersion<TRecord>(cn, id);
+                version = GetRecordNextVersion<TRecord>(cn, id);
                 return FindInner(cn, record);
             }
         }
