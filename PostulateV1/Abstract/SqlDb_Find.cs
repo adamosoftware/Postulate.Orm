@@ -46,18 +46,18 @@ namespace Postulate.Orm.Abstract
             return FindInner(connection, row);
         }
 
-        public TRecord FindUserProfile<TRecord>() where TRecord : Record<TKey>, IUserProfile
+        public TRecord FindUserProfile<TRecord>(string userName = null) where TRecord : Record<TKey>, IUserProfile
         {
             using (IDbConnection cn = GetConnection())
             {
                 cn.Open();
-                return FindUserProfile<TRecord>(cn);
+                return FindUserProfile<TRecord>(cn, userName);
             }
         }
 
-        public TRecord FindUserProfile<TRecord>(IDbConnection connection) where TRecord : Record<TKey>, IUserProfile
+        public TRecord FindUserProfile<TRecord>(IDbConnection connection, string userName = null) where TRecord : Record<TKey>, IUserProfile
         {
-            return ExecuteFindWhere<TRecord>(connection, "[UserName]=@name", new { name = UserName });
+            return ExecuteFindWhere<TRecord>(connection, "[UserName]=@name", new { name = userName ?? UserName });
         }
 
         public TRecord FindWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
