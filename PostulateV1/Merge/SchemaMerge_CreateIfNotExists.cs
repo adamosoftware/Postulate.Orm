@@ -16,8 +16,7 @@ namespace Postulate.Orm.Merge
     {
         public void CreateIfNotExists(Action<IDbConnection, TDb> seedAction = null)
         {
-            var db = new TDb();
-            bool created = false;
+            var db = new TDb();            
 
             try
             {                
@@ -28,15 +27,14 @@ namespace Postulate.Orm.Merge
             }
             catch
             {
-                TryCreateDb(db.ConnectionName);
-                created = true;
+                TryCreateDb(db.ConnectionName);                
             }
 
             using (var cn = db.GetConnection())
             {
                 cn.Open();
                 Execute(cn);
-                if (created) seedAction?.Invoke(cn, db);
+                seedAction?.Invoke(cn, db);
             }                
         }
 
