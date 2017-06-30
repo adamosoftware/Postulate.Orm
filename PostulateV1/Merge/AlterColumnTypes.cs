@@ -9,7 +9,7 @@ namespace Postulate.Orm.Merge
     {
         private IEnumerable<MergeAction> AlterColumnTypes(IDbConnection connection)
         {
-            var typeChanges = from mc in GetModelColumns(connection)
+            var typeChanges = from mc in GetModelColumns(connection).Where(item => !item.IsCalculated)
                               join sc in GetSchemaColumns(connection) on mc equals sc
                               where !mc.GetDataTypeSyntax().Equals(sc.GetDataTypeSyntax())
                               select new { ModelColumn = mc, SchemaColumn = sc, ModelType = mc.ModelType };

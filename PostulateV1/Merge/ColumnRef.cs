@@ -25,6 +25,7 @@ namespace Postulate.Orm.Merge
             DbObject = obj;
             IsNullable = pi.AllowSqlNull();
             ModelType = pi.ReflectedType;
+            IsCalculated = pi.HasAttribute<CalculatedAttribute>();
         }
 
         internal static string CompareSyntaxes(ColumnRef leftColumn, ColumnRef rightColumn)
@@ -61,6 +62,7 @@ namespace Postulate.Orm.Merge
         }
 
         public bool IsNullable { get; set; }
+        public bool IsCalculated { get; set; }
 
         public string Length
         {
