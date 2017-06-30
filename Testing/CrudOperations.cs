@@ -4,6 +4,7 @@ using Testing.Models;
 using System.Data;
 using Dapper;
 using System.Threading.Tasks;
+using Postulate.Orm.Merge;
 
 namespace Testing
 {
@@ -159,6 +160,13 @@ namespace Testing
         {
             var db = new PostulateDb();
             db.DeleteAllWhere<Organization>("[Name] LIKE @name + '%'", new { name = "Org Copy" });
+        }
+
+        [TestMethod]
+        public void SchemaAttribute()
+        {
+            string tableName = DbObject.SqlServerName(typeof(TableD));
+            Assert.IsTrue(tableName.Equals("[app].[TableD]"));
         }
     }
 }

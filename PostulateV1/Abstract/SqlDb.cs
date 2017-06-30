@@ -3,6 +3,8 @@ using Postulate.Orm.Attributes;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
+using Postulate.Orm.Merge;
+using Postulate.Orm.Merge.Action;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -110,18 +112,10 @@ namespace Postulate.Orm.Abstract
         protected virtual string GetTableName<TRecord>() where TRecord : Record<TKey>
         {
             Type modelType = typeof(TRecord);
-            string result = modelType.Name;
-
-            TableAttribute tblAttr;
-            if (modelType.HasAttribute(out tblAttr))
-            {
-                result = tblAttr.Name;
-                if (!string.IsNullOrEmpty(tblAttr.Schema))
-                {
-                    result = tblAttr.Schema + "." + tblAttr.Name;
-                }
-            }
-
+            string schema;
+            string tableName;
+            CreateTable.ParseNameAndSchema(modelType, out schema, out tableName);
+            string result = schema + "." + tableName;
             return ApplyDelimiter(result);
         }
 
