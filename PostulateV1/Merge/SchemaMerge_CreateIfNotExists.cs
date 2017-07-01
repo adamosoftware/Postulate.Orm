@@ -91,7 +91,7 @@ namespace Postulate.Orm.Merge
             return $"{Coalesce(nameParts, "Data Source", "Server")}.{Coalesce(nameParts, "Database", "Initial Catalog")}";
         }
 
-        private static Dictionary<string, string> ParseConnectionTokens(string connectionString)
+        public static Dictionary<string, string> ParseConnectionTokens(string connectionString)
         {
             return connectionString.Split(';')
                 .Where(s =>
