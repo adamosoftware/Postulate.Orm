@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Postulate.Orm.Extensions;
 
 namespace Postulate.Orm.Merge
 {
@@ -70,7 +71,7 @@ namespace Postulate.Orm.Merge
 
         private static IDbConnection TryGetMasterDb(string connectionName, out string dbName)
         {
-            var tokens = ParseConnectionTokens(ConfigurationManager.ConnectionStrings[connectionName].ConnectionString);
+            var tokens = ConfigurationManager.ConnectionStrings[connectionName].ConnectionString.ParseTokens();
             var dbTokens = new string[] { "Database", "Initial Catalog" };
             dbName = Coalesce(tokens, dbTokens);
             string connectionString = JoinReplace(tokens, dbTokens, "master");
@@ -86,24 +87,9 @@ namespace Postulate.Orm.Merge
 
         internal static string ParseConnectionInfo(IDbConnection connection)
         {
-            Dictionary<string, string> nameParts = ParseConnectionTokens(connection.ConnectionString);
+            Dictionary<string, string> nameParts = connection.ConnectionString.ParseTokens();
 
             return $"{Coalesce(nameParts, "Data Source", "Server")}.{Coalesce(nameParts, "Database", "Initial Catalog")}";
-        }
-
-        public static Dictionary<string, string> ParseConnectionTokens(string connectionString)
-        {
-            return connectionString.Split(';')
-                .Where(s =>
-                {
-                    string[] parts = s.Split('=');
-                    return (parts.Length == 2);
-                })
-                .Select(s =>
-                {
-                    string[] parts = s.Split('=');
-                    return new KeyValuePair<string, string>(parts[0].Trim(), parts[1].Trim());
-                }).ToDictionary(item => item.Key, item => item.Value);
         }
 
         private static string Coalesce(Dictionary<string, string> dictionary, params string[] keys)
