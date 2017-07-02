@@ -21,6 +21,6 @@ namespace Postulate.Orm.Extensions
                 { SaveAction.Update, Access.UpdateOnly }
             };
             return HasColumnAccess(provider, map[action]);
-        }
+        }        
     }
 }

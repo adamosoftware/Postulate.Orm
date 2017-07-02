@@ -25,22 +25,31 @@ namespace Postulate.Orm.Merge
             var newTables = NewTables(connection);
             results.AddRange(newTables);
 
-            var newColumns = NewColumns(connection, newTables.OfType<CreateTable>());
-            var rebuiltTables = AddColumnsWithEmptyTableRebuild(connection, newColumns);
+            var newColumns = NewColumns(connection, newTables.OfType<CreateTable>()).ToList();
+            var rebuiltTables = AddColumnsWithEmptyTableRebuild(connection, newColumns).ToList();
             results.AddRange(rebuiltTables);
             results.AddRange(AddColumnsWithTableAlter(connection, newColumns));
 
-            var deletedTables = DeletedTables(connection);
+            var deletedTables = DeletedTables(connection).ToList();
             results.AddRange(deletedTables.Select(obj => new DropTable(obj)));
 
-            var deletedColumns = DeletedColumns(connection, deletedTables, rebuiltTables);
+            var deletedColumns = DeletedColumns(connection, deletedTables, rebuiltTables).ToList();
             results.AddRange(deletedColumns.Select(cr => new DropColumn(cr, cr.FindModelType(_modelTypes))));
 
             var newFK = _modelTypes.SelectMany(t =>
-                t.GetModelForeignKeys().Where(pi =>
-                    (!connection.ForeignKeyExists(pi) && connection.TableExists(t) && connection.ReferencedTableExists(pi)) ||                    
-                    newTables.OfType<CreateTable>().Any(ct => ct.ModelType.Equals(pi.GetForeignKeyType())) ||
-                    rebuiltTables.OfType<CreateTable>().Any(ct => ct.ModelType.Equals(pi.GetForeignKeyType()))));
+                t.GetModelForeignKeys().Where(fk =>
+                {
+                    if (!connection.ForeignKeyExists(fk))
+                    {
+                        if (connection.ReferencedTableExists(fk))
+                        {
+                            if (connection.TableExists(t)) return true;
+                            if (newTables.Any(ct => ct.ContainsProperty(fk))) return true;
+                            if (rebuiltTables.Any(ct => ct.ContainsProperty(fk))) return true;
+                        }                        
+                    }
+                    return false;
+                }));
             results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
 
             var deletedFK = DeletedForeignKeys(connection, deletedTables, deletedColumns);
@@ -167,7 +176,7 @@ namespace Postulate.Orm.Merge
                         !pi.HasAttribute<NotMappedAttribute>()));
         }
 
-        private IEnumerable<MergeAction> NewTables(IDbConnection connection)
+        private IEnumerable<CreateTable> NewTables(IDbConnection connection)
         {
             var schemaTables = GetSchemaTables(connection);
             var addTables = _modelTypes.Where(t => !t.HasAttribute<RenameFromAttribute>() && !schemaTables.Any(st => st.Equals(t)));

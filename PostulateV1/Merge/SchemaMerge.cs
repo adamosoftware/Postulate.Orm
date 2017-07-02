@@ -54,7 +54,7 @@ namespace Postulate.Orm.Merge
                     !t.HasAttribute<NotMappedAttribute>() &&
                     !t.IsAbstract &&
                     !t.IsInterface &&
-                    t.IsDerivedFromGeneric(typeof(Record<>)));
+                    t.IsDerivedFromGeneric(typeof(Record<>))).ToList();
         }
 
         public IDbConnection GetConnection()

@@ -68,6 +68,15 @@ namespace Postulate.Orm.Merge.Action
             }
         }
 
+        internal bool ContainsProperty(PropertyInfo property)
+        {
+            if (property.ReflectedType.Equals(_modelType))
+            {
+                return _modelType.GetProperties().Any(pi => pi.Name.Equals(property.Name));
+            }
+            return false;
+        }
+
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
             foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
