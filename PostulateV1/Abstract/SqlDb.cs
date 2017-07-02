@@ -127,7 +127,7 @@ namespace Postulate.Orm.Abstract
         protected virtual string GetFindStatementBase<TRecord>() where TRecord : Record<TKey>
         {
             return
-                $@"SELECT {ApplyDelimiter(IdentityColumnName)},
+                $@"SELECT {ApplyDelimiter(typeof(TRecord).IdentityColumnName())},
                     {string.Join(", ", GetColumnNames<TRecord>().Select(name => ApplyDelimiter(name)))}
                 FROM
                     {GetTableName<TRecord>()}";
