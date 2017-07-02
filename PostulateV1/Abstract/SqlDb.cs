@@ -165,6 +165,7 @@ namespace Postulate.Orm.Abstract
         {
             return typeof(TRecord).GetProperties().Where(pi =>
                 !pi.Name.Equals(IdentityColumnName) &&
+                !pi.Name.Equals(typeof(TRecord).IdentityColumnName()) &&
                 !pi.HasAttribute<CalculatedAttribute>() &&
                 !pi.HasAttribute<NotMappedAttribute>() &&
                 (!pi.HasAttribute<ColumnAccessAttribute>() || (predicate?.Invoke(pi) ?? true)));
