@@ -22,6 +22,7 @@ namespace Postulate.Orm.Extensions
             if (propertyInfo.HasAttribute(out calc))
             {
                 result = $"[{propertyInfo.SqlColumnName()}] AS {calc.Expression}";
+                if (calc.IsPersistent) result += " PERSISTED";
             }
             else
             {
