@@ -126,6 +126,7 @@
     <Compile Include="Merge\SchemaMerge.cs" />
     <Compile Include="PropertyChange.cs" />
     <Compile Include="Attributes\RenameFromAttribute.cs" />
+    <Compile Include="Abstract\SqlDb_FindOrCreate.cs" />
     <Compile Include="SqlServerDb.cs" />
     <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
