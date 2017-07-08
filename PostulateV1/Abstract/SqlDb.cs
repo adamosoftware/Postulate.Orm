@@ -168,7 +168,7 @@ namespace Postulate.Orm.Abstract
                 !pi.Name.Equals(typeof(TRecord).IdentityColumnName()) &&
                 !pi.HasAttribute<CalculatedAttribute>() &&
                 !pi.HasAttribute<NotMappedAttribute>() &&
-                CreateTable.SupportedTypes().ContainsKey(pi.PropertyType) &&
+                pi.IsSupportedType() &&
                 (!pi.HasAttribute<ColumnAccessAttribute>() || (predicate?.Invoke(pi) ?? true)));
         }
 

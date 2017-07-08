@@ -276,14 +276,6 @@ namespace Postulate.Orm.Merge
             return connection.QuerySingle<int?>($"SELECT MAX([Version]) FROM [{SetPatchVersion.MetaSchema}].[{SetPatchVersion.TableName}]", null) ?? 0;
         }
 
-        public static bool IsSupportedType(Type type)
-        {
-            return
-                CreateTable.SupportedTypes().ContainsKey(type) ||
-                (type.IsEnum && type.GetEnumUnderlyingType().Equals(typeof(int))) ||
-                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
-        }
-
         private IEnumerable<ColumnRef> GetSchemaColumns(IDbConnection connection)
         {
             return connection.Query<ColumnRef>(
@@ -302,7 +294,7 @@ namespace Postulate.Orm.Merge
         private IEnumerable<ColumnRef> GetModelColumns(IDbConnection collationLookupConnection = null)
         {
             var results = _modelTypes.SelectMany(t => t.GetProperties()
-                .Where(pi => !pi.HasAttribute<NotMappedAttribute>() && IsSupportedType(pi.PropertyType))
+                .Where(pi => !pi.HasAttribute<NotMappedAttribute>() && pi.IsSupportedType())
                 .Select(pi => new ColumnRef(pi) { ModelType = t }));
 
             if (collationLookupConnection != null)

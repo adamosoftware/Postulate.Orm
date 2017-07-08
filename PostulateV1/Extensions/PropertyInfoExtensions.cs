@@ -21,6 +21,11 @@ namespace Postulate.Orm.Extensions
                 { SaveAction.Update, Access.UpdateOnly }
             };
             return HasColumnAccess(provider, map[action]);
-        }        
+        }
+
+        public static bool IsSupportedType(this PropertyInfo propertyInfo)
+        {
+            return TypeExtensions.IsSupportedType(propertyInfo.PropertyType);
+        }
     }
 }

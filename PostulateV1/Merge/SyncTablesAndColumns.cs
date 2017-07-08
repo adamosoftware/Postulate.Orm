@@ -170,7 +170,7 @@ namespace Postulate.Orm.Merge
                         !schemaColumns.Any(cr => cr.Equals(pi)) &&
                         !connection.ColumnExists(t.GetSchema(), t.GetTableName(), pi.SqlColumnName()) &&
                         pi.CanWrite &&
-                        IsSupportedType(pi.PropertyType) &&
+                        pi.IsSupportedType() &&
                         !pi.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
                         !pi.HasAttribute<RenameFromAttribute>() &&
                         !pi.HasAttribute<NotMappedAttribute>()));

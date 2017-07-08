@@ -76,5 +76,13 @@ namespace Postulate.Orm.Extensions
                 type.HasAttribute<ClusterAttribute>(attr => attr.Option == ClusterOption.PrimaryKey) ||
                 !type.HasAttribute<ClusterAttribute>();
         }
+
+        public static bool IsSupportedType(this Type type)
+        {
+            return
+                CreateTable.SupportedTypes().ContainsKey(type) ||
+                (type.IsEnum && type.GetEnumUnderlyingType().Equals(typeof(int))) ||
+                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
+        }
     }
 }
