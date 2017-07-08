@@ -95,9 +95,9 @@ namespace Postulate.Orm.Abstract
         }
 
         /// <summary>
-        /// Override this to set any properties of a record before it's viewed via the Find or FindWhere methods
+        /// Override this to set any properties of a record, and execute foreign key lookups before it's viewed via the Find or FindWhere methods
         /// </summary>        
-        public virtual void BeforeView(IDbConnection connection)
+        public virtual void BeforeView(IDbConnection connection, SqlDb<TKey> db)
         {
             // do nothing by default
         }

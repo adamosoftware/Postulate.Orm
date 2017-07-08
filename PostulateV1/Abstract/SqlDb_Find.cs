@@ -92,7 +92,7 @@ namespace Postulate.Orm.Abstract
             string message;
             if (row.AllowView(connection, UserName, out message))
             {
-                row.BeforeView(connection);
+                row.BeforeView(connection, this);
                 return row;
             }
             else

@@ -302,7 +302,7 @@ namespace Postulate.Orm.Merge
         private IEnumerable<ColumnRef> GetModelColumns(IDbConnection collationLookupConnection = null)
         {
             var results = _modelTypes.SelectMany(t => t.GetProperties()
-                .Where(pi => !pi.HasAttribute<NotMappedAttribute>())
+                .Where(pi => !pi.HasAttribute<NotMappedAttribute>() && IsSupportedType(pi.PropertyType))
                 .Select(pi => new ColumnRef(pi) { ModelType = t }));
 
             if (collationLookupConnection != null)
