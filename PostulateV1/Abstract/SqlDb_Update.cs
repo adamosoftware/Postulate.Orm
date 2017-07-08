@@ -49,7 +49,8 @@ namespace Postulate.Orm.Abstract
                 return $"[{pi.SqlColumnName()}]=@{propName}";
             }).Concat(
                 modelType.GetProperties().Where(pi =>
-                    pi.HasAttribute<ColumnAccessAttribute>(a => a.Access == Access.UpdateOnly))
+                    pi.HasAttribute<ColumnAccessAttribute>(a => a.Access == Access.UpdateOnly) &&
+                    pi.IsSupportedType())
                         .Select(pi =>
                         {
                             if (columnNames.Contains(pi.SqlColumnName())) throw new InvalidOperationException($"Can't set column {pi.SqlColumnName()} with the Update method because it has a ColumnAccess(UpdateOnly) attribute.");
