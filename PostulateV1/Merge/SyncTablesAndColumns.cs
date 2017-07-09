@@ -36,9 +36,10 @@ namespace Postulate.Orm.Merge
             var deletedColumns = DeletedColumns(connection, deletedTables, rebuiltTables).ToList();
             results.AddRange(deletedColumns.Select(cr => new DropColumn(cr, cr.FindModelType(_modelTypes))));
 
+            var allTables = newTables.Concat(rebuiltTables);
             var newFK = _modelTypes.SelectMany(t =>
                 t.GetModelForeignKeys().Where(fk =>
-                {
+                {                   
                     if (!connection.ForeignKeyExists(fk))
                     {
                         if (connection.ReferencedTableExists(fk))
@@ -46,8 +47,13 @@ namespace Postulate.Orm.Merge
                             if (connection.TableExists(t)) return true;
                             if (newTables.Any(ct => ct.ContainsProperty(fk))) return true;
                             if (rebuiltTables.Any(ct => ct.ContainsProperty(fk))) return true;
-                        }                        
+                        }
                     }
+                    else
+                    {
+                        if (rebuiltTables.Any(ct => ct.ContainsProperty(fk))) return true;
+                    }
+                    
                     return false;
                 }));
             results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
