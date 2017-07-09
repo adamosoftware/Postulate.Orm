@@ -1,4 +1,6 @@
-﻿namespace Postulate.Orm.Merge
+﻿using System.Reflection;
+
+namespace Postulate.Orm.Merge
 {
     public class ForeignKeyRef
     {
@@ -6,6 +8,7 @@
         public ColumnRef Parent { get; set; }
         public ColumnRef Child { get; set; }
         public DbObject ChildObject { get; set; }
+        public PropertyInfo PropertyInfo { get; set; }
     }
 
     internal class ForeignKeyInfo

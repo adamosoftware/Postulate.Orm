@@ -69,7 +69,7 @@ namespace Postulate.Orm.Merge
                 ForeignKeyAttribute fk = pi.GetForeignKeyAttribute();
                 return (fk.PrimaryTableType.Equals(modelType));
             }).Select(pi =>
-                new ForeignKeyRef() { ConstraintName = pi.ForeignKeyName(), ChildObject = DbObject.FromType(pi.DeclaringType) }
+                new ForeignKeyRef() { ConstraintName = pi.ForeignKeyName(), ChildObject = DbObject.FromType(pi.DeclaringType), PropertyInfo = pi }
             ));
         }
 

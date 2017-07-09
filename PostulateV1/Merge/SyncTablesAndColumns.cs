@@ -26,7 +26,9 @@ namespace Postulate.Orm.Merge
             results.AddRange(newTables);
 
             var newColumns = NewColumns(connection, newTables.OfType<CreateTable>()).ToList();
-            var rebuiltTables = AddColumnsWithEmptyTableRebuild(connection, newColumns).ToList();
+
+            List<PropertyInfo> droppedFKs;
+            var rebuiltTables = AddColumnsWithEmptyTableRebuild(connection, newColumns, out droppedFKs);
             results.AddRange(rebuiltTables);
             results.AddRange(AddColumnsWithTableAlter(connection, newColumns));
 
@@ -35,8 +37,7 @@ namespace Postulate.Orm.Merge
 
             var deletedColumns = DeletedColumns(connection, deletedTables, rebuiltTables).ToList();
             results.AddRange(deletedColumns.Select(cr => new DropColumn(cr, cr.FindModelType(_modelTypes))));
-
-            var allTables = newTables.Concat(rebuiltTables);
+            
             var newFK = _modelTypes.SelectMany(t =>
                 t.GetModelForeignKeys().Where(fk =>
                 {                   
@@ -50,13 +51,14 @@ namespace Postulate.Orm.Merge
                         }
                     }
                     else
-                    {
-                        if (rebuiltTables.Any(ct => ct.ContainsProperty(fk))) return true;
+                    {                        
+                        if (connection.ReferencedTableExists(fk) && rebuiltTables.Any(ct => ct.ModelType.Equals(t))) return true;
                     }
                     
                     return false;
                 }));
             results.AddRange(newFK.Select(pi => new CreateForeignKey(pi)));
+            results.AddRange(droppedFKs.Select(pi => new CreateForeignKey(pi)));
 
             var deletedFK = DeletedForeignKeys(connection, deletedTables, deletedColumns);
             results.AddRange(deletedFK.Select(fk => new DropForeignKey(fk)));
@@ -152,18 +154,22 @@ namespace Postulate.Orm.Merge
             }
         }
 
-        private IEnumerable<CreateTable> AddColumnsWithEmptyTableRebuild(IDbConnection connection, IEnumerable<PropertyInfo> newColumns)
+        private IEnumerable<CreateTable> AddColumnsWithEmptyTableRebuild(IDbConnection connection, IEnumerable<PropertyInfo> newColumns, out List<PropertyInfo> droppedFKs)
         {
             // empty tables may be dropped and rebuilt with new columns
             var rebuildTables = newColumns
                 .GroupBy(pi => pi.GetDbObject(connection))
                 .Where(obj => connection.TableExists(obj.Key.Schema, obj.Key.Name) && connection.IsTableEmpty(obj.Key.Schema, obj.Key.Name));
 
+            droppedFKs = new List<PropertyInfo>();
+            List<CreateTable> results = new List<CreateTable>();            
             foreach (var tbl in rebuildTables)
             {
                 var addedColumns = tbl.Select(pi => pi.SqlColumnName());
-                yield return new CreateTable(tbl.Key.ModelType, true, addedColumns);
+                droppedFKs.AddRange(tbl.Key.ModelType.GetModelReferencingForeignKeys(_modelTypes).Select(fk => fk.PropertyInfo));
+                results.Add(new CreateTable(tbl.Key.ModelType, true, addedColumns));                
             }
+            return results;
         }
 
         private IEnumerable<PropertyInfo> NewColumns(IDbConnection connection, IEnumerable<CreateTable> newTables)

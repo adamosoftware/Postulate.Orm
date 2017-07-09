@@ -17,7 +17,7 @@ namespace Postulate.Orm.Merge.Action
         private readonly Type _modelType;
         private readonly string _schema;
         private readonly string _name;
-        private readonly bool _dropFirst;
+        private readonly bool _dropFirst;        
         private readonly IEnumerable<string> _addedColumns;
 
         public CreateTable(Type modelType, bool dropFirst = false, IEnumerable<string> addedColumns = null) : base(MergeObjectType.Table, MergeActionType.Create, $"Create table {TableName(modelType)}", nameof(CreateTable))
@@ -26,7 +26,7 @@ namespace Postulate.Orm.Merge.Action
 
             _modelType = modelType;
             ParseNameAndSchema(modelType, out _schema, out _name);
-            _dropFirst = dropFirst;
+            _dropFirst = dropFirst;            
             _addedColumns = addedColumns;
         }
 
@@ -83,7 +83,7 @@ namespace Postulate.Orm.Merge.Action
 
             if (_dropFirst)
             {
-                DropTable drop = new DropTable(new DbObject(_schema, _name, connection));
+                var drop = new DropTable(new DbObject(_schema, _name, connection));
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
 
