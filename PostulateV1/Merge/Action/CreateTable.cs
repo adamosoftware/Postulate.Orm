@@ -189,6 +189,7 @@ namespace Postulate.Orm.Merge.Action
                 .Where(p =>
                     p.CanWrite &&
                     !p.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
+                    p.IsSupportedType() &&
                     !p.HasAttribute<NotMappedAttribute>());
         }
 
