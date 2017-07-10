@@ -114,7 +114,7 @@ namespace Postulate.Orm.Abstract
         /// <summary>
         /// Override this to perform actions after a record is saved
         /// </summary>
-        public virtual void AfterSave(IDbConnection connection, SaveAction action)
+        public virtual void AfterSave(IDbConnection connection, SqlDb<TKey> db, SaveAction action)
         {
             // do nothing by default
         }

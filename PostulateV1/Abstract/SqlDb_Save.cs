@@ -66,7 +66,7 @@ namespace Postulate.Orm.Abstract
 
                     saveAction.Invoke(record, transaction);
 
-                    record.AfterSave(connection, action);
+                    record.AfterSave(connection, this, action);
                 }
                 else
                 {
@@ -147,7 +147,7 @@ namespace Postulate.Orm.Abstract
                         await ExecuteUpdateAsync(connection, record, transaction);
                     }
 
-                    record.AfterSave(connection, action);
+                    record.AfterSave(connection, this, action);
                 }
                 else
                 {
