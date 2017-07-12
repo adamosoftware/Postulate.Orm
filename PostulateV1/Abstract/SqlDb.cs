@@ -128,9 +128,16 @@ namespace Postulate.Orm.Abstract
         {
             return
                 $@"SELECT {ApplyDelimiter(typeof(TRecord).IdentityColumnName())},
-                    {string.Join(", ", GetColumnNames<TRecord>().Select(name => ApplyDelimiter(name)))}
+                    {string.Join(", ", GetColumnNames<TRecord>().Select(name => ApplyDelimiter(name)).Concat(GetCalculatedColumnNames<TRecord>()))}
                 FROM
                     {GetTableName<TRecord>()}";
+        }
+
+        private IEnumerable<string> GetCalculatedColumnNames<TRecord>() where TRecord : Record<TKey>
+        {
+            return typeof(TRecord).GetProperties().Where(pi =>
+                pi.HasAttribute<CalculatedAttribute>() &&
+                pi.IsSupportedType()).Select(pi => ApplyDelimiter(pi.SqlColumnName()));
         }
 
         protected virtual string GetInsertStatement<TRecord>() where TRecord : Record<TKey>
