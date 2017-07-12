@@ -8,6 +8,7 @@ using System.Data;
 namespace Testing.Models
 {
     [ForeignKey("OrganizationId", typeof(Organization))]
+    [ColumnAccess("OrganizationId", Access.InsertOnly)]
     public abstract class BaseTable : Record<int>
     {
         [ColumnAccess(Access.InsertOnly)]

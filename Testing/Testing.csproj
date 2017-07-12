@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blobak.cs" />
+    <Compile Include="CommandBuilding.cs" />
     <Compile Include="Models\AppTable.cs" />
     <Compile Include="Models\BaseTable.cs" />
     <Compile Include="Models\Item.cs" />

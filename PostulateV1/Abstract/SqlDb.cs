@@ -176,7 +176,7 @@ namespace Postulate.Orm.Abstract
                 !pi.HasAttribute<CalculatedAttribute>() &&
                 !pi.HasAttribute<NotMappedAttribute>() &&
                 pi.IsSupportedType() &&
-                (!pi.HasAttribute<ColumnAccessAttribute>() || (predicate?.Invoke(pi) ?? true)));
+                (predicate?.Invoke(pi) ?? true));
         }
 
         protected IEnumerable<string> GetColumnNames<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
