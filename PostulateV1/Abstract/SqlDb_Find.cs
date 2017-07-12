@@ -2,6 +2,8 @@
 using System.Data;
 using Dapper;
 using Postulate.Orm.Exceptions;
+using System;
+using static Dapper.SqlMapper;
 
 namespace Postulate.Orm.Abstract
 {
@@ -90,7 +92,7 @@ namespace Postulate.Orm.Abstract
             if (row == null) return null;
 
             string message;
-            if (row.AllowView(connection, UserName, out message))
+            if (row.AllowView(connection, this, UserName, out message))
             {
                 row.BeforeView(connection, this);
                 return row;
