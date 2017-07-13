@@ -68,6 +68,13 @@ namespace Postulate.Orm.Merge.Action
             }
         }
 
+        public bool IsReferencedBy(PropertyInfo propertyInfo)
+        {
+            Attributes.ForeignKeyAttribute fk = propertyInfo.GetAttribute<Attributes.ForeignKeyAttribute>();
+            if (fk != null) return fk.PrimaryTableType.Equals(_modelType);
+            return false;
+        }
+
         internal bool ContainsProperty(PropertyInfo property)
         {
             if (property.ReflectedType.Equals(_modelType))

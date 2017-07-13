@@ -1,8 +1,10 @@
 ﻿using Postulate.Orm.Attributes;
 using Postulate.Orm.Enums;
+using Postulate.Orm.Merge.Action;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Postulate.Orm.Extensions
@@ -38,6 +40,11 @@ namespace Postulate.Orm.Extensions
         public static bool IsSupportedType(this PropertyInfo propertyInfo)
         {
             return TypeExtensions.IsSupportedType(propertyInfo.PropertyType);
+        }
+
+        public static bool IsFKEnclosedBy(this PropertyInfo propertyInfo, IEnumerable<CreateTable> createTables)
+        {
+            return (createTables.Any(ct => ct.ContainsProperty(propertyInfo)) && createTables.Any(ct => ct.IsReferencedBy(propertyInfo)));
         }
     }
 }
