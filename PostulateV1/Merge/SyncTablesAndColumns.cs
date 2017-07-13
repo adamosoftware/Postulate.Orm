@@ -43,7 +43,7 @@ namespace Postulate.Orm.Merge
                 {                   
                     if (!connection.ForeignKeyExists(fk))
                     {
-                        if (connection.ReferencedTableExists(fk) && connection.TableExists(t)) return true;
+                        if (connection.ReferencedTableExists(fk)) return true;
                         if (fk.IsFKEnclosedBy(newTables.Concat(rebuiltTables))) return true;
                     }
                     else
