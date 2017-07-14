@@ -1,4 +1,5 @@
-﻿using Postulate.Orm.Extensions;
+﻿using Dapper;
+using Postulate.Orm.Extensions;
 using System.Collections.Generic;
 using System.Data;
 
@@ -13,7 +14,7 @@ namespace Postulate.Orm.Abstract
         {
             foreach (var record in Records)
             {
-                var existingRecord = db.FindWhere<TRecord>(ExistsCriteria, record);
+                var existingRecord = connection.QuerySingleOrDefault<TRecord>($"SELECT * FROM {ExistsCriteria}", record);
                 // this will cause the existing seed record to be updated instead of inserted
                 if (existingRecord != null) record.Id = existingRecord.Id;                
                 db.Save(record);
