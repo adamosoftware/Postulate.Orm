@@ -13,7 +13,10 @@ namespace Postulate.Orm.Abstract
         {
             foreach (var record in Records)
             {
-                if (!connection.Exists(ExistsCriteria, record)) db.Save(record);
+                var existingRecord = db.FindWhere<TRecord>(ExistsCriteria, record);
+                // this will cause the existing seed record to be updated instead of inserted
+                if (existingRecord != null) record.Id = existingRecord.Id;                
+                db.Save(record);
             }
         }
 
