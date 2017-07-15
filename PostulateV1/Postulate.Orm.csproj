@@ -78,6 +78,7 @@
     <Compile Include="Merge\Action\AlterPrimaryKey.cs" />
     <Compile Include="Merge\Action\CreateForeignKey.cs" />
     <Compile Include="Merge\Action\CreatePrimaryKey.cs" />
+    <Compile Include="Merge\Action\CreateSchema.cs" />
     <Compile Include="Merge\Action\DropColumn.cs" />
     <Compile Include="Merge\Action\DropForeignKey.cs" />
     <Compile Include="Merge\Action\DropPrimaryKey.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Merge\AlterPrimaryKeys.cs" />
     <Compile Include="Merge\ColumnRef.cs" />
     <Compile Include="Merge\Action\CreateTable.cs" />
+    <Compile Include="Merge\CreateSchemas.cs" />
     <Compile Include="Merge\DbObject.cs" />
     <Compile Include="Merge\LineRange.cs" />
     <Compile Include="Merge\RenameColumns.cs" />

@@ -88,11 +88,6 @@ namespace Postulate.Orm.Merge.Action
         {
             foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
 
-            if (!connection.SchemaExists(_schema))
-            {
-                yield return $"CREATE SCHEMA [{_schema}]";
-            }
-
             if (_dropFirst)
             {
                 var drop = new DropTable(new DbObject(_schema, _name, connection));
