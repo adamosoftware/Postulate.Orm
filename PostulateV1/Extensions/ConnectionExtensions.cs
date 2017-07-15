@@ -16,6 +16,11 @@ namespace Postulate.Orm.Extensions
             return ((connection.QueryFirstOrDefault<int?>($"SELECT 1 FROM {fromWhere}", parameters, transaction) ?? 0) == 1);
         }
 
+        public static bool SchemaExists(this IDbConnection connection, string name)
+        {
+            return connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = name });
+        }
+
         public static bool ForeignKeyExists(this IDbConnection connection, string name)
         {
             return connection.Exists("[sys].[foreign_keys] WHERE [name]=@name", new { name = name });
