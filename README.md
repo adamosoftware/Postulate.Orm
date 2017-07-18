@@ -6,7 +6,7 @@ For a video demo, please see this at [Vimeo.com](https://vimeo.com/219400011). A
 
 To get started:
 
-1. Create a solution with two projects. One will be for model classes only, the other is your main application, which can be any type.
+1. Create a solution with two projects. One will be for model classes only, the other is your main application, which can be any type. (Creating a separate project for model classes  is a good design choice to begin with, but it also simply works better for Postulate because the Schema Merge app avoids some reflection errors if the models are in their own project.)
 
 2. Install nuget package **Postulate.Orm** in both projects in your solution.
 
