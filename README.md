@@ -39,11 +39,11 @@ To get started:
     ```
 7. Create one or more model classes that share the same namespace as your `MyDb` class. In the example above, the namespace is `Models`, so all of your model classes that you create subsequently need to be in that namespace. See [this topic](https://github.com/adamosoftware/Postulate.Orm/wiki/Designing-Model-Classes) on creating model classes for Postulate.
 
-Whenever you build or rebuild your models project, the Schema Merge app will run, and you should see a window like this. Click the **Execute** button in the upper right to apply changes in your model classes to your database. Postulate can detect a range of changes, and generate correct SQL to implement them. Postulate will never drop tables that contain data.
+Whenever you build or rebuild your models project, the Schema Merge app will run, and you should see a window like this. Click the **Execute** button in the upper right to apply changes in your model classes to your database. Postulate can detect a range of changes, and generate correct SQL to implement them. Postulate will never drop tables that contain data. (To learn about the schema merge implementation, see [SchemaMerge.Compare method](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Merge/SchemaMerge.cs#L83).
 
 ![img](https://adamosoftware.blob.core.windows.net:443/images/schema_merge_app.png)
 
-## Examples
+## CRUD operations
 
 The following examples assume a `SqlServerDb<int>` variable called `MyDb` and this model class:
 
@@ -77,8 +77,8 @@ Create and save a new Customer. "Save" here means an insert or update is perform
 Find a Customer based on a WHERE clause:
 
     var customer = new MyDb().FindWhere<Customer>(
-      "[LastName]=@lastName AND [FirstName]=@firstName", 
-      new { lastName = "O'Neil", firstName = "Adam" });
+        "[LastName]=@lastName AND [FirstName]=@firstName", 
+        new { lastName = "O'Neil", firstName = "Adam" });
       
 Update select properties of a Customer without updating the whole record:
 
