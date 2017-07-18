@@ -1,6 +1,6 @@
 # Postulate ORM
 
-Postulate is a lightweight code-first ORM for SQL Server made with Dapper. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) tracking, and uniquely -- a very convenient way to synchronize your model classes to your database using an .exe run in your build event.
+Postulate is a lightweight code-first ORM for SQL Server made with Dapper. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, and uniquely -- a very convenient way to synchronize your model classes to your database using an .exe run in your build event.
 
 For a video demo, please see this at [Vimeo.com](https://vimeo.com/219400011). Also see the [CodeProject.com article here](https://www.codeproject.com/Articles/1191399/Intro-to-Postulate-ORM).
 
