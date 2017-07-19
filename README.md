@@ -1,22 +1,53 @@
 # Postulate ORM
 
-Nuget package **Postulate.Orm**
+Postulate is a lightweight code-first ORM for SQL Server made with Dapper. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, and uniquely -- a very convenient way to synchronize your model classes to your database using an .exe run in your build event.
 
-CodeProject.com walkthrough: [Intro-to-Postulate-ORM](https://www.codeproject.com/Articles/1191399/Intro-to-Postulate-ORM)
+I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the schema merge feature works only for SQL Server.
 
-Postulate is a lightweight code-first ORM for SQL Server made with Dapper that uses inline SQL. You can target any data source that supports `IDbConnection`, but the default implementation is for SQL Server, and the Schema Merge feature works only with SQL Server. This repo is an overhaul of the [prior version](https://github.com/adamosoftware/Postulate08) with a number of breaking changes -- the new syntax is simpler, and model classes no longer require a RowManager. The Query class has been moved to [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql).
+Regarding Linq and inline SQL, I respect the genius that is Linq, but I'm still more comfortable with inline SQL so long as it's isolated to some degree from the application. I have another project [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql) that deals specifically with queries, and another project [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) that builds upon this. The ORM project here is really about CRUD only.
 
-This is Postulate in a nutshell:
+For a video demo, please see this at [Vimeo.com](https://vimeo.com/219400011). Also see the [CodeProject.com article here](https://www.codeproject.com/Articles/1191399/Intro-to-Postulate-ORM).
 
-- [SqlServerDb&lt;TKey&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/SqlServerDb.cs) is the "root object" you inherit from that represents access to a SQL Server database as a whole. It offers CRUD methods such as [Find](/PostulateV1/Abstract/SqlDb_Find.cs), [Save](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb_Save.cs#L16), [various delete methods](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb_Delete.cs), and [Copy](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/SqlDb_Copy.cs#L14). Supported key types are `int`, `long`, and `Guid`.
+To get started:
 
-- The only requirement for model classes is that they must inherit from [Record&lt;TKey&gt;](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Abstract/Record.cs). The `Record<TKey>` class has many overrides for checking permissions, handling events, and performing validation. A variety of attributes let you define foreign keys, primary keys, as well as fine-tune behaviors in multi-tenant systems such as limiting update capability on partition fields. See [Designing Model Classes](https://github.com/adamosoftware/Postulate.Orm/wiki/Designing-Model-Classes) for more information.
+1. Create a solution with two projects. One will be for model classes only, the other is your main application, which can be any type. (Creating a separate project for model classes  is a good design choice to begin with, but it also simply works better for Postulate because the Schema Merge app avoids some reflection errors if the models are in their own project.)
 
-- Use the [SchemaMerge](https://github.com/adamosoftware/PostulateORM/blob/master/PostulateV1/Merge/SchemaMerge.cs) class to migrate models to your database. It offers methods for comparing and synchronizing models and the physical database, and works only with SQL Server. See [Schema Merging](https://github.com/adamosoftware/Postulate.Orm/wiki/Schema-Merge) for more information. Download the Schema Merge app [here](https://github.com/adamosoftware/Postulate.Orm/releases). The WinForms app repo is here: [Postulate.MergeUI](https://github.com/adamosoftware/Postulate.MergeUI). Please see this [video demo](https://vimeo.com/219400011) of using the Schema Merge app.
+2. Install nuget package **Postulate.Orm** in both projects in your solution.
 
-- Most methods have at least two overloads -- one that accepts an `IDbConnection` already open, and one that opens and closes a connection within the scope of the method.
+3. Install the Schema Merge app from the [MergeUI releases](https://github.com/adamosoftware/Postulate.MergeUI/releases) page. This will create a desktop icon that looks like this:
 
-## Examples
+    ![img](https://adamosoftware.blob.core.windows.net/images/schema_merge_icon.png)
+
+4. In the post build event of your **models** project, enter this command line:
+
+`"C:\Users\Adam\AppData\Local\Adam O'Neil Software\Postulate Schema Merge\PostulateMergeUI.exe" "$(TargetPath)"`
+
+5. In your models project, add a config file with a `ConnectionString` element with a valid SQL Server connection. The database does not have to exist, but the server and credentials must be valid. This example assumes a connection named `DefaultConnection`.
+
+6. In your models project, create a class like this that represents your "root" database object, sort of like a DbContext in Entity Framework. This example uses `MyDb`, but you would choose a name that better reflects what your application is about. Notice there are two constructors.
+
+    ```
+    namespace Models
+    {
+        public class MyDb : SqlServerDb<int>
+        {
+            public MyDb() : base("DefaultConnection")
+            {
+            }
+
+            public MyDb(Configuration config) : base(config, "DefaultConnection")
+            {
+            }
+        }
+    }
+    ```
+7. Create one or more model classes that share the same namespace as your `MyDb` class. In the example above, the namespace is `Models`, so all of your model classes that you create subsequently need to be in that namespace. See [this topic](https://github.com/adamosoftware/Postulate.Orm/wiki/Designing-Model-Classes) on creating model classes for Postulate.
+
+Whenever you build or rebuild your models project, the Schema Merge app will run, and you should see a window like this. Click the **Execute** button in the upper right to apply changes in your model classes to your database. Postulate can detect a range of changes, and generate correct SQL to implement them. Postulate will never drop tables that contain data. (To learn about the schema merge implementation, see [SchemaMerge.Compare method](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Merge/SchemaMerge.cs#L83).
+
+![img](https://adamosoftware.blob.core.windows.net:443/images/schema_merge_app.png)
+
+## CRUD operations
 
 The following examples assume a `SqlServerDb<int>` variable called `MyDb` and this model class:
 
@@ -50,8 +81,8 @@ Create and save a new Customer. "Save" here means an insert or update is perform
 Find a Customer based on a WHERE clause:
 
     var customer = new MyDb().FindWhere<Customer>(
-      "[LastName]=@lastName AND [FirstName]=@firstName", 
-      new { lastName = "O'Neil", firstName = "Adam" });
+        "[LastName]=@lastName AND [FirstName]=@firstName", 
+        new { lastName = "O'Neil", firstName = "Adam" });
       
 Update select properties of a Customer without updating the whole record:
 
