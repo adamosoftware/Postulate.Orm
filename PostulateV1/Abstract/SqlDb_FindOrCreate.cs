@@ -1,4 +1,6 @@
-﻿namespace Postulate.Orm.Abstract
+﻿using System.Data;
+
+namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey>
     {
@@ -8,10 +10,25 @@
         /// <typeparam name="TRecord"></typeparam>
         /// <param name="criteria">Filter expression</param>
         /// <param name="instance">Instance to return if record doesn't exist</param>        
-        public TRecord FindOrCreate<TRecord>(string criteria, TRecord instance) where TRecord : Record<TKey>
+        public TRecord FindOrCreate<TRecord>(string criteria, TRecord instance, bool saveNewInstance = false) where TRecord : Record<TKey>
         {
-            var result = FindWhere<TRecord>(criteria, instance);
-            return result ?? instance;
+            using (var cn = GetConnection())
+            {
+                cn.Open();
+                return FindOrCreate(cn, criteria, instance, saveNewInstance);
+            }                
+        }
+
+        public TRecord FindOrCreate<TRecord>(IDbConnection connection, string criteria, TRecord instance, bool saveNewInstance = false) where TRecord : Record<TKey>
+        {
+            var result = FindWhere<TRecord>(connection, criteria, instance);
+            if (result == null)
+            {
+                if (saveNewInstance) Save(connection, instance);
+                return instance;
+            }
+
+            return result;            
         }
     }
 }
