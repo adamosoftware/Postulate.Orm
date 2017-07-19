@@ -57,6 +57,13 @@ namespace Postulate.Orm.Extensions
             throw new ArgumentException($"{propertyInfo.Name} is not a foreign key.");
         }
 
+        public static bool ReferencingTableExists(this IDbConnection connection, PropertyInfo propertyInfo)
+        {
+            ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
+            if (fk != null) return TableExists(connection, propertyInfo.DeclaringType);
+            throw new ArgumentException($"{propertyInfo.Name} is not a foreign key.");
+        }
+
         public static bool IsTableEmpty(this IDbConnection connection, string schema, string tableName)
         {
             return ((connection.QueryFirstOrDefault<int?>($"SELECT COUNT(1) FROM [{schema}].[{tableName}]", null) ?? 0) == 0);

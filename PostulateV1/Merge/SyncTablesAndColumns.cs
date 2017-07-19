@@ -45,6 +45,7 @@ namespace Postulate.Orm.Merge
                     {
                         if (connection.ReferencedTableExists(fk)) return true;
                         if (fk.IsFKEnclosedBy(newTables.Concat(rebuiltTables))) return true;
+                        if (connection.ReferencingTableExists(fk)) return true;
                     }
                     else
                     {                        
