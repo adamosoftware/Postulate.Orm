@@ -57,9 +57,16 @@ namespace Postulate.Orm
             if (result != null && propertyInfo.HasAttribute(out fk) && fk.PrimaryTableType.HasAttribute(out dr))
             {
                 DbObject obj = DbObject.FromType(fk.PrimaryTableType);
-                result = connection.QueryFirst<string>(
-                    $@"SELECT {dr.Expression} FROM [{obj.Schema}].[{obj.Name}]
-					WHERE [{fk.PrimaryTableType.IdentityColumnName()}]=@id", new { id = result });
+                try
+                {
+                    result = connection.QueryFirst<string>(
+                        $@"SELECT {dr.Expression} FROM [{obj.Schema}].[{obj.Name}]
+	    				WHERE [{fk.PrimaryTableType.IdentityColumnName()}]=@id", new { id = result });   
+                }
+                catch
+                {
+                    result = "<null>";
+                }
             }
 
             return result;
