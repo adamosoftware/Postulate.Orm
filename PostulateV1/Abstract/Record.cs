@@ -1,7 +1,9 @@
 ﻿using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
+using ReflectionHelper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -63,7 +65,7 @@ namespace Postulate.Orm.Abstract
         {
             foreach (var prop in GetType().GetProperties().Where(pi => pi.IsForSaveAction(action)))
             {
-                if (RequiredDateNotSet(prop))
+                if (!prop.HasAttribute<NotMappedAttribute>() && RequiredDateNotSet(prop))
                 {
                     yield return $"The {prop.Name} date field requires a value.";
                 }
@@ -85,7 +87,7 @@ namespace Postulate.Orm.Abstract
         }
 
         private bool RequiredDateNotSet(PropertyInfo prop)
-        {
+        {            
             if (prop.PropertyType.Equals(typeof(DateTime)))
             {
                 DateTime value = (DateTime)prop.GetValue(this);
