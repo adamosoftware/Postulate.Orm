@@ -5,6 +5,8 @@ using System.Data;
 using Dapper;
 using System.Threading.Tasks;
 using Postulate.Orm.Merge;
+using Postulate.Orm.Enums;
+using System.Linq;
 
 namespace Testing
 {
@@ -167,6 +169,19 @@ namespace Testing
         {
             string tableName = DbObject.SqlServerName(typeof(TableD));
             Assert.IsTrue(tableName.Equals("[app].[TableD]"));
+        }
+
+        [TestMethod]
+        public void ValidateMissingPKValue()
+        {
+            var a = new TableA();
+            a.FirstName = "whatever";
+            using (var cn = new PostulateDb().GetConnection())
+            {
+                cn.Open();
+                var errs = a.GetValidationErrors(cn, SaveAction.Insert);
+                Assert.IsTrue(errs.Any(item => item.Equals("Primary key field LastName requires a value.")));
+            }            
         }
     }
 }

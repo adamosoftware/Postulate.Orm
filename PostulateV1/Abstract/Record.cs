@@ -1,4 +1,5 @@
-﻿using Postulate.Orm.Enums;
+﻿using Postulate.Orm.Attributes;
+using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
 using ReflectionHelper;
 using System;
@@ -65,6 +66,12 @@ namespace Postulate.Orm.Abstract
         {
             foreach (var prop in GetType().GetProperties().Where(pi => pi.IsForSaveAction(action)))
             {
+                if (prop.HasAttribute<PrimaryKeyAttribute>())
+                {
+                    object value = prop.GetValue(this);
+                    if (value == null) yield return $"Primary key field {prop.Name} requires a value.";
+                }
+
                 if (!prop.HasAttribute<NotMappedAttribute>() && RequiredDateNotSet(prop))
                 {
                     yield return $"The {prop.Name} date field requires a value.";
