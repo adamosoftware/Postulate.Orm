@@ -12,5 +12,8 @@ namespace Postulate.Orm.Interfaces
         IDbConnection GetConnection();
 
         string ConnectionName { get; }
+
+        string MergeExcludeSchemas { get; }
+        string MergeExcludeTables { get; }
     }
 }

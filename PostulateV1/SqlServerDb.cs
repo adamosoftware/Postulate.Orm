@@ -268,5 +268,8 @@ namespace Postulate.Orm
                 };
             });
         }
+
+        public string MergeExcludeSchemas { get; set; }
+        public string MergeExcludeTables { get; set; }
     }
 }
