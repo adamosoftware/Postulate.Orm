@@ -9,10 +9,14 @@ namespace Testing.Models
 
         public PostulateDb(Configuration configuration) : base(configuration, dbName)
         {
+            MergeExcludeSchemas = "HangFire,Whatsit,Nevermore";
+            MergeExcludeTables = "Rhomboid,Occlusus";
         }
 
         public PostulateDb() : base(dbName, "adamo")
         {
-        }
+            MergeExcludeSchemas = "HangFire,Whatsit,Nevermore";
+            MergeExcludeTables = "Rhomboid,Occlusus";
+        }                
     }
 }

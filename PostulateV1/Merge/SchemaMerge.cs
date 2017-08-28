@@ -77,9 +77,6 @@ namespace Postulate.Orm.Merge
         {
             var db = new TDb();
 
-            if (!string.IsNullOrEmpty(db.MergeExcludeSchemas)) _excludeSchemas = ", " + string.Join(", ", db.MergeExcludeSchemas.Split(',', ';').Select(s => $"'{s.Trim()}'"));
-            if (!string.IsNullOrEmpty(db.MergeExcludeTables)) _excludeTables = "\r\nAND [t].[name] NOT IN (" + string.Join(", ", db.MergeExcludeTables.Split(',', ';').Select(s => $"'{s.Trim()}'")) + ")";
-
             using (IDbConnection cn = db.GetConnection())
             {
                 cn.Open();
@@ -283,8 +280,10 @@ namespace Postulate.Orm.Merge
             return connection.QuerySingle<int?>($"SELECT MAX([Version]) FROM [{SetPatchVersion.MetaSchema}].[{SetPatchVersion.TableName}]", null) ?? 0;
         }
 
-        private IEnumerable<ColumnRef> GetSchemaColumns(IDbConnection connection)
-        {                                    
+        private static IEnumerable<ColumnRef> GetSchemaColumns(IDbConnection connection)
+        {
+            string excludeSchemas = GetExcludeSchemas(connection);
+
             return connection.Query<ColumnRef>(
                 $@"SELECT SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [c].[Name] AS [ColumnName],
 					[t].[object_id] AS [ObjectID], TYPE_NAME([c].[system_type_id]) AS [DataType],
@@ -293,9 +292,26 @@ namespace Postulate.Orm.Merge
 				FROM
 					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
                 WHERE
-                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted'{_excludeSchemas}) AND
+                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted'{excludeSchemas}) AND
                     [t].[name] NOT LIKE 'AspNet%' AND
-                    [t].[name] NOT LIKE '__MigrationHistory'{_excludeTables}");
+                    [t].[name] NOT LIKE '__MigrationHistory'");
+        }
+
+        private static string GetExcludeSchemas(IDbConnection connection)
+        {
+            try
+            {
+                var schemas = connection.Query<string>("SELECT [Name] FROM [meta].[MergeExcludeSchema]");
+                if (schemas.Any())
+                {
+                    return ", " + string.Join(", ", schemas.Select(s => $"'{s.Trim()}'"));
+                }
+                return null;                
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private IEnumerable<ColumnRef> GetModelColumns(IDbConnection collationLookupConnection = null)
@@ -330,15 +346,17 @@ namespace Postulate.Orm.Merge
 
         private IEnumerable<DbObject> GetSchemaTables(IDbConnection connection)
         {
+            string excludeSchemas = GetExcludeSchemas(connection);
+
             var tables = connection.Query(
                 $@"SELECT
                     SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [Name], [t].[object_id] AS [ObjectId]
                 FROM
                     [sys].[tables] [t]
                 WHERE
-                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted'{_excludeSchemas}) AND
+                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted'{excludeSchemas}) AND
                     [name] NOT LIKE 'AspNet%' AND
-                    [name] NOT LIKE '__MigrationHistory'{_excludeTables}");
+                    [name] NOT LIKE '__MigrationHistory'");
 
             return tables.Select(item => new DbObject(item.Schema, item.Name, item.ObjectId));
         }
