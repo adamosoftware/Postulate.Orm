@@ -169,7 +169,7 @@ namespace Postulate.Orm.Abstract
         }
 
         /// <summary>
-        /// Override this to set your own Where clause used with the Find method. Don't include the word "WHERE", just use an expression only
+        /// Override this to set your own Where clause used with the Find method. Don't include the word "WHERE", just use an expression only with single parameter named "@id"
         /// </summary>        
         public virtual string CustomFindWhereClause()
         {
