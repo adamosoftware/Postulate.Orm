@@ -121,7 +121,12 @@ namespace Postulate.Orm.Abstract
 
         protected virtual string GetFindStatement<TRecord>() where TRecord : Record<TKey>, new()
         {
-            return GetFindStatementBase<TRecord>() + $" WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
+            string whereClause = $" WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
+
+            string customWhere = (new TRecord()).CustomFindWhereClause();
+            if (!string.IsNullOrEmpty(customWhere)) whereClause = customWhere;
+
+            return GetFindStatementBase<TRecord>() + whereClause;
         }
 
         protected virtual string GetFindStatementBase<TRecord>() where TRecord : Record<TKey>, new()

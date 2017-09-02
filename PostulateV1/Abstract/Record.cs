@@ -167,5 +167,13 @@ namespace Postulate.Orm.Abstract
         {
             return null;
         }
+
+        /// <summary>
+        /// Override this to set your own Where clause used with the Find method.
+        /// </summary>        
+        public virtual string CustomFindWhereClause()
+        {
+            return null;
+        }
     }
 }
