@@ -124,7 +124,7 @@ namespace Postulate.Orm.Abstract
             string whereClause = $" WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
 
             string customWhere = (new TRecord()).CustomFindWhereClause();
-            if (!string.IsNullOrEmpty(customWhere)) whereClause = customWhere;
+            if (!string.IsNullOrEmpty(customWhere)) whereClause = " WHERE " + customWhere;
 
             return GetFindStatementBase<TRecord>() + whereClause;
         }
