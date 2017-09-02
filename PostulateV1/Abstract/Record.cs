@@ -163,9 +163,9 @@ namespace Postulate.Orm.Abstract
         /// Override this to set your own query for use with Find and FindWhere methods. Don't include any criteria, and make sure
         /// there is exactly one column named "Id" in the column list
         /// </summary>
-        public virtual string FindCommandText
+        public virtual string CustomFindCommandText()
         {
-            get { return null; }
+            return null;
         }
     }
 }

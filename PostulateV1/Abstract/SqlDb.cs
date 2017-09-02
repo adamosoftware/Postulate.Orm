@@ -126,7 +126,7 @@ namespace Postulate.Orm.Abstract
 
         protected virtual string GetFindStatementBase<TRecord>() where TRecord : Record<TKey>, new()
         {
-            string customCmd = (new TRecord()).FindCommandText;
+            string customCmd = (new TRecord()).CustomFindCommandText();
             if (!string.IsNullOrEmpty(customCmd)) return customCmd;
 
             return
