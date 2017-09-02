@@ -12,7 +12,7 @@ namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {
-        public IEnumerable<PropertyChange> GetChanges<TRecord>(IDbConnection connection, TRecord record, string ignoreProps = null) where TRecord : Record<TKey>
+        public IEnumerable<PropertyChange> GetChanges<TRecord>(IDbConnection connection, TRecord record, string ignoreProps = null) where TRecord : Record<TKey>, new()
         {
             if (record.IsNew()) return null;
 
@@ -60,7 +60,7 @@ namespace Postulate.Orm.Abstract
             return propertyInfo.GetValue(record);
         }
 
-        public void CaptureChanges<TRecord>(IDbConnection connection, TRecord record, string ignoreProps = null) where TRecord : Record<TKey>
+        public void CaptureChanges<TRecord>(IDbConnection connection, TRecord record, string ignoreProps = null) where TRecord : Record<TKey>, new()
         {
             var changes = GetChanges(connection, record, ignoreProps);
             if (changes?.Any() ?? false) OnCaptureChanges<TRecord>(connection, record.Id, changes);

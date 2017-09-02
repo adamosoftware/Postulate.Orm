@@ -11,7 +11,7 @@ namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {
-        public TRecord Copy<TRecord>(TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
+        public TRecord Copy<TRecord>(TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -20,7 +20,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public TRecord Copy<TRecord>(IDbConnection connection, TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>
+        public TRecord Copy<TRecord>(IDbConnection connection, TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>, new()
         {
             TKey newId = ExecuteCopy<TRecord>(connection, sourceId, setProperties, omitColumns);
             return ExecuteFind<TRecord>(connection, newId);

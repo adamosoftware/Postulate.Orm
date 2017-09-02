@@ -119,13 +119,16 @@ namespace Postulate.Orm.Abstract
             return ApplyDelimiter(result);
         }
 
-        protected virtual string GetFindStatement<TRecord>() where TRecord : Record<TKey>
+        protected virtual string GetFindStatement<TRecord>() where TRecord : Record<TKey>, new()
         {
             return GetFindStatementBase<TRecord>() + $" WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
         }
 
-        protected virtual string GetFindStatementBase<TRecord>() where TRecord : Record<TKey>
+        protected virtual string GetFindStatementBase<TRecord>() where TRecord : Record<TKey>, new()
         {
+            string customCmd = (new TRecord()).FindCommandText;
+            if (!string.IsNullOrEmpty(customCmd)) return customCmd;
+
             return
                 $@"SELECT {ApplyDelimiter(typeof(TRecord).IdentityColumnName())},
                     {string.Join(", ", GetColumnNames<TRecord>().Select(name => ApplyDelimiter(name)).Concat(GetCalculatedColumnNames<TRecord>()))}

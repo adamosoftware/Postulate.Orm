@@ -10,7 +10,7 @@ namespace Postulate.Orm.Abstract
         /// <typeparam name="TRecord"></typeparam>
         /// <param name="criteria">Filter expression</param>
         /// <param name="instance">Instance to return if record doesn't exist</param>        
-        public TRecord FindOrCreate<TRecord>(string criteria, TRecord instance, bool saveNewInstance = false) where TRecord : Record<TKey>
+        public TRecord FindOrCreate<TRecord>(string criteria, TRecord instance, bool saveNewInstance = false) where TRecord : Record<TKey>, new()
         {
             using (var cn = GetConnection())
             {
@@ -19,7 +19,7 @@ namespace Postulate.Orm.Abstract
             }                
         }
 
-        public TRecord FindOrCreate<TRecord>(IDbConnection connection, string criteria, TRecord instance, bool saveNewInstance = false) where TRecord : Record<TKey>
+        public TRecord FindOrCreate<TRecord>(IDbConnection connection, string criteria, TRecord instance, bool saveNewInstance = false) where TRecord : Record<TKey>, new()
         {
             var result = FindWhere<TRecord>(connection, criteria, instance);
             if (result == null)

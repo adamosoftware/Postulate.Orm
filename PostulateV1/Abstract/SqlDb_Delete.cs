@@ -24,7 +24,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void DeleteOne<TRecord>(TKey id) where TRecord : Record<TKey>
+        public void DeleteOne<TRecord>(TKey id) where TRecord : Record<TKey>, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -33,7 +33,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void DeleteOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        public void DeleteOne<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>, new()
         {
             TRecord record = Find<TRecord>(connection, id);
             if (record != null) DeleteOne(connection, record);
@@ -74,7 +74,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void DeleteOneWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
+        public void DeleteOneWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -83,7 +83,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void DeleteOneWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
+        public void DeleteOneWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>, new()
         {
             TRecord record = FindWhere<TRecord>(connection, criteria, parameters);
             if (record != null) DeleteOne<TRecord>(connection, record.Id);

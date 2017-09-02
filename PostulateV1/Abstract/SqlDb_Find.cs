@@ -9,20 +9,20 @@ namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {
-        public TRecord Find<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
+        public TRecord Find<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>, new()
         {
             var row = ExecuteFind<TRecord>(connection, id);
             return FindInner(connection, row);
         }
 
-        public TRecord Find<TRecord>(IDbConnection connection, TKey id, out int version) where TRecord : Record<TKey>
+        public TRecord Find<TRecord>(IDbConnection connection, TKey id, out int version) where TRecord : Record<TKey>, new()
         {
             var record = Find<TRecord>(connection, id);
             version = GetRecordNextVersion<TRecord>(connection, id);
             return FindInner(connection, record);
         }
 
-        public TRecord Find<TRecord>(TKey id) where TRecord : Record<TKey>
+        public TRecord Find<TRecord>(TKey id) where TRecord : Record<TKey>, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -31,7 +31,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public TRecord Find<TRecord>(TKey id, out int version) where TRecord : Record<TKey>
+        public TRecord Find<TRecord>(TKey id, out int version) where TRecord : Record<TKey>, new()
         {
             using (var cn = GetConnection())
             {
@@ -42,13 +42,13 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public TRecord FindWhere<TRecord>(IDbConnection connection, string critieria, object parameters) where TRecord : Record<TKey>
+        public TRecord FindWhere<TRecord>(IDbConnection connection, string critieria, object parameters) where TRecord : Record<TKey>, new()
         {
             var row = ExecuteFindWhere<TRecord>(connection, critieria, parameters);
             return FindInner(connection, row);
         }
 
-        public TRecord FindUserProfile<TRecord>(string userName = null) where TRecord : Record<TKey>, IUserProfile
+        public TRecord FindUserProfile<TRecord>(string userName = null) where TRecord : Record<TKey>, IUserProfile, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -57,12 +57,12 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public TRecord FindUserProfile<TRecord>(IDbConnection connection, string userName = null) where TRecord : Record<TKey>, IUserProfile
+        public TRecord FindUserProfile<TRecord>(IDbConnection connection, string userName = null) where TRecord : Record<TKey>, IUserProfile, new()
         {
             return ExecuteFindWhere<TRecord>(connection, "[UserName]=@name", new { name = userName ?? UserName });
         }
 
-        public TRecord FindWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>
+        public TRecord FindWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -103,8 +103,8 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        private TRecord ExecuteFind<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>
-        {
+        private TRecord ExecuteFind<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>, new()
+        {            
             string cmd = GetCommand<TRecord>(_findCommands, () => GetFindStatement<TRecord>());
             return ExecuteFindMethod<TRecord>(connection, id, cmd);
         }
@@ -114,7 +114,7 @@ namespace Postulate.Orm.Abstract
             return connection.QueryFirstOrDefault<TRecord>(cmd, new { id = id });
         }
 
-        private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
+        private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>, new()
         {
             string cmd = GetFindStatementBase<TRecord>() + $" WHERE {criteria}";
             return ExecuteFindWhereMethod<TRecord>(connection, parameters, cmd);

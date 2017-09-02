@@ -10,7 +10,7 @@ namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {
-        public void Save<TRecord>(TRecord record, out SaveAction action) where TRecord : Record<TKey>
+        public void Save<TRecord>(TRecord record, out SaveAction action) where TRecord : Record<TKey>, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -19,7 +19,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void Save<TRecord>(TRecord record) where TRecord : Record<TKey>
+        public void Save<TRecord>(TRecord record) where TRecord : Record<TKey>, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -29,13 +29,13 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void Save<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
+        public void Save<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>, new()
         {
             SaveAction action;
             Save(connection, record, out action, transaction);
         }
 
-        public void Save<TRecord>(IDbConnection connection, TRecord record, out SaveAction action, IDbTransaction transaction = null) where TRecord : Record<TKey>
+        public void Save<TRecord>(IDbConnection connection, TRecord record, out SaveAction action, IDbTransaction transaction = null) where TRecord : Record<TKey>, new()
         {
             action = (record.IsNew()) ? SaveAction.Insert : SaveAction.Update;
 
@@ -52,7 +52,7 @@ namespace Postulate.Orm.Abstract
             }, transaction);
         }
 
-        private void SaveInner<TRecord>(IDbConnection connection, TRecord record, SaveAction action, Action<TRecord, IDbTransaction> saveAction, IDbTransaction transaction = null) where TRecord : Record<TKey>
+        private void SaveInner<TRecord>(IDbConnection connection, TRecord record, SaveAction action, Action<TRecord, IDbTransaction> saveAction, IDbTransaction transaction = null) where TRecord : Record<TKey>, new()
         {
             record.BeforeSave(connection, UserName, action);
 
@@ -115,7 +115,7 @@ namespace Postulate.Orm.Abstract
             connection.Execute(cmd, record, transaction);
         }
 
-        public async Task SaveAsync<TRecord>(TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
+        public async Task SaveAsync<TRecord>(TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>, new()
         {
             using (var cn = GetConnection())
             {
@@ -124,7 +124,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public async Task SaveAsync<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
+        public async Task SaveAsync<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>, new()
         {
             var action = (record.IsNew()) ? SaveAction.Insert : SaveAction.Update;
 

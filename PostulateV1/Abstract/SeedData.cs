@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Postulate.Orm.Abstract
 {
-    public abstract class SeedData<TRecord, TKey> where TRecord : Record<TKey>
+    public abstract class SeedData<TRecord, TKey> where TRecord : Record<TKey>, new()
     {
         public abstract string ExistsCriteria { get; }
         public abstract IEnumerable<TRecord> Records { get; }

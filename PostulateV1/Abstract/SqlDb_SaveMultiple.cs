@@ -17,7 +17,7 @@ namespace Postulate.Orm.Abstract
         /// Inserts or updates the given records from an open connection. Does not set the record Id property unless the batchSize argument is 1 or less.
         /// </summary>
         /// <param name="batchSize">Number of records to process at a time. A value of 1 causes your Record overrides to execute, and the Record.Id is set. A value greater than one causes your overrides to be skipped.</param>
-        public async Task SaveMultipleAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        public async Task SaveMultipleAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>, new()
         {
             await SaveMultipleInnerAsync(connection, records, batchSize, cancellationToken, progress);
         }
@@ -26,7 +26,7 @@ namespace Postulate.Orm.Abstract
         /// Inserts or updates the given records. Does not set the record Id property unless the batchSize argument to 1 or less.
         /// </summary>
         /// <param name="batchSize">Number of records to process at a time. A value of 1 causes your Record overrides to execute, and the Record.Id is set. A value greater than one causes your overrides to be skipped.</param>
-        public async Task SaveMultipleAsync<TRecord>(IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        public async Task SaveMultipleAsync<TRecord>(IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -35,7 +35,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void SaveMultiple<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100) where TRecord : Record<TKey>
+        public void SaveMultiple<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100) where TRecord : Record<TKey>, new()
         {
             if (batchSize > 1)
             {
@@ -47,7 +47,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        public void SaveMultiple<TRecord>(IEnumerable<TRecord> records, int batchSize = 100) where TRecord : Record<TKey>
+        public void SaveMultiple<TRecord>(IEnumerable<TRecord> records, int batchSize = 100) where TRecord : Record<TKey>, new()
         {
             using (var cn = GetConnection())
             {
@@ -56,7 +56,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        private async Task SaveMultipleInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>
+        private async Task SaveMultipleInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, int batchSize = 100, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null) where TRecord : Record<TKey>, new()
         {
             if (batchSize > 1)
             {
@@ -68,7 +68,7 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        private async Task SaveEachInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, IProgress<int> progress, CancellationToken cancellationToken) where TRecord : Record<TKey>
+        private async Task SaveEachInnerAsync<TRecord>(IDbConnection connection, IEnumerable<TRecord> records, IProgress<int> progress, CancellationToken cancellationToken) where TRecord : Record<TKey>, new()
         {
             int percentDone = 0;
             int count = 0;

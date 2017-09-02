@@ -15,7 +15,7 @@ namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {
-        public void Update<TRecord>(TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>
+        public void Update<TRecord>(TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>, new()
         {
             using (IDbConnection cn = GetConnection())
             {
@@ -27,7 +27,7 @@ namespace Postulate.Orm.Abstract
         /// <summary>
         /// Updates specific properties of a record
         /// </summary>
-        public void Update<TRecord>(IDbConnection connection, TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>
+        public void Update<TRecord>(IDbConnection connection, TRecord record, params Expression<Func<TRecord, object>>[] setColumns) where TRecord : Record<TKey>, new()
         {
             Type modelType = typeof(TRecord);
             IdentityColumnAttribute idAttr;
