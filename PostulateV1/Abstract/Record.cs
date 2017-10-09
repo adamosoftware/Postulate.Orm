@@ -131,7 +131,7 @@ namespace Postulate.Orm.Abstract
         /// <summary>
         /// Override this to determine whether a given user is allowed to save this record
         /// </summary>
-        public virtual bool AllowSave(IDbConnection connection, string userName, out string message)
+        public virtual bool AllowSave(IDbConnection connection, SqlDb<TKey> db, string userName, out string message)
         {
             message = null;
             return true;
@@ -140,12 +140,12 @@ namespace Postulate.Orm.Abstract
         /// <summary>
         /// Use this to set any properties that should update every time a record is saved, for example user and datestamps
         /// </summary>
-        public virtual void BeforeSave(IDbConnection connection, string userName, SaveAction action)
+        public virtual void BeforeSave(IDbConnection connection, SqlDb<TKey> db, string userName, SaveAction action)
         {
             // do nothing by default
         }
 
-        public virtual bool AllowDelete(IDbConnection connection, string userName, out string message)
+        public virtual bool AllowDelete(IDbConnection connection, SqlDb<TKey> db, string userName, out string message)
         {
             message = null;
             return true;
@@ -154,7 +154,7 @@ namespace Postulate.Orm.Abstract
         /// <summary>
         /// Override this to perform an action after a record is successfully deleted
         /// </summary>
-        public virtual void AfterDelete(IDbConnection connection)
+        public virtual void AfterDelete(IDbConnection connection, SqlDb<TKey> db)
         {
             // do nothing by default
         }

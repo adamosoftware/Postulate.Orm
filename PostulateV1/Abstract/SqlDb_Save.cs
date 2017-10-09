@@ -54,12 +54,12 @@ namespace Postulate.Orm.Abstract
 
         private void SaveInner<TRecord>(IDbConnection connection, TRecord record, SaveAction action, Action<TRecord, IDbTransaction> saveAction, IDbTransaction transaction = null) where TRecord : Record<TKey>, new()
         {
-            record.BeforeSave(connection, UserName, action);
+            record.BeforeSave(connection, this, UserName, action);
 
             string message;
             if (record.IsValid(connection, action, out message))
             {
-                if (record.AllowSave(connection, UserName, out message))
+                if (record.AllowSave(connection, this, UserName, out message))
                 {
                     string ignoreProps;
                     if (action == SaveAction.Update && TrackChanges<TRecord>(out ignoreProps)) CaptureChanges(connection, record, ignoreProps);
@@ -128,12 +128,12 @@ namespace Postulate.Orm.Abstract
         {
             var action = (record.IsNew()) ? SaveAction.Insert : SaveAction.Update;
 
-            record.BeforeSave(connection, UserName, action);
+            record.BeforeSave(connection, this, UserName, action);
 
             string message;
             if (record.IsValid(connection, action, out message))
             {
-                if (record.AllowSave(connection, UserName, out message))
+                if (record.AllowSave(connection, this, UserName, out message))
                 {
                     string ignoreProps;
                     if (action == SaveAction.Update && TrackChanges<TRecord>(out ignoreProps)) CaptureChanges(connection, record, ignoreProps);

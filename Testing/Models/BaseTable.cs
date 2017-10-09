@@ -26,7 +26,7 @@ namespace Testing.Models
         [MaxLength(20)]
         public string ModifiedBy { get; set; }
 
-        public override void BeforeSave(IDbConnection connection, string userName, SaveAction action)
+        public override void BeforeSave(IDbConnection connection, SqlDb<int> db, string userName, SaveAction action)
         {
             switch (action)
             {
