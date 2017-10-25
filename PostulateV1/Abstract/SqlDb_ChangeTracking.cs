@@ -3,6 +3,7 @@ using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Models;
 using ReflectionHelper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace Postulate.Orm.Abstract
             string[] ignorePropsArray = (ignoreProps ?? string.Empty).Split(',', ';').Select(s => s.Trim()).ToArray();
 
             TRecord savedRecord = Find<TRecord>(connection, record.Id);
+            if (savedRecord == null) throw new Exception($"Tried to compare changes with saved record, but couldn't find the saved record for Id {record.Id}.");
+
             return typeof(TRecord).GetProperties().Where(pi => 
                 pi.HasColumnAccess(Access.UpdateOnly) && 
                 !ignorePropsArray.Contains(pi.Name) &&
