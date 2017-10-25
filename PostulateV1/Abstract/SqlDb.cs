@@ -192,7 +192,7 @@ namespace Postulate.Orm.Abstract
             return GetEditableColumns<TRecord>(predicate).Select(pi =>
             {
                 ColumnAttribute colAttr;
-                return (pi.HasAttribute(out colAttr)) ? colAttr.Name : pi.Name;
+                return (pi.HasAttribute(out colAttr) && !string.IsNullOrEmpty(colAttr.Name)) ? colAttr.Name : pi.Name;
             });
         }
 
