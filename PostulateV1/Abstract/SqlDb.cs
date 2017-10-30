@@ -168,12 +168,12 @@ namespace Postulate.Orm.Abstract
                 $@"UPDATE {GetTableName<TRecord>()} SET
                     {string.Join(", ", columns.Select(s => $"{ApplyDelimiter(s)} = @{s}"))}
                 WHERE
-                    [{typeof(TRecord).IdentityColumnName()}]=@id";
+                    {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
 
         protected virtual string GetDeleteStatement<TRecord>() where TRecord : Record<TKey>
         {
-            return $"DELETE {GetTableName<TRecord>()} WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
+            return $"DELETE {GetTableName<TRecord>()} WHERE {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
 
         protected IEnumerable<PropertyInfo> GetEditableColumns<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
