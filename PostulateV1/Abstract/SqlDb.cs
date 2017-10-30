@@ -121,7 +121,7 @@ namespace Postulate.Orm.Abstract
 
         protected virtual string GetFindStatement<TRecord>() where TRecord : Record<TKey>, new()
         {
-            string whereClause = $" WHERE [{typeof(TRecord).IdentityColumnName()}]=@id";
+            string whereClause = $" WHERE {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
 
             string customWhere = (new TRecord()).CustomFindWhereClause();
             if (!string.IsNullOrEmpty(customWhere)) whereClause = " WHERE " + customWhere;
