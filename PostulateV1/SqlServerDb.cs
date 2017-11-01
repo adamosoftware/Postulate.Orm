@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using Postulate.Orm.Crud.Abstract;
+using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;

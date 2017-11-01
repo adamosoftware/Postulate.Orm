@@ -5,7 +5,7 @@ using Postulate.Orm.Exceptions;
 using System;
 using static Dapper.SqlMapper;
 
-namespace Postulate.Orm.Crud.Abstract
+namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {

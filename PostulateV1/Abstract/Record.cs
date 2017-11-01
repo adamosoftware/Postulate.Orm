@@ -9,7 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Postulate.Orm.Crud.Abstract
+namespace Postulate.Orm.Abstract
 {
     public abstract class Record<TKey>
     {

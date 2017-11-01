@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Postulate.Orm.Crud.Abstract
+namespace Postulate.Orm.Abstract
 {
     public abstract partial class SqlDb<TKey>
     {
