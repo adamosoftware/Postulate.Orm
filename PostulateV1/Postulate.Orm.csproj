@@ -126,7 +126,7 @@
     <Compile Include="Models\ChangeHistoryRecord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Merge\SchemaMerge.cs" />
-    <Compile Include="PropertyChange.cs" />
+    <Compile Include="Models\PropertyChange.cs" />
     <Compile Include="Attributes\RenameFromAttribute.cs" />
     <Compile Include="Abstract\SqlDb_FindOrCreate.cs" />
     <Compile Include="SqlServerDb.cs" />

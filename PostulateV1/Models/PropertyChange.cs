@@ -1,4 +1,4 @@
-﻿namespace Postulate.Orm
+﻿namespace Postulate.Orm.Models
 {
     public class PropertyChange
     {
