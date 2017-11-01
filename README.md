@@ -100,7 +100,7 @@ I recommend having a `SqlServerDb<TKey>` instance variable in your controllers.
 
     private _db = new MyDb();
     
-Override the controller Initialize event to set the `_db.UserName` property. This enables `Record<TKey>` overrides such as [BeforeSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L116) and [AllowSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L107) to have access to the current user name without depending on any particular Identity provider.
+Override the controller Initialize event to set the `_db.UserName` property. This enables `Record<TKey>` overrides such as [BeforeSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L143) and [AllowSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L134) to have access to the current user name without depending on any particular Identity provider.
 
     protected override void Initialize(RequestContext requestContext)
     {            
@@ -124,7 +124,7 @@ A very simple Save action (for both inserts and updates):
         return RedirectToAction("Edit", new { id = customer.Id });
     }
     
-If you need to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/SqlServerDb.cs#L43) method:
+If you need to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/SqlServerDb.cs#L41) method:
 
     using (var cn = _db.GetConnection())
     {
