@@ -2,7 +2,7 @@
 
 Postulate is a lightweight code-first ORM for SQL Server made with Dapper. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, and uniquely -- a very convenient way to synchronize your model classes to your database using an .exe run in your build event.
 
-I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the schema merge feature works only for SQL Server.
+I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the schema merge feature works only for SQL Server. (There is a MySql project [here](https://github.com/adamosoftware/Postulate.Orm.MySql).)
 
 Regarding Linq and inline SQL, I respect the genius that is Linq, but I'm still more comfortable with inline SQL so long as it's isolated to some degree from the application. I have another project [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql) that deals specifically with queries, and another project [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) that builds upon this. The ORM project here is really about CRUD only.
 
@@ -100,7 +100,7 @@ I recommend having a `SqlServerDb<TKey>` instance variable in your controllers.
 
     private _db = new MyDb();
     
-Override the controller Initialize event to set the `_db.UserName` property. This enables `Record<TKey>` overrides such as [BeforeSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L116) and [AllowSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L107) to have access to the current user name without depending on any particular Identity provider.
+Override the controller Initialize event to set the `_db.UserName` property. This enables `Record<TKey>` overrides such as [BeforeSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L143) and [AllowSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L134) to have access to the current user name without depending on any particular Identity provider.
 
     protected override void Initialize(RequestContext requestContext)
     {            
@@ -124,7 +124,7 @@ A very simple Save action (for both inserts and updates):
         return RedirectToAction("Edit", new { id = customer.Id });
     }
     
-If you need to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/SqlServerDb.cs#L43) method:
+If you need to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/SqlServerDb.cs#L41) method:
 
     using (var cn = _db.GetConnection())
     {

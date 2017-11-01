@@ -62,6 +62,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -86,6 +87,7 @@
     <Compile Include="TestChangeTracking.cs" />
     <Compile Include="TestDeleteTracking.cs" />
     <Compile Include="TestFind.cs" />
+    <Compile Include="TestConnectionStringRef.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
