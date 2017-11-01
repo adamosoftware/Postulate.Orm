@@ -3,7 +3,7 @@ using Postulate.Orm.Extensions;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Postulate.Orm.Abstract
+namespace Postulate.Orm.Crud.Abstract
 {
     public abstract class SeedData<TRecord, TKey> where TRecord : Record<TKey>, new()
     {

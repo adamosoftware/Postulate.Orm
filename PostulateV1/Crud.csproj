@@ -7,8 +7,8 @@
     <ProjectGuid>{74D32DED-6B61-4C06-99B7-4BF11A7325E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Postulate.Orm</RootNamespace>
-    <AssemblyName>PostulateOrm</AssemblyName>
+    <RootNamespace>Postulate.Orm.Crud</RootNamespace>
+    <AssemblyName>Postulate.Orm</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

@@ -5,7 +5,7 @@ using Postulate.Orm.Interfaces;
 using ReflectionHelper;
 using System.Data;
 
-namespace Postulate.Orm.Abstract
+namespace Postulate.Orm.Crud.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {

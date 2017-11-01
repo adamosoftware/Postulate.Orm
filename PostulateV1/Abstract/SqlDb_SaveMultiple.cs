@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Postulate.Orm.Abstract
+namespace Postulate.Orm.Crud.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {

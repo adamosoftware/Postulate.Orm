@@ -11,7 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Postulate.Orm.Abstract
+namespace Postulate.Orm.Crud.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {

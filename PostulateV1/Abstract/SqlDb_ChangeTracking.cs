@@ -9,7 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Postulate.Orm.Abstract
+namespace Postulate.Orm.Crud.Abstract
 {
     public abstract partial class SqlDb<TKey> : IDb
     {

@@ -1,4 +1,4 @@
-﻿using Postulate.Orm.Abstract;
+﻿using Postulate.Orm.Crud.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge.Action;
 using ReflectionHelper;
