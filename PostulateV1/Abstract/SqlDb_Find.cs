@@ -122,7 +122,7 @@ namespace Postulate.Orm.Abstract
 
         protected virtual TRecord ExecuteFindWhereMethod<TRecord>(IDbConnection connection, object parameters, string cmd) where TRecord : Record<TKey>
         {
-            return connection.QuerySingleOrDefault<TRecord>(cmd, parameters);
+            return connection.QueryFirstOrDefault<TRecord>(cmd, parameters);
         }
     }
 }
