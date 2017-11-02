@@ -6,13 +6,10 @@ using System.Reflection;
 
 namespace Postulate.Orm.Merge.Actions
 {
-    public class AddColumn : Action2
+    public class AlterColumn : Action2
     {
-        private readonly PropertyInfo _propertyInfo;
-
-        public AddColumn(PropertyInfo propertyInfo) : base(Enum.ObjectType.Column, Enum.ActionType.Create, $"Add column {propertyInfo.QualifiedName()}", null)
+        public AlterColumn(PropertyInfo propertyInfo) : base(Enum.ObjectType.Column, Enum.ActionType.Alter, $"Altering {propertyInfo.QualifiedName()}", null)
         {
-            _propertyInfo = propertyInfo;
         }
 
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)

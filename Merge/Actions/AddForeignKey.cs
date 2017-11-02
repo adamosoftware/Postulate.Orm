@@ -6,11 +6,11 @@ using System.Reflection;
 
 namespace Postulate.Orm.Merge.Actions
 {
-    public class AddColumn : Action2
+    public class AddForeignKey : Action2
     {
         private readonly PropertyInfo _propertyInfo;
 
-        public AddColumn(PropertyInfo propertyInfo) : base(Enum.ObjectType.Column, Enum.ActionType.Create, $"Add column {propertyInfo.QualifiedName()}", null)
+        public AddForeignKey(PropertyInfo propertyInfo) : base(Enum.ObjectType.ForeignKey, Enum.ActionType.Create, propertyInfo.QualifiedName(), null)
         {
             _propertyInfo = propertyInfo;
         }

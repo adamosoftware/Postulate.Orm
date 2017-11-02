@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge
+namespace Postulate.Orm.Merge.Models
 {
     public class ColumnInfo
     {
@@ -22,7 +22,8 @@ namespace Postulate.Orm.Merge
 
         internal bool SignatureChanged(PropertyInfo propertyInfo)
         {
-            throw new NotImplementedException();
+            return false;
+            //throw new NotImplementedException();
         }
     }
 }
