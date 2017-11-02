@@ -38,40 +38,28 @@ namespace Postulate.Orm.Merge
             List<Action2> results = new List<Action2>();
 
             await Task.Run(() =>
-            {
-                _progress?.Report(new CompareProgress() { Description = "Analyzing foreign keys..." });
-                var foreignKeys = _modelTypes.SelectMany(t => GetModelForeignKeys(t));                
-                int syncObjectCount = _modelTypes.Length + foreignKeys.Count();
+            {                
 
                 //var droppedTables = 
 
-                SyncTablesAndColumns(connection, results, syncObjectCount);
-
-                SyncForeignKeys(connection, foreignKeys, results, syncObjectCount);
+                SyncTablesAndColumns(connection, results);
 
                 _progress?.Report(new CompareProgress() { Description = "Looking for deleted tables..." });
                 DropTables(connection, results);
             });
 
             return results;
-        }
-
-        private void SyncForeignKeys(IDbConnection connection, IEnumerable<PropertyInfo> foreignKeys, List<Action2> results, int totalObjects)
-        {
-            foreach (var fk in foreignKeys)
-            {
-
-            }
-        }
+        }        
 
         private void DropTables(IDbConnection connection, List<Action2> results)
         {
             //throw new NotImplementedException();
         }
 
-        private void SyncTablesAndColumns(IDbConnection connection, List<Action2> results, int totalObjects)
+        private void SyncTablesAndColumns(IDbConnection connection, List<Action2> results)
         {
             int counter = 0;
+            List<PropertyInfo> foreignKeys = new List<PropertyInfo>();
 
             foreach (var type in _modelTypes)
             {
@@ -79,23 +67,24 @@ namespace Postulate.Orm.Merge
                 _progress?.Report(new CompareProgress()
                 {
                     Description = $"Analyzing model class '{type.Name}'...",
-                    PercentComplete = PercentComplete(counter, totalObjects)
+                    PercentComplete = PercentComplete(counter, _modelTypes.Length)
                 });
 
                 if (!TableExists(connection, type))
                 {
                     results.Add(new CreateTable(type));
+                    foreignKeys.AddRange(type.GetModelForeignKeys());
                 }
                 else
                 {
-                    var modelProps = type.GetModelProperties();
-                    var schemaCols = GetSchemaColumns(connection, type);
+                    var modelColInfo = type.GetModelPropertyInfo();
+                    var schemaColInfo = GetSchemaColumns(connection, type);
 
                     IEnumerable<PropertyInfo> addedColumns;
                     IEnumerable<PropertyInfo> modifiedColumns;
                     IEnumerable<PropertyInfo> deletedColumns;
 
-                    if (AnyColumnsChanged(modelProps, schemaCols, out addedColumns, out modifiedColumns, out deletedColumns))
+                    if (AnyColumnsChanged(modelColInfo, schemaColInfo, out addedColumns, out modifiedColumns, out deletedColumns))
                     {
                         if (IsTableEmpty(connection, type))
                         {
@@ -106,6 +95,7 @@ namespace Postulate.Orm.Merge
                                 ModifiedColumns = modifiedColumns.Select(pi => pi.SqlColumnName()),
                                 DeletedColumns = deletedColumns.Select(pi => pi.SqlColumnName())
                             });
+                            foreignKeys.AddRange(type.GetModelForeignKeys());
                         }
                         else
                         {
@@ -113,42 +103,21 @@ namespace Postulate.Orm.Merge
                             results.AddRange(addedColumns.Select(c => new AddColumn(c)));
                             results.AddRange(modifiedColumns.Select(c => new AlterColumn(c)));
                             results.AddRange(deletedColumns.Select(c => new DropColumn(c)));
+                            foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey()));
                         }
                     }
                 }
             }
+
+            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(fk)));            
         }
 
         private bool AnyColumnsChanged(
-            IEnumerable<PropertyInfo> modelProps, IEnumerable<ColumnInfo> schemaCols, 
+            IEnumerable<PropertyInfo> modelPropertyInfo, IEnumerable<ColumnInfo> schemaColumnInfo, 
             out IEnumerable<PropertyInfo> addedColumns, out IEnumerable<PropertyInfo> modifiedColumns, out IEnumerable<PropertyInfo> deletedColumns)
         {
-            addedColumns = modelProps.Where(mp => !schemaCols.Any(sc => sc.Equals(mp)));
 
             throw new NotImplementedException();
-
-            modifiedColumns = from mp in modelProps
-                              join sc in schemaCols on mp.SqlColumnName() equals sc.ColumnName
-                              where !mp.SqlColumnSyntax().Equals(sc)
-                              select mp;
-            
-        }
-
-        private static IEnumerable<PropertyInfo> GetModelForeignKeys(Type modelType)
-        {
-            List<string> temp = new List<string>();
-            foreach (var pi in modelType.GetProperties().Where(pi => pi.HasAttribute<Attributes.ForeignKeyAttribute>()))
-            {
-                temp.Add(pi.Name.ToLower());
-                yield return pi;
-            }
-
-            foreach (var attr in modelType.GetCustomAttributes<Attributes.ForeignKeyAttribute>()
-                .Where(attr => HasColumnName(modelType, attr.ColumnName) && !temp.Contains(attr.ColumnName.ToLower())))
-            {
-                PropertyInfo pi = modelType.GetProperty(attr.ColumnName);
-                if (pi != null) yield return pi;
-            }
         }
 
         private static bool HasColumnName(Type modelType, string columnName)
@@ -190,9 +159,9 @@ namespace Postulate.Orm.Merge
             return connection.Exists(ColumnExistsQuery, ColumnExistsParameters(pi));
         }
 
-        private int PercentComplete(int counter, int max)
+        private int PercentComplete(int value, int total)
         {
-            return Convert.ToInt32((Convert.ToDouble(counter) / Convert.ToDouble(max)) * 100);
+            return Convert.ToInt32((Convert.ToDouble(value) / Convert.ToDouble(total)) * 100);
         }
     }
 }

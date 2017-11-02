@@ -10,7 +10,7 @@ namespace Postulate.Orm.Merge.Actions
     {
         private readonly PropertyInfo _propertyInfo;
 
-        public AddForeignKey(PropertyInfo propertyInfo) : base(Enum.ObjectType.ForeignKey, Enum.ActionType.Create, propertyInfo.QualifiedName(), null)
+        public AddForeignKey(PropertyInfo propertyInfo) : base(Enum.ObjectType.ForeignKey, Enum.ActionType.Create, propertyInfo.QualifiedName())
         {
             _propertyInfo = propertyInfo;
         }

@@ -10,7 +10,7 @@ namespace Postulate.Orm.Merge.Actions
     {
         private readonly PropertyInfo _propertyInfo;
 
-        public AddColumn(PropertyInfo propertyInfo) : base(Enum.ObjectType.Column, Enum.ActionType.Create, $"Add column {propertyInfo.QualifiedName()}", null)
+        public AddColumn(PropertyInfo propertyInfo) : base(Enum.ObjectType.Column, Enum.ActionType.Create, $"Add column {propertyInfo.QualifiedName()}")
         {
             _propertyInfo = propertyInfo;
         }

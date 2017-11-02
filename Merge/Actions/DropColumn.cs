@@ -8,7 +8,7 @@ namespace Postulate.Orm.Merge.Actions
 {
     public class DropColumn : Action2
     {
-        public DropColumn(PropertyInfo propertyInfo) : base(Enum.ObjectType.Column, Enum.ActionType.Drop, $"Drop column {propertyInfo.QualifiedName()}", null)
+        public DropColumn(PropertyInfo propertyInfo) : base(Enum.ObjectType.Column, Enum.ActionType.Drop, $"Drop column {propertyInfo.QualifiedName()}")
         {
         }
 

@@ -10,7 +10,7 @@ namespace Postulate.Orm.Merge.Actions
         private readonly Type _modelType;
         private readonly bool _rebuild;
 
-        public CreateTable(Type modelType, bool rebuild = false) : base(ObjectType.Table, ActionType.Create)
+        public CreateTable(Type modelType, bool rebuild = false) : base(ObjectType.Table, ActionType.Create, $"Create table {modelType.Name}")
         {
             _modelType = modelType;
             _rebuild = rebuild;
@@ -32,6 +32,13 @@ namespace Postulate.Orm.Merge.Actions
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)
         {
             throw new NotImplementedException();
+        }
+
+        public override IEnumerable<string> SqlCommands(IDbConnection connection)
+        {
+            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
+
+            // drop any dependent FKs, but don't worry about rebuilding them since they will be covered by main FK process
         }
     }
 }
