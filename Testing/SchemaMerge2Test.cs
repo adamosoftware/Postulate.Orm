@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Postulate.Orm;
 using Postulate.Orm.Merge;
-using PostulateDemo2.Models;
+using Sample.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
