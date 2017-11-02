@@ -66,7 +66,7 @@ namespace Postulate.Orm.Merge
 
         private void DropTables(IDbConnection connection, List<Action2> results)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         private void SyncTablesAndColumns(IDbConnection connection, List<Action2> results, int totalObjects)
@@ -88,8 +88,8 @@ namespace Postulate.Orm.Merge
                 }
                 else
                 {
-                    var modelProps = type.GetModelProperties().ToDictionary(item => item.SqlColumnName());
-                    var schemaCols = GetSchemaColumns(connection, type).ToDictionary(item => item.ColumnName);
+                    var modelProps = type.GetModelProperties();
+                    var schemaCols = GetSchemaColumns(connection, type);
 
                     IEnumerable<PropertyInfo> addedColumns;
                     IEnumerable<PropertyInfo> modifiedColumns;
@@ -117,6 +117,21 @@ namespace Postulate.Orm.Merge
                     }
                 }
             }
+        }
+
+        private bool AnyColumnsChanged(
+            IEnumerable<PropertyInfo> modelProps, IEnumerable<ColumnInfo> schemaCols, 
+            out IEnumerable<PropertyInfo> addedColumns, out IEnumerable<PropertyInfo> modifiedColumns, out IEnumerable<PropertyInfo> deletedColumns)
+        {
+            addedColumns = modelProps.Where(mp => !schemaCols.Any(sc => sc.Equals(mp)));
+
+            throw new NotImplementedException();
+
+            modifiedColumns = from mp in modelProps
+                              join sc in schemaCols on mp.SqlColumnName() equals sc.ColumnName
+                              where !mp.SqlColumnSyntax().Equals(sc)
+                              select mp;
+            
         }
 
         private static IEnumerable<PropertyInfo> GetModelForeignKeys(Type modelType)
