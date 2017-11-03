@@ -1,4 +1,4 @@
-﻿namespace Postulate.Orm.Merge.Enum
+﻿namespace Postulate.Orm.Merge.Enums
 {
     public enum ActionType
     {

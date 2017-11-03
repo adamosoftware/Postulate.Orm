@@ -1,4 +1,5 @@
-﻿using Postulate.Orm.Merge.Extensions;
+﻿using Postulate.Orm.Merge.Enums;
+using Postulate.Orm.Merge.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,14 +11,9 @@ namespace Postulate.Orm.Merge.Actions
     {
         private readonly PropertyInfo _propertyInfo;
 
-        public AddColumn(PropertyInfo propertyInfo) : base(Enum.ObjectType.Column, Enum.ActionType.Create, $"Add column {propertyInfo.QualifiedName()}")
+        public AddColumn(PropertyInfo propertyInfo) : base(ObjectType.Column, ActionType.Create, $"Add column {propertyInfo.QualifiedName()}")
         {
             _propertyInfo = propertyInfo;
-        }
-
-        public override IEnumerable<string> ValidationErrors(IDbConnection connection)
-        {
-            throw new NotImplementedException();
         }
     }
 }

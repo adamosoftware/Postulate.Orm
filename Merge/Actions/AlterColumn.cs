@@ -1,4 +1,5 @@
 ﻿using Postulate.Orm.Merge.Extensions;
+using Postulate.Orm.Merge.Enums;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,13 +9,8 @@ namespace Postulate.Orm.Merge.Actions
 {
     public class AlterColumn : Action2
     {
-        public AlterColumn(PropertyInfo propertyInfo) : base(Enum.ObjectType.Column, Enum.ActionType.Alter, $"Altering {propertyInfo.QualifiedName()}")
+        public AlterColumn(PropertyInfo propertyInfo) : base(ObjectType.Column, ActionType.Alter, $"Altering {propertyInfo.QualifiedName()}")
         {
-        }
-
-        public override IEnumerable<string> ValidationErrors(IDbConnection connection)
-        {
-            throw new NotImplementedException();
         }
     }
 }

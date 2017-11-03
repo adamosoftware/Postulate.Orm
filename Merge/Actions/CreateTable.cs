@@ -1,4 +1,4 @@
-﻿using Postulate.Orm.Merge.Enum;
+﻿using Postulate.Orm.Merge.Enums;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -32,13 +32,6 @@ namespace Postulate.Orm.Merge.Actions
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)
         {
             throw new NotImplementedException();
-        }
-
-        public override IEnumerable<string> SqlCommands(IDbConnection connection)
-        {
-            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
-
-            // drop any dependent FKs, but don't worry about rebuilding them since they will be covered by main FK process
         }
     }
 }

@@ -54,8 +54,8 @@
     <Compile Include="Actions\CreateTable.cs" />
     <Compile Include="Actions\DropColumn.cs" />
     <Compile Include="Models\ColumnInfo.cs" />
-    <Compile Include="Enum\ActionType.cs" />
-    <Compile Include="Enum\ObjectType.cs" />
+    <Compile Include="Enums\ActionType.cs" />
+    <Compile Include="Enums\ObjectType.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Extensions\PropertyInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />

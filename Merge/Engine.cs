@@ -29,6 +29,7 @@ namespace Postulate.Orm.Merge
                     !t.IsAbstract &&
                     !t.IsInterface &&
                     t.IsDerivedFromGeneric(typeof(Record<>))).ToArray();
+
             _progress = progress;
         }
 
@@ -38,17 +39,19 @@ namespace Postulate.Orm.Merge
 
             await Task.Run(() =>
             {
-                SyncTablesAndColumns(connection, results);
-
-                _progress?.Report(new CompareProgress() { Description = "Looking for deleted tables..." });
-                DropTables(connection, results);
+                SyncTablesAndColumns(connection, results);                
+                DropTables(connection, results);                
             });
+
+            _progress?.Report(new CompareProgress() { Description = "Finished" });
 
             return results;
         }
 
         private void DropTables(IDbConnection connection, List<Action2> results)
         {
+            _progress?.Report(new CompareProgress() { Description = "Looking for deleted tables..." });
+
             //throw new NotImplementedException();
         }
 
