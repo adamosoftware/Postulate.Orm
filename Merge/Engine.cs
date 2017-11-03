@@ -20,6 +20,8 @@ namespace Postulate.Orm.Merge
         protected readonly Type[] _modelTypes;
         protected readonly IProgress<CompareProgress> _progress;
 
+        public const string DefaultSchema = "dbo";
+
         public Engine(Assembly assembly, IProgress<CompareProgress> progress)
         {
             _modelTypes = assembly.GetTypes()
@@ -41,9 +43,7 @@ namespace Postulate.Orm.Merge
             {
                 SyncTablesAndColumns(connection, results);                
                 DropTables(connection, results);                
-            });
-
-            _progress?.Report(new CompareProgress() { Description = "Finished" });
+            });            
 
             return results;
         }

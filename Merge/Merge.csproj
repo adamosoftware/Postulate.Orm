@@ -53,6 +53,7 @@
     <Compile Include="Actions\AlterColumn.cs" />
     <Compile Include="Actions\CreateTable.cs" />
     <Compile Include="Actions\DropColumn.cs" />
+    <Compile Include="Actions\DropTable.cs" />
     <Compile Include="Models\ColumnInfo.cs" />
     <Compile Include="Enums\ActionType.cs" />
     <Compile Include="Enums\ObjectType.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="Extensions\PropertyInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="CompareProgress.cs" />
+    <Compile Include="Models\ForeignKeyInfo.cs" />
     <Compile Include="Models\TableInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
