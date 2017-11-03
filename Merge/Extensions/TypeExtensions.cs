@@ -21,7 +21,7 @@ namespace Postulate.Orm.Merge.Extensions
             return GetModelPropertyInfo(type).Select(pi => new ColumnInfo(pi));
         }
 
-        public static IEnumerable<PropertyInfo> GetModelForeignKeys(this Type type)
+        public static IEnumerable<PropertyInfo> GetForeignKeys(this Type type)
         {
             return type.GetProperties().Where(pi => pi.IsForeignKey());
         }

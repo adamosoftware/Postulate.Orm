@@ -1,5 +1,6 @@
 ﻿using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
+using Postulate.Orm.Merge.Models;
 using ReflectionHelper;
 using System;
 using System.Linq;
@@ -28,6 +29,11 @@ namespace Postulate.Orm.Merge.Extensions
             Type[] types = { propertyInfo.DeclaringType, propertyInfo.ReflectedType };
             var fkType = types.FirstOrDefault(t => t.HasAttribute(out attr, a => a.ColumnName.Equals(propertyInfo.SqlColumnName())));
             return attr;
+        }
+
+        public static ColumnInfo ToColumnInfo(this PropertyInfo propertyInfo)
+        {
+            return new ColumnInfo(propertyInfo);
         }
     }
 }

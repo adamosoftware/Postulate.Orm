@@ -14,7 +14,7 @@ namespace Postulate.Orm.Merge.Models
 
         public ColumnInfo(PropertyInfo propertyInfo)
         {
-            _propertyInfo = propertyInfo;
+            PropertyInfo = propertyInfo;
         }
 
         public string Schema { get; set; }
@@ -29,6 +29,8 @@ namespace Postulate.Orm.Merge.Models
         public bool IsNullable { get; set; }
         public bool IsCalculated { get; set; }
 
+        public PropertyInfo PropertyInfo { get; private set; }
+
         public string Length
         {
             get
@@ -38,12 +40,6 @@ namespace Postulate.Orm.Merge.Models
                 if (DataType.ToLower().StartsWith("nvar")) result = result / 2;
                 return $"{result}";
             }
-        }
-
-        internal bool SignatureChanged(PropertyInfo propertyInfo)
-        {
-            return false;
-            //throw new NotImplementedException();
         }
 
         public override int GetHashCode()
@@ -73,6 +69,11 @@ namespace Postulate.Orm.Merge.Models
             }
 
             return false;
+        }
+
+        public override string ToString()
+        {
+            return $"{Schema}.{TableName}.{ColumnName}";
         }
 
         public string GetDataTypeSyntax(bool withCollation = true)
@@ -105,6 +106,28 @@ namespace Postulate.Orm.Merge.Models
             result += (IsNullable) ? " NULL" : " NOT NULL";
 
             return result;
+        }
+
+        public virtual string GetSyntax()
+        {
+            return null;
+        }
+
+        public bool IsAlteredFrom(ColumnInfo columnInfo)
+        {
+            // if schema + table + name are the same....
+            if (this.Equals(columnInfo))
+            {
+                // then any other property diff is considered an alter
+                if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;
+                if (ByteLength != columnInfo.ByteLength) return true;
+                if (IsNullable != columnInfo.IsNullable) return true;
+                if (IsCalculated != columnInfo.IsCalculated) return true;
+                if (Precision != columnInfo.Precision) return true;
+                if (Scale != columnInfo.Scale) return true;
+                if (!Collation?.Equals(columnInfo.Collation) ?? true) return true;
+            }
+            return false;
         }
     }
 }
