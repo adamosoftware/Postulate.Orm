@@ -1,24 +1,23 @@
 ﻿using Dapper;
+using Postulate.Orm.Abstract;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Merge.Actions;
 using Postulate.Orm.Merge.Extensions;
+using Postulate.Orm.Merge.Models;
+using ReflectionHelper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Reflection;
-using ReflectionHelper;
-using Postulate.Orm.Attributes;
-using System.ComponentModel.DataAnnotations.Schema;
-using Postulate.Orm.Abstract;
-using Postulate.Orm.Merge.Models;
+using System.Threading.Tasks;
 
 namespace Postulate.Orm.Merge
 {
     public abstract class Engine
     {
-        protected readonly Type[] _modelTypes;        
+        protected readonly Type[] _modelTypes;
         protected readonly IProgress<CompareProgress> _progress;
 
         public Engine(Assembly assembly, IProgress<CompareProgress> progress)
@@ -29,7 +28,7 @@ namespace Postulate.Orm.Merge
                     !t.HasAttribute<NotMappedAttribute>() &&
                     !t.IsAbstract &&
                     !t.IsInterface &&
-                    t.IsDerivedFromGeneric(typeof(Record<>))).ToArray();            
+                    t.IsDerivedFromGeneric(typeof(Record<>))).ToArray();
             _progress = progress;
         }
 
@@ -38,10 +37,7 @@ namespace Postulate.Orm.Merge
             List<Action2> results = new List<Action2>();
 
             await Task.Run(() =>
-            {                
-
-                //var droppedTables = 
-
+            {
                 SyncTablesAndColumns(connection, results);
 
                 _progress?.Report(new CompareProgress() { Description = "Looking for deleted tables..." });
@@ -49,7 +45,7 @@ namespace Postulate.Orm.Merge
             });
 
             return results;
-        }        
+        }
 
         private void DropTables(IDbConnection connection, List<Action2> results)
         {
@@ -109,14 +105,13 @@ namespace Postulate.Orm.Merge
                 }
             }
 
-            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(fk)));            
+            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(fk)));
         }
 
         private bool AnyColumnsChanged(
-            IEnumerable<PropertyInfo> modelPropertyInfo, IEnumerable<ColumnInfo> schemaColumnInfo, 
+            IEnumerable<PropertyInfo> modelPropertyInfo, IEnumerable<ColumnInfo> schemaColumnInfo,
             out IEnumerable<PropertyInfo> addedColumns, out IEnumerable<PropertyInfo> modifiedColumns, out IEnumerable<PropertyInfo> deletedColumns)
         {
-
             throw new NotImplementedException();
         }
 
@@ -133,13 +128,21 @@ namespace Postulate.Orm.Merge
         }
 
         protected abstract string GetTableName(Type type);
+
         protected abstract string ApplyDelimiter(string objectName);
+
         protected abstract string IsTableEmptyQuery { get; }
+
         protected abstract string TableExistsQuery { get; }
+
         protected abstract object TableExistsParameters(Type type);
+
         protected abstract string ColumnExistsQuery { get; }
+
         protected abstract object ColumnExistsParameters(PropertyInfo propertyInfo);
+
         protected abstract string SchemaColumnQuery { get; }
+
         protected abstract object SchemaColumnParameters(Type type);
 
         protected bool IsTableEmpty(IDbConnection connection, Type t)
