@@ -2,7 +2,7 @@
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
-using Postulate.Orm.Merge.Enums;
+using Postulate.Orm.Merge.Abstract;
 using Postulate.Orm.Merge.Models;
 using ReflectionHelper;
 using System;
@@ -12,14 +12,14 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge.Actions
+namespace Postulate.Orm.Merge.MergeActions
 {
-    public class CreateTable : Action2
+    public class CreateTable : MergeAction
     {
         private readonly Type _modelType;
         private readonly bool _rebuild;        
 
-        public CreateTable(Type modelType, bool rebuild = false) : base(ObjectType.Table, ActionType.Create, $"Create table {modelType.Name}")
+        public CreateTable(SqlScriptGenerator scriptGen, Type modelType, bool rebuild = false) : base(scriptGen, ObjectType.Table, ActionType.Create, $"Create table {modelType.Name}")
         {
             _modelType = modelType;
             _rebuild = rebuild;            
@@ -41,12 +41,10 @@ namespace Postulate.Orm.Merge.Actions
         public IEnumerable<string> DeletedColumns { get; set; }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
-        {
-            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
-
+        {           
             if (_rebuild)
             {
-                var drop = new DropTable(_modelType, connection);
+                var drop = new DropTable(this.SqlScriptGenerator, _modelType, connection);
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
 
@@ -58,7 +56,7 @@ namespace Postulate.Orm.Merge.Actions
 
         public virtual string GetTableName()
         {
-            var tableInfo = TableInfo.FromModelType(_modelType, Engine.DefaultSchema);
+            var tableInfo = TableInfo.FromModelType(_modelType);
             return $"[{tableInfo.Schema}].[{tableInfo.Name}]";
         }
 
@@ -131,6 +129,7 @@ namespace Postulate.Orm.Merge.Actions
             return checkType.GetGenericArguments()[0];
         }
 
+        // move this to SqlScriptGenerator as abstract
         public virtual Dictionary<Type, string> KeyTypeMap(bool withDefaults = true)
         {
             return new Dictionary<Type, string>()

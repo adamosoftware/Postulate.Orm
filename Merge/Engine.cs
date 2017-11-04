@@ -1,7 +1,8 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Extensions;
-using Postulate.Orm.Merge.Actions;
+using Postulate.Orm.Merge.Abstract;
+using Postulate.Orm.Merge.MergeActions;
 using Postulate.Orm.Merge.Extensions;
 using Postulate.Orm.Merge.Models;
 using ReflectionHelper;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Orm.Merge
 {
-    public abstract class Engine
+    public abstract class Engine<TScriptProvider> where TScriptProvider : SqlScriptGenerator, new()
     {
         protected readonly Type[] _modelTypes;
         protected readonly IProgress<CompareProgress> _progress;
@@ -35,9 +36,9 @@ namespace Postulate.Orm.Merge
             _progress = progress;
         }
 
-        public async Task<IEnumerable<Action2>> CompareAsync(IDbConnection connection)
+        public async Task<IEnumerable<MergeAction>> CompareAsync(IDbConnection connection)
         {
-            List<Action2> results = new List<Action2>();
+            List<MergeAction> results = new List<MergeAction>();
 
             await Task.Run(() =>
             {
@@ -48,17 +49,19 @@ namespace Postulate.Orm.Merge
             return results;
         }
 
-        private void DropTables(IDbConnection connection, List<Action2> results)
+        private void DropTables(IDbConnection connection, List<MergeAction> results)
         {
             _progress?.Report(new CompareProgress() { Description = "Looking for deleted tables..." });
 
             //throw new NotImplementedException();
         }
 
-        private void SyncTablesAndColumns(IDbConnection connection, List<Action2> results)
+        private void SyncTablesAndColumns(IDbConnection connection, List<MergeAction> results)
         {
             int counter = 0;
             List<PropertyInfo> foreignKeys = new List<PropertyInfo>();
+
+            var scriptProvider = new TScriptProvider();
 
             foreach (var type in _modelTypes)
             {
@@ -69,15 +72,15 @@ namespace Postulate.Orm.Merge
                     PercentComplete = PercentComplete(counter, _modelTypes.Length)
                 });
 
-                if (!TableExists(connection, type))
+                if (!scriptProvider.TableExists(connection, type))
                 {
-                    results.Add(new CreateTable(type));
+                    results.Add(new CreateTable(scriptProvider, type));
                     foreignKeys.AddRange(type.GetForeignKeys());
                 }
                 else
                 {
                     var modelColInfo = type.GetModelPropertyInfo();
-                    var schemaColInfo = GetSchemaColumns(connection, type);
+                    var schemaColInfo = scriptProvider.GetSchemaColumns(connection, type);
 
                     IEnumerable<PropertyInfo> addedColumns;
                     IEnumerable<PropertyInfo> modifiedColumns;
@@ -85,10 +88,10 @@ namespace Postulate.Orm.Merge
 
                     if (AnyColumnsChanged(modelColInfo, schemaColInfo, out addedColumns, out modifiedColumns, out deletedColumns))
                     {
-                        if (IsTableEmpty(connection, type))
+                        if (scriptProvider.IsTableEmpty(connection, type))
                         {
                             // drop and re-create table, indicating affected columns with comments in generated script
-                            results.Add(new CreateTable(type, rebuild: true)
+                            results.Add(new CreateTable(scriptProvider, type, rebuild: true)
                             {
                                 AddedColumns = addedColumns.Select(pi => pi.SqlColumnName()),
                                 ModifiedColumns = modifiedColumns.Select(pi => pi.SqlColumnName()),
@@ -99,9 +102,9 @@ namespace Postulate.Orm.Merge
                         else
                         {
                             // make changes to the table without dropping it
-                            results.AddRange(addedColumns.Select(c => new AddColumn(c)));
-                            results.AddRange(modifiedColumns.Select(c => new AlterColumn(c)));
-                            results.AddRange(deletedColumns.Select(c => new DropColumn(c)));
+                            results.AddRange(addedColumns.Select(c => new AddColumn(scriptProvider, c)));
+                            results.AddRange(modifiedColumns.Select(c => new AlterColumn(scriptProvider, c)));
+                            results.AddRange(deletedColumns.Select(c => new DropColumn(scriptProvider, c)));
                             foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey()));
                         }
                     }
@@ -110,7 +113,7 @@ namespace Postulate.Orm.Merge
                 }
             }
 
-            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(fk)));
+            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(scriptProvider, fk)));
         }
 
         private bool AnyColumnsChanged(
@@ -132,48 +135,6 @@ namespace Postulate.Orm.Merge
         private static bool HasColumnName(Type modelType, string columnName)
         {
             return modelType.GetProperties().Any(pi => pi.SqlColumnName().ToLower().Equals(columnName.ToLower()));
-        }
-
-        private IEnumerable<ColumnInfo> GetSchemaColumns(IDbConnection connection, Type type)
-        {
-            var results = connection.Query<ColumnInfo>(SchemaColumnQuery, SchemaColumnParameters(type));
-            // todo exclude select schemas
-            return results;
-        }
-
-        protected abstract string GetTableName(Type type);
-
-        protected abstract string ApplyDelimiter(string objectName);
-
-        protected abstract string IsTableEmptyQuery { get; }
-
-        protected abstract string TableExistsQuery { get; }
-
-        protected abstract object TableExistsParameters(Type type);
-
-        protected abstract string ColumnExistsQuery { get; }
-
-        protected abstract object ColumnExistsParameters(PropertyInfo propertyInfo);
-
-        protected abstract string SchemaColumnQuery { get; }
-
-        protected abstract object SchemaColumnParameters(Type type);
-
-        protected bool IsTableEmpty(IDbConnection connection, Type t)
-        {
-            //$"SELECT COUNT(1) FROM [{schema}].[{tableName}]"
-            return ((connection.QueryFirstOrDefault<int?>(IsTableEmptyQuery, null) ?? 0) == 0);
-        }
-
-        protected bool TableExists(IDbConnection connection, Type t)
-        {
-            //return connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = schema, name = tableName });
-            return connection.Exists(TableExistsQuery, TableExistsParameters(t));
-        }
-
-        private bool ColumnExists(IDbConnection connection, PropertyInfo pi)
-        {
-            return connection.Exists(ColumnExistsQuery, ColumnExistsParameters(pi));
         }
 
         private int PercentComplete(int value, int total)

@@ -1,30 +1,28 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using Postulate.Orm.Merge.Enums;
+﻿using Dapper;
+using Postulate.Orm.Merge.Abstract;
 using Postulate.Orm.Merge.Models;
-using System.Linq;
-using Dapper;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
-namespace Postulate.Orm.Merge.Actions
+namespace Postulate.Orm.Merge.MergeActions
 {
-    public class DropTable : Action2
+    public class DropTable : MergeAction
     {
         private readonly TableInfo _tableInfo;
 
-        public DropTable(TableInfo tableInfo) : base(ObjectType.Table, ActionType.Drop, $"Drop table {tableInfo.ToString()}")
+        public DropTable(SqlScriptGenerator scriptGen, TableInfo tableInfo) : base(scriptGen, ObjectType.Table, ActionType.Drop, $"Drop table {tableInfo.ToString()}")
         {
             _tableInfo = tableInfo;
         }
 
-        public DropTable(Type modelType, IDbConnection connection = null) : this(TableInfo.FromModelType(modelType, connection: connection))
-        {            
+        public DropTable(SqlScriptGenerator scriptGen, Type modelType, IDbConnection connection = null) : this(scriptGen, TableInfo.FromModelType(modelType, connection: connection))
+        {
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
-            foreach (var cmd in base.SqlCommands(connection)) yield return cmd;
-
             foreach (var fk in GetDependentForeignKeys(connection)) yield return GetDropForeignKeyStatement(fk);
 
             yield return GetDropTableStatement();
@@ -33,7 +31,7 @@ namespace Postulate.Orm.Merge.Actions
         public virtual IEnumerable<ForeignKeyInfo> GetDependentForeignKeys(IDbConnection connection)
         {
             if (_tableInfo.ObjectId == 0) throw new Exception(
-                $@"Dependent foreign key info could not be found for {_tableInfo} because the ObjectId was not set. 
+                $@"Dependent foreign key info could not be found for {_tableInfo} because the ObjectId was not set.
                 Use the IDbConnection argument when creating a TableInfo object to make sure the ObjectId is set.");
 
             return connection.Query<ForeignKeyData>(
@@ -64,7 +62,7 @@ namespace Postulate.Orm.Merge.Actions
                     ConstraintName = fk.ConstraintName,
                     Child = new ColumnInfo() { Schema = fk.ReferencingSchema, TableName = fk.ReferencingTable, ColumnName = fk.ReferencingColumn },
                     Parent = new ColumnInfo() { Schema = fk.ReferencedSchema, TableName = fk.ReferencedTable, ColumnName = fk.ReferencedColumn }
-                });        
+                });
         }
 
         public virtual string GetDropForeignKeyStatement(ForeignKeyInfo foreignKeyInfo)

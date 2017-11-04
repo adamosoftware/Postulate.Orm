@@ -47,16 +47,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Action2.cs" />
-    <Compile Include="Actions\AddColumn.cs" />
-    <Compile Include="Actions\AddForeignKey.cs" />
-    <Compile Include="Actions\AlterColumn.cs" />
-    <Compile Include="Actions\CreateTable.cs" />
-    <Compile Include="Actions\DropColumn.cs" />
-    <Compile Include="Actions\DropTable.cs" />
+    <Compile Include="MergeActions\AddColumn.cs" />
+    <Compile Include="Abstract\MergeAction.cs" />
+    <Compile Include="Abstract\SqlScriptGenerator.cs" />
+    <Compile Include="MergeActions\AddForeignKey.cs" />
+    <Compile Include="MergeActions\AlterColumn.cs" />
+    <Compile Include="MergeActions\CreateTable.cs" />
+    <Compile Include="MergeActions\DropColumn.cs" />
+    <Compile Include="MergeActions\DropTable.cs" />
     <Compile Include="Models\ColumnInfo.cs" />
-    <Compile Include="Enums\ActionType.cs" />
-    <Compile Include="Enums\ObjectType.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Extensions\PropertyInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
