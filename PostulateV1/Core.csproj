@@ -110,7 +110,6 @@
     <Compile Include="Models\PropertyChange.cs" />
     <Compile Include="Attributes\RenameFromAttribute.cs" />
     <Compile Include="Abstract\SqlDb_FindOrCreate.cs" />
-    <Compile Include="SqlServerDb.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Validation\RegexAttribute.cs" />
     <Compile Include="Validation\ValidationAttribute.cs" />

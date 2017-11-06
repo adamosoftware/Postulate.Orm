@@ -12,9 +12,9 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge.SqlServer
+namespace Postulate.Orm.SqlServer
 {
-    public class SqlServer : SqlSyntax
+    public class SqlServerSyntax : SqlSyntax
     {
         public override string CommentPrefix => "-- ";
 
