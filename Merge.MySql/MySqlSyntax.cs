@@ -1,14 +1,14 @@
-﻿using Postulate.Orm.Merge.Abstract;
-using Postulate.Orm.Merge.Models;
+﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 
 namespace Postulate.Orm.Merge.MySql
 {
-    public class MySql : SqlScriptGenerator
+    public class MySqlSyntax : SqlSyntax
     {
         public override string CommentPrefix => "# ";
 
@@ -28,6 +28,26 @@ namespace Postulate.Orm.Merge.MySql
         }
 
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int FindObjectId(IDbConnection connection, TableInfo tableInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetColumnDefault(PropertyInfo propertyInfo, bool forCreateTable = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetColumnSyntax(PropertyInfo propertyInfo, bool forceNull = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetColumnType(PropertyInfo propertyInfo, bool forceNull = false)
         {
             throw new NotImplementedException();
         }
@@ -58,6 +78,16 @@ namespace Postulate.Orm.Merge.MySql
         }
 
         public override object SchemaColumnParameters(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string SqlDataType(PropertyInfo propertyInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Dictionary<Type, string> SupportedTypes(string length = null, byte precision = 0, byte scale = 0)
         {
             throw new NotImplementedException();
         }

@@ -40,7 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MySql.cs" />
+    <Compile Include="MySqlDb.cs" />
+    <Compile Include="MySqlSyntax.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -50,6 +51,15 @@
     <PackageReference Include="Dapper">
       <Version>1.50.2</Version>
     </PackageReference>
+    <PackageReference Include="MySql.Data">
+      <Version>6.10.4</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PostulateV1\Core.csproj">
+      <Project>{74D32DED-6B61-4C06-99B7-4BF11A7325E0}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
