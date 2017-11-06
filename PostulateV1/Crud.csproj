@@ -117,7 +117,6 @@
     <Compile Include="Merge\DropTables.cs" />
     <Compile Include="Merge\ForeignKeyRef.cs" />
     <Compile Include="Merge\Helpers.cs" />
-    <Compile Include="Merge\LineRange.cs" />
     <Compile Include="Merge\RenameColumns.cs" />
     <Compile Include="Merge\RenameTables.cs" />
     <Compile Include="Merge\SchemaMerge.cs" />

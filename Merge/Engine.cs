@@ -13,17 +13,17 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Postulate.Orm.Merge.Exceptions;
+using System.Text;
 
 namespace Postulate.Orm.Merge
 {
-    public abstract class Engine<TScriptProvider> where TScriptProvider : SqlScriptGenerator, new()
+    public class Engine<TScriptGenerator> where TScriptGenerator : SqlScriptGenerator, new()
     {
         protected readonly Type[] _modelTypes;
-        protected readonly IProgress<CompareProgress> _progress;
+        protected readonly IProgress<MergeProgress> _progress;
 
-        public const string DefaultSchema = "dbo";
-
-        public Engine(Assembly assembly, IProgress<CompareProgress> progress)
+        public Engine(Assembly assembly, IProgress<MergeProgress> progress)
         {
             _modelTypes = assembly.GetTypes()
                 .Where(t =>
@@ -51,7 +51,7 @@ namespace Postulate.Orm.Merge
 
         private void DropTables(IDbConnection connection, List<MergeAction> results)
         {
-            _progress?.Report(new CompareProgress() { Description = "Looking for deleted tables..." });
+            _progress?.Report(new MergeProgress() { Description = "Looking for deleted tables..." });
 
             //throw new NotImplementedException();
         }
@@ -61,26 +61,29 @@ namespace Postulate.Orm.Merge
             int counter = 0;
             List<PropertyInfo> foreignKeys = new List<PropertyInfo>();
 
-            var scriptProvider = new TScriptProvider();
+            var scriptGen = new TScriptGenerator();
+            var columns = scriptGen.GetSchemaColumns(connection);
+            TableInfo tableInfo = null;
 
             foreach (var type in _modelTypes)
             {
+                tableInfo = TableInfo.FromModelType(type, connection: connection);
                 counter++;
-                _progress?.Report(new CompareProgress()
+                _progress?.Report(new MergeProgress()
                 {
                     Description = $"Analyzing model class '{type.Name}'...",
                     PercentComplete = PercentComplete(counter, _modelTypes.Length)
                 });
 
-                if (!scriptProvider.TableExists(connection, type))
+                if (!scriptGen.TableExists(connection, type))
                 {
-                    results.Add(new CreateTable(scriptProvider, type));
+                    results.Add(new CreateTable(scriptGen, type));
                     foreignKeys.AddRange(type.GetForeignKeys());
                 }
                 else
                 {
-                    var modelColInfo = type.GetModelPropertyInfo();
-                    var schemaColInfo = scriptProvider.GetSchemaColumns(connection, type);
+                    var modelColInfo = type.GetModelPropertyInfo(scriptGen);
+                    var schemaColInfo = columns[tableInfo.ObjectId];
 
                     IEnumerable<PropertyInfo> addedColumns;
                     IEnumerable<PropertyInfo> modifiedColumns;
@@ -88,10 +91,10 @@ namespace Postulate.Orm.Merge
 
                     if (AnyColumnsChanged(modelColInfo, schemaColInfo, out addedColumns, out modifiedColumns, out deletedColumns))
                     {
-                        if (scriptProvider.IsTableEmpty(connection, type))
+                        if (scriptGen.IsTableEmpty(connection, type))
                         {
                             // drop and re-create table, indicating affected columns with comments in generated script
-                            results.Add(new CreateTable(scriptProvider, type, rebuild: true)
+                            results.Add(new CreateTable(scriptGen, type, rebuild: true)
                             {
                                 AddedColumns = addedColumns.Select(pi => pi.SqlColumnName()),
                                 ModifiedColumns = modifiedColumns.Select(pi => pi.SqlColumnName()),
@@ -102,9 +105,9 @@ namespace Postulate.Orm.Merge
                         else
                         {
                             // make changes to the table without dropping it
-                            results.AddRange(addedColumns.Select(c => new AddColumn(scriptProvider, c)));
-                            results.AddRange(modifiedColumns.Select(c => new AlterColumn(scriptProvider, c)));
-                            results.AddRange(deletedColumns.Select(c => new DropColumn(scriptProvider, c)));
+                            results.AddRange(addedColumns.Select(c => new AddColumn(scriptGen, c)));
+                            results.AddRange(modifiedColumns.Select(c => new AlterColumn(scriptGen, c)));
+                            results.AddRange(deletedColumns.Select(c => new DropColumn(scriptGen, c)));
                             foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey()));
                         }
                     }
@@ -113,7 +116,7 @@ namespace Postulate.Orm.Merge
                 }
             }
 
-            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(scriptProvider, fk)));
+            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(scriptGen, fk)));
         }
 
         private bool AnyColumnsChanged(
@@ -137,9 +140,112 @@ namespace Postulate.Orm.Merge
             return modelType.GetProperties().Any(pi => pi.SqlColumnName().ToLower().Equals(columnName.ToLower()));
         }
 
+        public void Validate(IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            if (actions.Any(a => !a.IsValid(connection)))
+            {
+                string message = string.Join("\r\n", ValidationErrors(connection, actions));
+                throw new ValidationException($"The model has one or more validation errors:\r\n{message}");
+            }
+        }
+
+        public static IEnumerable<ValidationError> ValidationErrors(IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            return actions.Where(a => !a.IsValid(connection)).SelectMany(a => a.ValidationErrors(connection), (a, m) => new ValidationError(a, m));
+        }
+
+        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            Dictionary<MergeAction, LineRange> lineRanges;
+            return GetScript(connection, actions, out lineRanges);
+        }
+
+        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges)
+        {
+            lineRanges = new Dictionary<MergeAction, LineRange>();
+            int startRange = 0;
+            int endRange = 0;
+
+            StringBuilder sb = new StringBuilder();
+            var scriptGen = new TScriptGenerator();
+
+            foreach (var action in actions)
+            {
+                foreach (var cmd in action.SqlCommands(connection))
+                {
+                    sb.AppendLine(cmd);
+                    sb.AppendLine(scriptGen.CommandSeparator);
+                    endRange += GetLineCount(cmd) + 4;
+                }
+
+                lineRanges.Add(action, new LineRange(startRange, endRange));
+                startRange = endRange;
+            }
+
+            return sb;
+        }
+
+        private int GetLineCount(string text)
+        {
+            int result = 0;
+            int start = 0;
+            while (true)
+            {
+                int position = text.IndexOf("\r\n", start);
+                if (position == -1) break;
+                start = position + 1;
+                result++;
+            }
+            return result;
+        }
+
+        public async Task ExecuteAsync(IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            Validate(connection, actions);
+
+            int index = 0;
+            int max = actions.Count();
+
+            foreach (var diff in actions)
+            {
+                index++;
+                _progress?.Report(new MergeProgress() { Description = diff.Description, PercentComplete = PercentComplete(index, max) });
+
+                foreach (var cmd in diff.SqlCommands(connection))
+                {        
+                    await connection.ExecuteAsync(cmd);        
+                }
+            }
+        }
+
+        public async Task ExecuteAsync(IDbConnection connection)
+        {
+            var actions = await CompareAsync(connection);
+            await ExecuteAsync(connection, actions);
+        }
+
         private int PercentComplete(int value, int total)
         {
             return Convert.ToInt32((Convert.ToDouble(value) / Convert.ToDouble(total)) * 100);
+        }
+
+        public class ValidationError
+        {
+            private readonly MergeAction _action;
+            private readonly string _message;
+
+            public ValidationError(MergeAction action, string message)
+            {
+                _action = action;
+                _message = message;
+            }
+
+            public MergeAction Action => _action;
+
+            public override string ToString()
+            {
+                return $"{_action.ToString()}: {_message}";
+            }
         }
     }
 }

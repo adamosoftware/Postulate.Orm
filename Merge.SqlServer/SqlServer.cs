@@ -9,9 +9,11 @@ using System.Linq;
 
 namespace Postulate.Orm.Merge.SqlServer
 {
-    public class ScriptGenerator : SqlScriptGenerator
+    public class SqlServer : SqlScriptGenerator
     {
         public override string CommentPrefix => "-- ";
+
+        public override string CommandSeparator => "\r\nGO\r\n";
 
         public override string IsTableEmptyQuery => throw new NotImplementedException();
 
@@ -91,6 +93,78 @@ namespace Postulate.Orm.Merge.SqlServer
                 { typeof(int), $"int{((withDefaults) ? " identity(1,1)" : string.Empty)}" },
                 { typeof(long), $"bigint{((withDefaults) ? " identity(1,1)" : string.Empty)}" },
                 { typeof(Guid), $"uniqueidentifier{((withDefaults) ? " DEFAULT NewSequentialID()" : string.Empty)}" }
+            };
+        }
+
+        public override IEnumerable<TableInfo> GetSchemaTables(IDbConnection connection)
+        {
+            string excludeSchemas = GetExcludeSchemas(connection);
+
+            var tables = connection.Query(
+                $@"SELECT
+                    SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [Name], [t].[object_id] AS [ObjectId]
+                FROM
+                    [sys].[tables] [t]
+                WHERE
+                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted'{excludeSchemas}) AND
+                    [name] NOT LIKE 'AspNet%' AND
+                    [name] NOT LIKE '__MigrationHistory'");
+
+            return tables.Select(item => new TableInfo(item.Name, item.Schema, item.ObjectId));
+        }
+
+        protected override string GetExcludeSchemas(IDbConnection connection)
+        {            
+            try
+            {
+                var schemas = connection.Query<string>("SELECT [Name] FROM [meta].[MergeExcludeSchema]");
+                if (schemas.Any())
+                {
+                    return ", " + string.Join(", ", schemas.Select(s => $"'{s.Trim()}'"));
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }            
+        }
+
+        public override ILookup<int, ColumnInfo> GetSchemaColumns(IDbConnection connection)
+        {
+            string excludeSchemas = GetExcludeSchemas(connection);
+
+            return connection.Query<ColumnInfo>(
+                $@"SELECT SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [c].[Name] AS [ColumnName],
+					[t].[object_id] AS [ObjectID], TYPE_NAME([c].[system_type_id]) AS [DataType],
+					[c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
+					[c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation]
+				FROM
+					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
+                WHERE
+                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted'{excludeSchemas}) AND
+                    [t].[name] NOT LIKE 'AspNet%' AND
+                    [t].[name] NOT LIKE '__MigrationHistory'").ToLookup(item => item.ObjectId);
+        }
+
+        public override Dictionary<Type, string> SupportedTypes(string length = null, byte precision = 0, byte scale = 0)
+        {
+            return new Dictionary<Type, string>()
+            {
+                { typeof(string), $"nvarchar({length})" },
+                { typeof(bool), "bit" },
+                { typeof(int), "int" },
+                { typeof(decimal), $"decimal({precision}, {scale})" },
+                { typeof(double), "float" },
+                { typeof(float), "float" },
+                { typeof(long), "bigint" },
+                { typeof(short), "smallint" },
+                { typeof(byte), "tinyint" },
+                { typeof(Guid), "uniqueidentifier" },
+                { typeof(DateTime), "datetime" },
+                { typeof(TimeSpan), "time" },
+                { typeof(char), "nchar(1)" },
+                { typeof(byte[]), $"varbinary({length})" }
             };
         }
     }

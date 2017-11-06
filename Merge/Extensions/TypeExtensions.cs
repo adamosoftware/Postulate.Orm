@@ -1,4 +1,4 @@
-﻿using Postulate.Orm.Extensions;
+﻿using Postulate.Orm.Merge.Abstract;
 using Postulate.Orm.Merge.Models;
 using ReflectionHelper;
 using System;
@@ -11,14 +11,14 @@ namespace Postulate.Orm.Merge.Extensions
 {
     public static class TypeExtensions
     {
-        public static IEnumerable<PropertyInfo> GetModelPropertyInfo(this Type type)
+        public static IEnumerable<PropertyInfo> GetModelPropertyInfo(this Type type, SqlScriptGenerator scriptGen)
         {
-            return type.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>() && pi.IsSupportedType());
+            return type.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>() && scriptGen.IsSupportedType(pi.PropertyType));
         }
 
-        public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type)
+        public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type, SqlScriptGenerator scriptGen)
         {
-            return GetModelPropertyInfo(type).Select(pi => new ColumnInfo(pi));
+            return GetModelPropertyInfo(type, scriptGen).Select(pi => new ColumnInfo(pi));
         }
 
         public static IEnumerable<PropertyInfo> GetForeignKeys(this Type type)

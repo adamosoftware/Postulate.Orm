@@ -16,6 +16,13 @@ namespace Postulate.Orm.Merge.Models
             if (connection != null) ObjectId = FindObjectId(connection);
         }
 
+        public TableInfo(string name, string schema, int objectId)
+        {
+            Schema = schema;
+            Name = name;
+            ObjectId = objectId;
+        }
+
         public static TableInfo FromModelType(Type type, string defaultSchema = "", IDbConnection connection = null)
         {
             string schema = defaultSchema;

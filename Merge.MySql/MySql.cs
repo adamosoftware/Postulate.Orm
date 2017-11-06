@@ -4,12 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+using System.Linq;
 
 namespace Postulate.Orm.Merge.MySql
 {
     public class MySql : SqlScriptGenerator
     {
         public override string CommentPrefix => "# ";
+
+        public override string CommandSeparator => ";\r\n\r\n";
 
         public override string IsTableEmptyQuery => throw new NotImplementedException();
 
@@ -34,6 +37,16 @@ namespace Postulate.Orm.Merge.MySql
             throw new NotImplementedException();
         }
 
+        public override ILookup<int, ColumnInfo> GetSchemaColumns(IDbConnection connection)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IEnumerable<TableInfo> GetSchemaTables(IDbConnection connection)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string GetTableName(Type type)
         {
             throw new NotImplementedException();
@@ -50,6 +63,11 @@ namespace Postulate.Orm.Merge.MySql
         }
 
         public override object TableExistsParameters(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override string GetExcludeSchemas(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

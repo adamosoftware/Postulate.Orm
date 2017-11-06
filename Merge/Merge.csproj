@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\ValidationException.cs" />
+    <Compile Include="LineRange.cs" />
     <Compile Include="MergeActions\AddColumn.cs" />
     <Compile Include="Abstract\MergeAction.cs" />
     <Compile Include="Abstract\SqlScriptGenerator.cs" />
@@ -59,7 +61,7 @@
     <Compile Include="Engine.cs" />
     <Compile Include="Extensions\PropertyInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
-    <Compile Include="CompareProgress.cs" />
+    <Compile Include="MergeProgress.cs" />
     <Compile Include="Models\ForeignKeyInfo.cs" />
     <Compile Include="Models\TableInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -32,6 +32,8 @@ namespace Postulate.Orm.Merge.Abstract
     {
         public abstract string CommentPrefix { get; }
 
+        public abstract string CommandSeparator { get; }
+
         public abstract string GetTableName(Type type);
         
         public abstract string ApplyDelimiter(string objectName);
@@ -67,15 +69,21 @@ namespace Postulate.Orm.Merge.Abstract
             return connection.Exists(ColumnExistsQuery, ColumnExistsParameters(pi));
         }
 
-        public IEnumerable<ColumnInfo> GetSchemaColumns(IDbConnection connection, Type type)
-        {
-            var results = connection.Query<ColumnInfo>(SchemaColumnQuery, SchemaColumnParameters(type));
-            // todo exclude select schemas
-            return results;
-        }
+        public abstract ILookup<int, ColumnInfo> GetSchemaColumns(IDbConnection connection);
+
+        public abstract IEnumerable<TableInfo> GetSchemaTables(IDbConnection connection);
+
+        protected abstract string GetExcludeSchemas(IDbConnection connection);
 
         public abstract IEnumerable<ForeignKeyInfo> GetDependentForeignKeys(IDbConnection connection, TableInfo tableInfo);
 
         public abstract Dictionary<Type, string> KeyTypeMap(bool withDefaults = true);
+
+        public abstract Dictionary<Type, string> SupportedTypes(string length = null, byte precision = 0, byte scale = 0);
+
+        public bool IsSupportedType(Type type)
+        {
+            return SupportedTypes().ContainsKey(type);
+        }
     }
 }
