@@ -15,7 +15,7 @@ namespace Postulate.Orm.Merge.Abstract
         public ActionType ActionType { get { return _actionType; } }
         public string Description { get { return _description; } }
 
-        protected SqlScriptGenerator SqlScriptGenerator { get { return _scriptGen; } }
+        protected SqlScriptGenerator ScriptGen { get { return _scriptGen; } }
 
         public MergeAction(SqlScriptGenerator scriptGenerator, ObjectType objectType, ActionType actionType, string description)
         {

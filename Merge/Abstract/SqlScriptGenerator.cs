@@ -73,5 +73,9 @@ namespace Postulate.Orm.Merge.Abstract
             // todo exclude select schemas
             return results;
         }
+
+        public abstract IEnumerable<ForeignKeyInfo> GetDependentForeignKeys(IDbConnection connection, TableInfo tableInfo);
+
+        public abstract Dictionary<Type, string> KeyTypeMap(bool withDefaults = true);
     }
 }

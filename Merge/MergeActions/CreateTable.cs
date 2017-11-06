@@ -3,7 +3,6 @@ using Postulate.Orm.Attributes;
 using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Merge.Abstract;
-using Postulate.Orm.Merge.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -17,12 +16,12 @@ namespace Postulate.Orm.Merge.MergeActions
     public class CreateTable : MergeAction
     {
         private readonly Type _modelType;
-        private readonly bool _rebuild;        
+        private readonly bool _rebuild;
 
         public CreateTable(SqlScriptGenerator scriptGen, Type modelType, bool rebuild = false) : base(scriptGen, ObjectType.Table, ActionType.Create, $"Create table {modelType.Name}")
         {
             _modelType = modelType;
-            _rebuild = rebuild;            
+            _rebuild = rebuild;
         }
 
         /// <summary>
@@ -41,23 +40,17 @@ namespace Postulate.Orm.Merge.MergeActions
         public IEnumerable<string> DeletedColumns { get; set; }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
-        {           
+        {
             if (_rebuild)
             {
-                var drop = new DropTable(this.SqlScriptGenerator, _modelType, connection);
+                var drop = new DropTable(this.ScriptGen, _modelType, connection);
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
 
             yield return
-                $"CREATE TABLE {GetTableName()} (\r\n\t" +
+                $"CREATE TABLE {ScriptGen.GetTableName(_modelType)} (\r\n\t" +
                     string.Join(",\r\n\t", CreateTableMembers()) +
                 "\r\n)";
-        }
-
-        public virtual string GetTableName()
-        {
-            var tableInfo = TableInfo.FromModelType(_modelType);
-            return $"[{tableInfo.Schema}].[{tableInfo.Name}]";
         }
 
         private string[] CreateTableMembers()
@@ -117,7 +110,7 @@ namespace Postulate.Orm.Merge.MergeActions
         {
             Type keyType = FindKeyType(_modelType);
 
-            return $"[{_modelType.IdentityColumnName()}] {KeyTypeMap()[keyType]}";
+            return $"{ScriptGen.ApplyDelimiter(_modelType.IdentityColumnName())} {ScriptGen.KeyTypeMap()[keyType]}";
         }
 
         private Type FindKeyType(Type modelType)
@@ -127,17 +120,6 @@ namespace Postulate.Orm.Merge.MergeActions
             Type checkType = modelType;
             while (!checkType.IsGenericType) checkType = checkType.BaseType;
             return checkType.GetGenericArguments()[0];
-        }
-
-        // move this to SqlScriptGenerator as abstract
-        public virtual Dictionary<Type, string> KeyTypeMap(bool withDefaults = true)
-        {
-            return new Dictionary<Type, string>()
-            {
-                { typeof(int), $"int{((withDefaults) ? " identity(1,1)" : string.Empty)}" },
-                { typeof(long), $"bigint{((withDefaults) ? " identity(1,1)" : string.Empty)}" },
-                { typeof(Guid), $"uniqueidentifier{((withDefaults) ? " DEFAULT NewSequentialID()" : string.Empty)}" }
-            };
         }
     }
 }

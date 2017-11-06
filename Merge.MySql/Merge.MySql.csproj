@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{202C0F01-7ED0-48DC-A883-B27066D855FC}</ProjectGuid>
+    <ProjectGuid>{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Postulate.Orm.Merge</RootNamespace>
-    <AssemblyName>Postulate.Orm.Merge</AssemblyName>
+    <RootNamespace>Postulate.Orm.Merge.MySql</RootNamespace>
+    <AssemblyName>Postulate.Orm.Merge.MySql</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,14 +30,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
-    </Reference>
-    <Reference Include="ReflectionHelper, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\AoReflectionHelper.1.0.1\lib\net461\ReflectionHelper.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -47,32 +40,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MergeActions\AddColumn.cs" />
-    <Compile Include="Abstract\MergeAction.cs" />
-    <Compile Include="Abstract\SqlScriptGenerator.cs" />
-    <Compile Include="MergeActions\AddForeignKey.cs" />
-    <Compile Include="MergeActions\AlterColumn.cs" />
-    <Compile Include="MergeActions\CreateTable.cs" />
-    <Compile Include="MergeActions\DropColumn.cs" />
-    <Compile Include="MergeActions\DropTable.cs" />
-    <Compile Include="Models\ColumnInfo.cs" />
-    <Compile Include="Engine.cs" />
-    <Compile Include="Extensions\PropertyInfoExtensions.cs" />
-    <Compile Include="Extensions\TypeExtensions.cs" />
-    <Compile Include="CompareProgress.cs" />
-    <Compile Include="Models\ForeignKeyInfo.cs" />
-    <Compile Include="Models\TableInfo.cs" />
+    <Compile Include="MySql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\PostulateV1\Crud.csproj">
-      <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
-      <Name>Crud</Name>
+    <ProjectReference Include="..\Merge\Merge.csproj">
+      <Project>{202c0f01-7ed0-48dc-a883-b27066d855fc}</Project>
+      <Name>Merge</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="Dapper">
+      <Version>1.50.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
