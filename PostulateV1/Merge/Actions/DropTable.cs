@@ -1,12 +1,12 @@
 ﻿using Dapper;
-using Postulate.Orm.Merge.Abstract;
-using Postulate.Orm.Merge.Models;
+using Postulate.Orm.Abstract;
+using Postulate.Orm.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace Postulate.Orm.Merge.MergeActions
+namespace Postulate.Orm.Merge.Actions
 {
     public class DropTable : MergeAction
     {

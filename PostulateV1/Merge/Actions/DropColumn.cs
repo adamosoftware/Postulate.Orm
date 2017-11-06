@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using Postulate.Orm.Merge.Abstract;
-using Postulate.Orm.Merge.Models;
 
-namespace Postulate.Orm.Merge.MergeActions
+namespace Postulate.Orm.Merge.Actions
 {
     public class DropColumn : MergeAction
     {

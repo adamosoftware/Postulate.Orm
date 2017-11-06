@@ -2,7 +2,6 @@
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
-using Postulate.Orm.Merge.Abstract;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge
+namespace Postulate.Orm.Merge.Actions
 {
     public class CreateTable : MergeAction
     {
