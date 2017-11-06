@@ -1,6 +1,7 @@
 ﻿using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
+using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace Postulate.Orm.Abstract
     /// <typeparam name="TKey">Data type of unique keys used on all model classes for this database</typeparam>
     public abstract partial class SqlDb<TKey> : IDb
     {
-        protected readonly SqlSyntax _syntax;
+        private readonly SqlSyntax _syntax;
 
         public const string IdentityColumnName = "Id";
 
@@ -110,14 +111,12 @@ namespace Postulate.Orm.Abstract
         private Dictionary<string, string> _deleteCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _copyCommands = new Dictionary<string, string>();
 
+        protected SqlSyntax Syntax { get { return _syntax; } }
+
         protected virtual string GetTableName<TRecord>() where TRecord : Record<TKey>
-        {
-            Type modelType = typeof(TRecord);
-            string schema;
-            string tableName;
-            CreateTable.ParseNameAndSchema(modelType, out schema, out tableName);
-            string result = schema + "." + tableName;
-            return _syntax.ApplyDelimiter(result);
+        {            
+            var obj = TableInfo.FromModelType(typeof(TRecord));
+            return _syntax.ApplyDelimiter(obj.ToString());
         }
 
         protected virtual string GetFindStatement<TRecord>() where TRecord : Record<TKey>, new()

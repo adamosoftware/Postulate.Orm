@@ -25,7 +25,7 @@ namespace Postulate.Orm.Abstract
             return typeof(TRecord).GetProperties().Where(pi => 
                 pi.HasColumnAccess(Access.UpdateOnly) && 
                 !ignorePropsArray.Contains(pi.Name) &&
-                pi.IsSupportedType()).Select(pi =>
+                pi.IsSupportedType(_syntax)).Select(pi =>
             {
                 return new PropertyChange()
                 {

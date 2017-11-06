@@ -6,15 +6,21 @@ namespace Postulate.Orm.Models
 {
     public class ColumnInfo
     {
-        private readonly PropertyInfo _propertyInfo;
-
         public ColumnInfo()
         {
         }
 
-        public ColumnInfo(PropertyInfo propertyInfo)
+        public static ColumnInfo FromPropertyInfo(PropertyInfo propertyInfo)
         {
-            PropertyInfo = propertyInfo;
+            var tbl = TableInfo.FromModelType(propertyInfo.ReflectedType);
+            ColumnInfo result = new ColumnInfo()
+            {
+                Schema = tbl.Schema,
+                TableName = tbl.Name,
+                ColumnName = propertyInfo.SqlColumnName()
+            };
+
+            return result;
         }
 
         public string Schema { get; set; }

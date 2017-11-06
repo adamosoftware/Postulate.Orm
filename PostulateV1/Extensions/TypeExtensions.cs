@@ -59,9 +59,8 @@ namespace Postulate.Orm.Extensions
 
         public static string GetSchema(this Type type)
         {
-            string schema, name;
-            CreateTable.ParseNameAndSchema(type, out schema, out name);
-            return schema;
+            var obj = TableInfo.FromModelType(type);
+            return obj.Schema;
         }
 
         public static bool HasClusteredPrimaryKey(this Type type)
@@ -86,7 +85,7 @@ namespace Postulate.Orm.Extensions
 
         public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type, SqlSyntax scriptGen)
         {
-            return GetModelPropertyInfo(type, scriptGen).Select(pi => new ColumnInfo(pi));
+            return GetModelPropertyInfo(type, scriptGen).Select(pi => ColumnInfo.FromPropertyInfo(pi));
         }
 
         public static IEnumerable<PropertyInfo> GetForeignKeys(this Type type)

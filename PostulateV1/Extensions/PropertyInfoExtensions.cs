@@ -66,7 +66,7 @@ namespace Postulate.Orm.Extensions
 
         public static ColumnInfo ToColumnInfo(this PropertyInfo propertyInfo)
         {
-            return new ColumnInfo(propertyInfo);
+            return ColumnInfo.FromPropertyInfo(propertyInfo);
         }
     }
 }

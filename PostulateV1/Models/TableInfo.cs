@@ -8,11 +8,10 @@ namespace Postulate.Orm.Models
 {
     public class TableInfo
     {
-        public TableInfo(string name, string schema = "", IDbConnection connection = null)
+        public TableInfo(string name, string schema = "")
         {
             Schema = schema;
-            Name = name;
-            if (connection != null) ObjectId = FindObjectId(connection);
+            Name = name;            
         }
 
         public TableInfo(string name, string schema, int objectId)
@@ -22,7 +21,7 @@ namespace Postulate.Orm.Models
             ObjectId = objectId;
         }
 
-        public static TableInfo FromModelType(Type type, string defaultSchema = "", IDbConnection connection = null)
+        public static TableInfo FromModelType(Type type, string defaultSchema = "")
         {
             string schema = defaultSchema;
             string name = type.Name;
@@ -32,9 +31,7 @@ namespace Postulate.Orm.Models
             if (type.HasAttribute(out TableAttribute tblAttr, a => !string.IsNullOrEmpty(a.Schema))) schema = tblAttr.Schema;
             if (type.HasAttribute(out tblAttr, a => !string.IsNullOrEmpty(a.Name))) name = tblAttr.Name;
 
-            var result = new TableInfo(schema, name) { ModelType = type };
-
-            if (connection != null) result.ObjectId = result.FindObjectId(connection);
+            var result = new TableInfo(schema, name) { ModelType = type };            
 
             return result;
         }

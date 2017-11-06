@@ -94,6 +94,16 @@ namespace Postulate.Orm.Abstract
 
         public abstract string GetColumnType(PropertyInfo propertyInfo, bool forceNull = false);
 
-        public abstract string GetColumnDefault(PropertyInfo propertyInfo, bool forCreateTable = false);        
+        public abstract string GetColumnDefault(PropertyInfo propertyInfo, bool forCreateTable = false);
+
+        public abstract string GetConstraintBaseName(Type type);
+
+        public abstract string GetDropForeignKeyStatement(ForeignKeyInfo foreignKeyInfo);
+
+        public abstract string GetDropTableStatement(TableInfo tableInfo);
+
+        public abstract IEnumerable<KeyColumnInfo> GetKeyColumns(IDbConnection connection, Func<KeyColumnInfo, bool> filter = null);
+
+        public abstract string GetCopyStatement<TRecord, TKey>(IEnumerable<string> paramColumns, IEnumerable<string> columns) where TRecord : Record<TKey>;
     }
 }

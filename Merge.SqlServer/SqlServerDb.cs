@@ -103,7 +103,7 @@ namespace Postulate.Orm
             if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _changesSchema, name = $"{tableName}_Versions" }))
             {
                 connection.Execute($@"CREATE TABLE [{_changesSchema}].[{tableName}_Versions] (
-					[RecordId] {_syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
+					[RecordId] {Syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
 					[NextVersion] int NOT NULL DEFAULT (1),
 					CONSTRAINT [PK_{_changesSchema}_{tableName}_Versions] PRIMARY KEY ([RecordId])
 				)");
@@ -112,7 +112,7 @@ namespace Postulate.Orm
             if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _changesSchema, name = tableName }))
             {
                 connection.Execute($@"CREATE TABLE [{_changesSchema}].[{tableName}] (
-					[RecordId] {_syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
+					[RecordId] {Syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
 					[Version] int NOT NULL,
 					[ColumnName] nvarchar(100) NOT NULL,
                     [UserName] nvarchar(256) NOT NULL,
@@ -163,7 +163,7 @@ namespace Postulate.Orm
             if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _deletedSchema, name = tableName }, transaction))
             {
                 connection.Execute($@"CREATE TABLE [{_deletedSchema}].[{tableName}] (
-					[RecordId] {_syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
+					[RecordId] {Syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
                     [UserName] nvarchar(256) NOT NULL,
                     [Data] xml NOT NULL,
 					[DateTime] datetime NOT NULL DEFAULT (getutcdate()),

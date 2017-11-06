@@ -65,7 +65,7 @@ namespace Postulate.Orm.MySql
         {
             Type modelType = typeof(TRecord);
             var obj = TableInfo.FromModelType(typeof(TRecord));
-            return _syntax.ApplyDelimiter(obj.Name);
+            return Syntax.ApplyDelimiter(obj.Name);
         }
 
         protected override string GetInsertStatement<TRecord>()
@@ -74,7 +74,7 @@ namespace Postulate.Orm.MySql
 
             return
                 $@"INSERT INTO {GetTableName<TRecord>()} (
-                    {string.Join(", ", columns.Select(s => _syntax.ApplyDelimiter(s)))}
+                    {string.Join(", ", columns.Select(s => Syntax.ApplyDelimiter(s)))}
                 ) VALUES (
                     {string.Join(", ", columns.Select(s => $"@{s}"))}
                 ); SELECT LAST_INSERT_ID()";
@@ -82,7 +82,7 @@ namespace Postulate.Orm.MySql
 
         protected override string GetDeleteStatement<TRecord>()
         {
-            return $"DELETE FROM {GetTableName<TRecord>()} WHERE {_syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
+            return $"DELETE FROM {GetTableName<TRecord>()} WHERE {Syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
     }
 }

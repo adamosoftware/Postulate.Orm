@@ -42,10 +42,10 @@ namespace Postulate.Orm.Extensions
             return (fkAttr != null) ? fkAttr.PrimaryTableType : null;
         }
 
-        public static string ForeignKeyName(this PropertyInfo propertyInfo)
+        public static string ForeignKeyName(this PropertyInfo propertyInfo, SqlSyntax syntax)
         {
             var fk = GetForeignKeyAttribute(propertyInfo);
-            return $"FK_{DbObject.ConstraintName(propertyInfo.ReflectedType)}_{propertyInfo.SqlColumnName()}";
+            return $"FK_{syntax.GetConstraintBaseName(propertyInfo.ReflectedType)}_{propertyInfo.SqlColumnName()}";
         }
 
         public static bool AllowSqlNull(this PropertyInfo propertyInfo)
@@ -62,7 +62,7 @@ namespace Postulate.Orm.Extensions
 
         public static TableInfo GetTableInfo(this PropertyInfo propertyInfo, IDbConnection connection = null)
         {
-            return TableInfo.FromModelType(propertyInfo.ReflectedType, connection: connection);
+            return TableInfo.FromModelType(propertyInfo.ReflectedType);
         }
 
         public static IEnumerable<string> GetPrimaryKeyValidationErrors(this PropertyInfo propertyInfo, SqlSyntax syntax)
@@ -71,9 +71,9 @@ namespace Postulate.Orm.Extensions
             if (propertyInfo.PropertyType.IsNullableGeneric()) yield return $"Primary key column {propertyInfo.Name} may not be nullable.";
         }
 
-        public static string IndexName(this PropertyInfo propertyInfo)
+        public static string IndexName(this PropertyInfo propertyInfo, SqlSyntax syntax)
         {
-            return $"IX_{DbObject.ConstraintName(propertyInfo.DeclaringType)}_{propertyInfo.SqlColumnName()}";
+            return $"IX_{syntax.GetConstraintBaseName(propertyInfo.DeclaringType)}_{propertyInfo.SqlColumnName()}";
         }
     }
 }

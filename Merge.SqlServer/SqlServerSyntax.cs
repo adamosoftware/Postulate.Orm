@@ -27,16 +27,19 @@ namespace Postulate.Orm.SqlServer
 
         public override string IsTableEmptyQuery => throw new NotImplementedException();
 
-        public override string TableExistsQuery => throw new NotImplementedException();
+        public override string TableExistsQuery => 
+            "SELECT 1 FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name";
 
-        public override string ColumnExistsQuery => throw new NotImplementedException();
-
-        public override string SchemaColumnQuery => throw new NotImplementedException();
+        public override string ColumnExistsQuery =>
+            @"SELECT 1 FROM [sys].[columns] [col] INNER JOIN [sys].[tables] [tbl] ON [col].[object_id]=[tbl].[object_id]
+			WHERE SCHEMA_NAME([tbl].[schema_id])=@schema AND [tbl].[name]=@tableName AND [col].[name]=@columnName";        
 
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
         {
-            throw new NotImplementedException();
+            return ColumnInfo.FromPropertyInfo(propertyInfo);
         }
+
+        public override string SchemaColumnQuery => throw new NotImplementedException();
 
         public override IEnumerable<ForeignKeyInfo> GetDependentForeignKeys(IDbConnection connection, TableInfo tableInfo)
         {
@@ -286,5 +289,71 @@ namespace Postulate.Orm.SqlServer
             return result;
         }
 
+        public override string GetConstraintBaseName(Type type)
+        {
+            var obj = TableInfo.FromModelType(type);
+            return (obj.Schema.ToLower().Equals("dbo")) ? obj.Name : TitleCase(obj.Schema) + obj.Name;
+        }
+
+        public override string GetDropForeignKeyStatement(ForeignKeyInfo foreignKeyInfo)
+        {
+            return $"ALTER TABLE [{foreignKeyInfo.Child.Schema}].[{foreignKeyInfo.Child.TableName}] DROP CONSTRAINT [{foreignKeyInfo.ConstraintName}]";
+        }
+
+        public override string GetDropTableStatement(TableInfo tableInfo)
+        {
+            return $"DROP TABLE [{tableInfo.Schema}].[{tableInfo.Name}]";
+        }
+
+        public override IEnumerable<KeyColumnInfo> GetKeyColumns(IDbConnection connection, Func<KeyColumnInfo, bool> filter = null)
+        {
+            var results = connection.Query<KeyColumnInfo>(
+                @"SELECT
+                    SCHEMA_NAME([t].[schema_id]) AS [Schema],
+                    [t].[name] AS [TableName],
+                    [col].[name] AS [ColumnName],
+                    [ndx].[name] AS [IndexName],
+                    [ndx].[type] AS [IndexType],
+                    [ndx].[is_unique] AS [IsUnique],
+                    [ndx].[is_primary_key] AS [IsPrimaryKey]
+                FROM
+                    [sys].[index_columns] [ndxcol] INNER JOIN [sys].[indexes] [ndx] ON
+                        [ndxcol].[object_id]=[ndx].[object_id] AND
+                        [ndxcol].[index_id]=[ndx].[index_id]
+                    INNER JOIN [sys].[tables] [t] ON [ndx].[object_id]=[t].[object_id]
+                    INNER JOIN [sys].[columns] [col] ON
+                         [ndxcol].[object_id]=[col].[object_id] AND
+                         [ndxcol].[column_id]=[col].[column_id]");
+
+            return (filter == null) ?
+                results :
+                results.Where(row => filter.Invoke(row));
+        }
+
+        private string TitleCase(string input)
+        {
+            if (input.Length >= 2)
+            {
+                return input.Substring(0, 1).ToUpper() + input.Substring(1).ToLower();
+            }
+
+            return input.ToUpper();
+        }
+
+        public override string GetCopyStatement<TRecord, TKey>(IEnumerable<string> paramColumns, IEnumerable<string> columns)
+        {
+            string tableName = GetTableName(typeof(TRecord));
+            return 
+                $@"INSERT INTO {tableName} (
+                    {string.Join(", ", columns.Concat(paramColumns.Select(col => ApplyDelimiter(col))))}
+                ) OUTPUT
+                    [inserted].[{typeof(TRecord).IdentityColumnName()}]
+                SELECT
+                    {string.Join(", ", columns.Concat(paramColumns.Select(col => $"@{col}")))}
+                FROM
+                    {tableName}
+                WHERE
+                    {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
+        }
     }
 }

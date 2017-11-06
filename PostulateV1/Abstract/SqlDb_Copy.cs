@@ -44,19 +44,9 @@ namespace Postulate.Orm.Abstract
                     !s.Equals(typeof(TRecord).IdentityColumnName()) && // can't insert into identity column
                     (!omitColumns?.Select(omitCol => omitCol.ToLower()).Contains(s.ToLower()) ?? true) &&
                     !paramColumns.Select(paramCol => paramCol.ToLower()).Contains(s.ToLower())) // don't insert into param columns because we're providing new values
-                .Select(colName => ApplyDelimiter(colName));
+                .Select(colName => Syntax.ApplyDelimiter(colName));
 
-            return
-                $@"INSERT INTO {GetTableName<TRecord>()} (
-                    {string.Join(", ", columns.Concat(paramColumns.Select(col => ApplyDelimiter(col))))}
-                ) OUTPUT
-                    [inserted].[{typeof(TRecord).IdentityColumnName()}]
-                SELECT
-                    {string.Join(", ", columns.Concat(paramColumns.Select(col => $"@{col}")))}
-                FROM
-                    {GetTableName<TRecord>()}
-                WHERE
-                    [{typeof(TRecord).IdentityColumnName()}]=@id";
+            return Syntax.GetCopyStatement<TRecord, TKey>(paramColumns, columns);
         }
     }
 }
