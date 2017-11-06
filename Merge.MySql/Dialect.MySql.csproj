@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6160BBDE-24A4-4964-961F-39A4A5D036D4}</ProjectGuid>
+    <ProjectGuid>{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Postulate.Orm.Merge.SqlServer</RootNamespace>
-    <AssemblyName>Postulate.Orm.Merge.SqlServer</AssemblyName>
+    <RootNamespace>Postulate.Orm.MySql</RootNamespace>
+    <AssemblyName>Postulate.Orm.MySql</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SqlServer.cs" />
+    <Compile Include="MySql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -50,6 +50,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AoReflectionHelper">
+      <Version>1.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Dapper">
       <Version>1.50.2</Version>
     </PackageReference>

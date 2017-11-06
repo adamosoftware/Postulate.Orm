@@ -47,26 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Exceptions\ValidationException.cs" />
-    <Compile Include="LineRange.cs" />
-    <Compile Include="MergeActions\AddColumn.cs" />
-    <Compile Include="Abstract\MergeAction.cs" />
-    <Compile Include="Abstract\SqlScriptGenerator.cs" />
-    <Compile Include="MergeActions\AddForeignKey.cs" />
-    <Compile Include="MergeActions\AlterColumn.cs" />
-    <Compile Include="MergeActions\CreateTable.cs" />
-    <Compile Include="MergeActions\DropColumn.cs" />
-    <Compile Include="MergeActions\DropTable.cs" />
-    <Compile Include="Models\ColumnInfo.cs" />
-    <Compile Include="Engine.cs" />
-    <Compile Include="Extensions\PropertyInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
-    <Compile Include="MergeProgress.cs" />
-    <Compile Include="Models\ForeignKeyInfo.cs" />
-    <Compile Include="Models\TableInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Abstract\" />
+    <Folder Include="MergeActions\" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PostulateV1\Crud.csproj">
       <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>

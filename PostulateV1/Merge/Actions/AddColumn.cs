@@ -1,10 +1,11 @@
-﻿using Postulate.Orm.Merge.Extensions;
+﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge.Abstract
+namespace Postulate.Orm.Merge.Actions
 {
     public class AddColumn : MergeAction
     {

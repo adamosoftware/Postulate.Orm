@@ -23,7 +23,7 @@ namespace Postulate.Orm
     public class SqlServerDb<TKey> : SqlDb<TKey>, IDb
     {
         private const string _changesSchema = "changes";
-        private const string _deletedSchema = "deleted";
+        private const string _deletedSchema = "deleted";        
 
         public SqlServerDb(Configuration configuration, string connectionName, string userName = null) : base(configuration, connectionName, userName)
         {
@@ -96,7 +96,7 @@ namespace Postulate.Orm
 
         private static string ChangeTrackingTableName<TRecord>()
         {
-            DbObject obj = DbObject.FromType(typeof(TRecord));
+            TableInfo obj = TableInfo.FromModelType(typeof(TRecord));
             return $"{obj.Schema}_{obj.Name}";
         }
 

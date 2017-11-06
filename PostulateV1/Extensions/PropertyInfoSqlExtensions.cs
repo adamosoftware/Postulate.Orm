@@ -1,6 +1,6 @@
-﻿using Postulate.Orm.Attributes;
+﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge;
-using Postulate.Orm.Merge.Action;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -50,48 +50,16 @@ namespace Postulate.Orm.Extensions
             return result;
         }
 
-        public static string SqlDataType(this PropertyInfo propertyInfo)
+        public static string SqlDataType(this PropertyInfo propertyInfo, SqlScriptGenerator scriptGen)
         {
-            string result = null;
-
-            ColumnAttribute colAttr;
-            if (propertyInfo.HasAttribute(out colAttr))
-            {
-                return colAttr.TypeName;
-            }
-            else
-            {
-                string length = "max";
-                var maxLenAttr = propertyInfo.GetCustomAttribute<MaxLengthAttribute>();
-                if (maxLenAttr != null) length = maxLenAttr.Length.ToString();
-
-                byte precision = 5, scale = 2; // some aribtrary defaults
-                var dec = propertyInfo.GetCustomAttribute<DecimalPrecisionAttribute>();
-                if (dec != null)
-                {
-                    precision = dec.Precision;
-                    scale = dec.Scale;
-                }
-
-                var typeMap = CreateTable.SupportedTypes(length, precision, scale);
-
-                Type t = propertyInfo.PropertyType;
-                if (t.IsGenericType) t = t.GenericTypeArguments[0];
-                if (t.IsEnum) t = t.GetEnumUnderlyingType();
-
-                if (!typeMap.ContainsKey(t)) throw new KeyNotFoundException($"Type name {t.Name} not supported.");
-
-                result = typeMap[t];
-            }
-
-            return result;
+            return scriptGen.SqlDataType(propertyInfo);
         }
 
-        public static string SqlColumnType(this PropertyInfo propertyInfo, bool forceNull = false)
+        public static string SqlColumnType(this PropertyInfo propertyInfo, SqlScriptGenerator scriptGen, bool forceNull = false)
         {
             string nullable = ((AllowSqlNull(propertyInfo) || forceNull) ? "NULL" : "NOT NULL");
 
-            string result = SqlDataType(propertyInfo);
+            string result = scriptGen.SqlDataType(propertyInfo);
 
             CollateAttribute collate;
             string collation = string.Empty;

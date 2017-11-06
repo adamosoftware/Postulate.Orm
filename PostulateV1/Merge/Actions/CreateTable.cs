@@ -11,7 +11,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge.MergeActions
+namespace Postulate.Orm.Merge
 {
     public class CreateTable : MergeAction
     {

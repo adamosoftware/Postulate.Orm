@@ -2,7 +2,7 @@
 using System.Data;
 using System.Linq;
 
-namespace Postulate.Orm.Merge.Abstract
+namespace Postulate.Orm.Abstract
 {
     public abstract class MergeAction
     {

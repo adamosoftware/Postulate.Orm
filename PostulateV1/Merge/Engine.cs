@@ -1,10 +1,10 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
+using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Merge.Abstract;
 using Postulate.Orm.Merge.MergeActions;
-using Postulate.Orm.Merge.Extensions;
-using Postulate.Orm.Merge.Models;
+using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -12,13 +12,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Postulate.Orm.Merge.Exceptions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Postulate.Orm.Merge
 {
-    public class Engine<TScriptGenerator> where TScriptGenerator : SqlScriptGenerator, new()
+    public class Engine<TScriptGen> where TScriptGen : SqlScriptGenerator, new()
     {
         protected readonly Type[] _modelTypes;
         protected readonly IProgress<MergeProgress> _progress;
@@ -42,9 +41,9 @@ namespace Postulate.Orm.Merge
 
             await Task.Run(() =>
             {
-                SyncTablesAndColumns(connection, results);                
-                DropTables(connection, results);                
-            });            
+                SyncTablesAndColumns(connection, results);
+                DropTables(connection, results);
+            });
 
             return results;
         }
@@ -61,7 +60,7 @@ namespace Postulate.Orm.Merge
             int counter = 0;
             List<PropertyInfo> foreignKeys = new List<PropertyInfo>();
 
-            var scriptGen = new TScriptGenerator();
+            var scriptGen = new TScriptGen();
             var columns = scriptGen.GetSchemaColumns(connection);
             TableInfo tableInfo = null;
 
@@ -167,7 +166,7 @@ namespace Postulate.Orm.Merge
             int endRange = 0;
 
             StringBuilder sb = new StringBuilder();
-            var scriptGen = new TScriptGenerator();
+            var scriptGen = new TScriptGen();
 
             foreach (var action in actions)
             {
@@ -212,8 +211,8 @@ namespace Postulate.Orm.Merge
                 _progress?.Report(new MergeProgress() { Description = diff.Description, PercentComplete = PercentComplete(index, max) });
 
                 foreach (var cmd in diff.SqlCommands(connection))
-                {        
-                    await connection.ExecuteAsync(cmd);        
+                {
+                    await connection.ExecuteAsync(cmd);
                 }
             }
         }

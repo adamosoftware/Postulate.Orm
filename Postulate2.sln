@@ -9,9 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Merge", "Merge\Merge.csproj", "{202C0F01-7ED0-48DC-A883-B27066D855FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Merge.SqlServer", "Merge.SqlServer\Merge.SqlServer.csproj", "{6160BBDE-24A4-4964-961F-39A4A5D036D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dialect.SqlServer", "Merge.SqlServer\Dialect.SqlServer.csproj", "{6160BBDE-24A4-4964-961F-39A4A5D036D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Merge.MySql", "Merge.MySql\Merge.MySql.csproj", "{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dialect.MySql", "Merge.MySql\Dialect.MySql.csproj", "{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

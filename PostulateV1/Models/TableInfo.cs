@@ -1,11 +1,10 @@
-﻿using Dapper;
-using Postulate.Orm.Attributes;
+﻿using Postulate.Orm.Attributes;
 using ReflectionHelper;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 
-namespace Postulate.Orm.Merge.Models
+namespace Postulate.Orm.Models
 {
     public class TableInfo
     {
@@ -31,7 +30,7 @@ namespace Postulate.Orm.Merge.Models
             if (type.HasAttribute(out SchemaAttribute schemaAttr)) schema = schemaAttr.Schema;
 
             if (type.HasAttribute(out TableAttribute tblAttr, a => !string.IsNullOrEmpty(a.Schema))) schema = tblAttr.Schema;
-            if (type.HasAttribute(out tblAttr, a => !string.IsNullOrEmpty(a.Name))) name = tblAttr.Name;            
+            if (type.HasAttribute(out tblAttr, a => !string.IsNullOrEmpty(a.Name))) name = tblAttr.Name;
 
             var result = new TableInfo(schema, name) { ModelType = type };
 
@@ -44,11 +43,6 @@ namespace Postulate.Orm.Merge.Models
         public string Name { get; private set; }
         public Type ModelType { get; private set; }
         public int ObjectId { get; private set; }
-
-        public virtual int FindObjectId(IDbConnection connection)
-        {
-            return connection.QueryFirstOrDefault<int>("SELECT [object_id] FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = Schema, name = Name });            
-        }
 
         public override string ToString()
         {

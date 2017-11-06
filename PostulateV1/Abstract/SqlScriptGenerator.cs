@@ -1,13 +1,13 @@
 ﻿using Dapper;
 using Postulate.Orm.Extensions;
-using Postulate.Orm.Merge.Models;
+using Postulate.Orm.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge.Abstract
+namespace Postulate.Orm.Abstract
 {
     public enum ActionType
     {
@@ -51,6 +51,10 @@ namespace Postulate.Orm.Merge.Abstract
         public abstract string SchemaColumnQuery { get; }
 
         public abstract object SchemaColumnParameters(Type type);
+
+        public abstract int FindObjectId(IDbConnection connection, TableInfo tableInfo);
+
+        public abstract string SqlDataType(PropertyInfo propertyInfo);
 
         public bool IsTableEmpty(IDbConnection connection, Type t)
         {

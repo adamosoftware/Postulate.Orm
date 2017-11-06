@@ -1,10 +1,9 @@
-﻿using Postulate.Orm.Merge.Abstract;
-using Postulate.Orm.Merge.Extensions;
-using System.Reflection;
+﻿using Postulate.Orm.Abstract;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 
-namespace Postulate.Orm.Merge.MergeActions
+namespace Postulate.Orm.Merge.Actions
 {
     public class AddForeignKey : MergeAction
     {

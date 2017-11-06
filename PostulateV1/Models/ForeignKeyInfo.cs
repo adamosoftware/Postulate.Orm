@@ -1,4 +1,4 @@
-﻿namespace Postulate.Orm.Merge.Models
+﻿namespace Postulate.Orm.Models
 {
     public class ForeignKeyInfo
     {

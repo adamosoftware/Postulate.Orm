@@ -1,9 +1,11 @@
 ﻿using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge.Action;
+using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 
@@ -77,12 +79,28 @@ namespace Postulate.Orm.Extensions
                 !type.HasAttribute<ClusterAttribute>();
         }
 
-        public static bool IsSupportedType(this Type type)
+        public static bool IsSupportedType(this Type type, SqlScriptGenerator scripGen)
         {
             return
-                CreateTable.SupportedTypes().ContainsKey(type) ||
+                scripGen.SupportedTypes().ContainsKey(type) ||
                 (type.IsEnum && type.GetEnumUnderlyingType().Equals(typeof(int))) ||
-                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
+                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0], scripGen));
         }
+
+        public static IEnumerable<PropertyInfo> GetModelPropertyInfo(this Type type, SqlScriptGenerator scriptGen)
+        {
+            return type.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>() && scriptGen.IsSupportedType(pi.PropertyType));
+        }
+
+        public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type, SqlScriptGenerator scriptGen)
+        {
+            return GetModelPropertyInfo(type, scriptGen).Select(pi => new ColumnInfo(pi));
+        }
+
+        public static IEnumerable<PropertyInfo> GetForeignKeys(this Type type)
+        {
+            return type.GetProperties().Where(pi => pi.IsForeignKey());
+        }
+
     }
 }

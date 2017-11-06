@@ -1,11 +1,15 @@
-﻿using System;
+﻿using Dapper;
+using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Models;
+using ReflectionHelper;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Reflection;
-using Postulate.Orm.Merge.Abstract;
-using Postulate.Orm.Merge.Models;
-using Dapper;
 using System.Linq;
+using System.Reflection;
 
 namespace Postulate.Orm.Merge.SqlServer
 {
@@ -114,7 +118,7 @@ namespace Postulate.Orm.Merge.SqlServer
         }
 
         protected override string GetExcludeSchemas(IDbConnection connection)
-        {            
+        {
             try
             {
                 var schemas = connection.Query<string>("SELECT [Name] FROM [meta].[MergeExcludeSchema]");
@@ -127,7 +131,7 @@ namespace Postulate.Orm.Merge.SqlServer
             catch
             {
                 return null;
-            }            
+            }
         }
 
         public override ILookup<int, ColumnInfo> GetSchemaColumns(IDbConnection connection)
@@ -166,6 +170,48 @@ namespace Postulate.Orm.Merge.SqlServer
                 { typeof(char), "nchar(1)" },
                 { typeof(byte[]), $"varbinary({length})" }
             };
+        }
+
+        public override int FindObjectId(IDbConnection connection, TableInfo tableInfo)
+        {
+            return connection.QueryFirstOrDefault<int>("SELECT [object_id] FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = tableInfo.Schema, name = tableInfo.Name });
+        }
+
+        public override string SqlDataType(PropertyInfo propertyInfo)
+        {
+            string result = null;
+
+            ColumnAttribute colAttr;
+            if (propertyInfo.HasAttribute(out colAttr))
+            {
+                return colAttr.TypeName;
+            }
+            else
+            {
+                string length = "max";
+                var maxLenAttr = propertyInfo.GetCustomAttribute<MaxLengthAttribute>();
+                if (maxLenAttr != null) length = maxLenAttr.Length.ToString();
+
+                byte precision = 5, scale = 2; // some aribtrary defaults
+                var dec = propertyInfo.GetCustomAttribute<DecimalPrecisionAttribute>();
+                if (dec != null)
+                {
+                    precision = dec.Precision;
+                    scale = dec.Scale;
+                }
+
+                var typeMap = SupportedTypes(length, precision, scale);
+
+                Type t = propertyInfo.PropertyType;
+                if (t.IsGenericType) t = t.GenericTypeArguments[0];
+                if (t.IsEnum) t = t.GetEnumUnderlyingType();
+
+                if (!typeMap.ContainsKey(t)) throw new KeyNotFoundException($"Type name {t.Name} not supported.");
+
+                result = typeMap[t];
+            }
+
+            return result;
         }
     }
 }

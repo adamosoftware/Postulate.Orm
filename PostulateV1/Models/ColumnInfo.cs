@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge.Models
+namespace Postulate.Orm.Models
 {
     public class ColumnInfo
     {
@@ -62,7 +62,7 @@ namespace Postulate.Orm.Merge.Models
             PropertyInfo pi = obj as PropertyInfo;
             if (pi != null)
             {
-                DbObject dbo = DbObject.FromType(pi.ReflectedType);
+                TableInfo dbo = TableInfo.FromModelType(pi.ReflectedType);
                 return
                     dbo.Schema.ToLower().Equals(this.Schema.ToLower()) &&
                     dbo.Name.ToLower().Equals(this.TableName.ToLower()) &&

@@ -1,6 +1,7 @@
 ﻿using Postulate.Orm.Attributes;
 using Postulate.Orm.Enums;
 using Postulate.Orm.Merge.Action;
+using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -42,9 +43,30 @@ namespace Postulate.Orm.Extensions
             return TypeExtensions.IsSupportedType(propertyInfo.PropertyType);
         }
 
-        public static bool IsFKEnclosedBy(this PropertyInfo propertyInfo, IEnumerable<CreateTable> createTables)
+        public static string QualifiedName(this PropertyInfo propertyInfo)
         {
-            return (createTables.Any(ct => ct.ContainsProperty(propertyInfo)) && createTables.Any(ct => ct.IsReferencedBy(propertyInfo)));
+            return $"{propertyInfo.ReflectedType.Name}.{propertyInfo.Name}";
+        }
+
+        public static bool IsForeignKey(this PropertyInfo propertyInfo)
+        {
+            var fk = GetForeignKeyInfo(propertyInfo);
+            return (fk != null);
+        }
+
+        public static ForeignKeyAttribute GetForeignKeyInfo(this PropertyInfo propertyInfo)
+        {
+            ForeignKeyAttribute attr;
+            if (propertyInfo.HasAttribute(out attr)) return attr;
+
+            Type[] types = { propertyInfo.DeclaringType, propertyInfo.ReflectedType };
+            var fkType = types.FirstOrDefault(t => t.HasAttribute(out attr, a => a.ColumnName.Equals(propertyInfo.SqlColumnName())));
+            return attr;
+        }
+
+        public static ColumnInfo ToColumnInfo(this PropertyInfo propertyInfo)
+        {
+            return new ColumnInfo(propertyInfo);
         }
     }
 }
