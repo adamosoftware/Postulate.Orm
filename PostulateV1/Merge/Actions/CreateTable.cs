@@ -17,7 +17,7 @@ namespace Postulate.Orm.Merge.Actions
         private readonly Type _modelType;
         private readonly bool _rebuild;
 
-        public CreateTable(SqlScriptGenerator scriptGen, Type modelType, bool rebuild = false) : base(scriptGen, ObjectType.Table, ActionType.Create, $"Create table {modelType.Name}")
+        public CreateTable(SqlSyntax scriptGen, Type modelType, bool rebuild = false) : base(scriptGen, ObjectType.Table, ActionType.Create, $"Create table {modelType.Name}")
         {
             _modelType = modelType;
             _rebuild = rebuild;
@@ -42,12 +42,12 @@ namespace Postulate.Orm.Merge.Actions
         {
             if (_rebuild)
             {
-                var drop = new DropTable(this.ScriptGen, _modelType, connection);
+                var drop = new DropTable(this.Syntax, _modelType, connection);
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
 
             yield return
-                $"CREATE TABLE {ScriptGen.GetTableName(_modelType)} (\r\n\t" +
+                $"CREATE TABLE {Syntax.GetTableName(_modelType)} (\r\n\t" +
                     string.Join(",\r\n\t", CreateTableMembers()) +
                 "\r\n)";
         }
@@ -85,7 +85,7 @@ namespace Postulate.Orm.Merge.Actions
 
             results.AddRange(ColumnProperties().Select(pi =>
             {
-                string result = pi.SqlColumnSyntax();
+                string result = Syntax.GetColumnSyntax(pi);
                 if (AddedColumns?.Contains(pi.SqlColumnName()) ?? false) result += " /* added */";
                 return result;
             }));
@@ -109,7 +109,7 @@ namespace Postulate.Orm.Merge.Actions
         {
             Type keyType = FindKeyType(_modelType);
 
-            return $"{ScriptGen.ApplyDelimiter(_modelType.IdentityColumnName())} {ScriptGen.KeyTypeMap()[keyType]}";
+            return $"{Syntax.ApplyDelimiter(_modelType.IdentityColumnName())} {Syntax.KeyTypeMap()[keyType]}";
         }
 
         private Type FindKeyType(Type modelType)

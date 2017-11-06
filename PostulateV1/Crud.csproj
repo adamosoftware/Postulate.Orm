@@ -61,7 +61,7 @@
     <Compile Include="Abstract\SqlDb_Save.cs" />
     <Compile Include="Abstract\SqlDb_SaveMultiple.cs" />
     <Compile Include="Abstract\SqlDb_Update.cs" />
-    <Compile Include="Abstract\SqlScriptGenerator.cs" />
+    <Compile Include="Abstract\SqlSyntax.cs" />
     <Compile Include="Attributes\ClusterAttribute.cs" />
     <Compile Include="Attributes\DefaultExpressionAttribute.cs" />
     <Compile Include="Attributes\DereferenceExpression.cs" />

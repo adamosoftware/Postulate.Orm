@@ -1,6 +1,5 @@
 ﻿using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
-using Postulate.Orm.Merge.Action;
 using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
@@ -65,13 +64,6 @@ namespace Postulate.Orm.Extensions
             return schema;
         }
 
-        public static string GetTableName(this Type type)
-        {
-            string schema, name;
-            CreateTable.ParseNameAndSchema(type, out schema, out name);
-            return name;
-        }
-
         public static bool HasClusteredPrimaryKey(this Type type)
         {
             return
@@ -79,7 +71,7 @@ namespace Postulate.Orm.Extensions
                 !type.HasAttribute<ClusterAttribute>();
         }
 
-        public static bool IsSupportedType(this Type type, SqlScriptGenerator scripGen)
+        public static bool IsSupportedType(this Type type, SqlSyntax scripGen)
         {
             return
                 scripGen.SupportedTypes().ContainsKey(type) ||
@@ -87,12 +79,12 @@ namespace Postulate.Orm.Extensions
                 (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0], scripGen));
         }
 
-        public static IEnumerable<PropertyInfo> GetModelPropertyInfo(this Type type, SqlScriptGenerator scriptGen)
+        public static IEnumerable<PropertyInfo> GetModelPropertyInfo(this Type type, SqlSyntax scriptGen)
         {
             return type.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>() && scriptGen.IsSupportedType(pi.PropertyType));
         }
 
-        public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type, SqlScriptGenerator scriptGen)
+        public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type, SqlSyntax scriptGen)
         {
             return GetModelPropertyInfo(type, scriptGen).Select(pi => new ColumnInfo(pi));
         }
@@ -101,6 +93,5 @@ namespace Postulate.Orm.Extensions
         {
             return type.GetProperties().Where(pi => pi.IsForeignKey());
         }
-
     }
 }

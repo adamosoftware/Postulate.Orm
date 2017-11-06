@@ -6,7 +6,7 @@ namespace Postulate.Orm.Abstract
 {
     public abstract class MergeAction
     {
-        private readonly SqlScriptGenerator _scriptGen;
+        private readonly SqlSyntax _syntax;
         private readonly ObjectType _objectType;
         private readonly ActionType _actionType;
         private readonly string _description;
@@ -15,11 +15,11 @@ namespace Postulate.Orm.Abstract
         public ActionType ActionType { get { return _actionType; } }
         public string Description { get { return _description; } }
 
-        protected SqlScriptGenerator ScriptGen { get { return _scriptGen; } }
+        protected SqlSyntax Syntax { get { return _syntax; } }
 
-        public MergeAction(SqlScriptGenerator scriptGenerator, ObjectType objectType, ActionType actionType, string description)
+        public MergeAction(SqlSyntax syntax, ObjectType objectType, ActionType actionType, string description)
         {
-            _scriptGen = scriptGenerator;
+            _syntax = syntax;
             _objectType = objectType;
             _actionType = actionType;
             _description = description;

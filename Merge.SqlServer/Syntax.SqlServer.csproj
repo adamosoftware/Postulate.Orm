@@ -45,10 +45,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Merge\Merge.csproj">
-      <Project>{202c0f01-7ed0-48dc-a883-b27066d855fc}</Project>
-      <Name>Merge</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PostulateV1\Crud.csproj">
       <Project>{74D32DED-6B61-4C06-99B7-4BF11A7325E0}</Project>
       <Name>Crud</Name>

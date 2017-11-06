@@ -11,7 +11,7 @@ namespace Postulate.Orm.Merge.Actions
     {
         private readonly PropertyInfo _propertyInfo;
 
-        public AddColumn(SqlScriptGenerator scriptGen, PropertyInfo propertyInfo) : base(scriptGen, ObjectType.Column, ActionType.Create, $"Add column {propertyInfo.QualifiedName()}")
+        public AddColumn(SqlSyntax scriptGen, PropertyInfo propertyInfo) : base(scriptGen, ObjectType.Column, ActionType.Create, $"Add column {propertyInfo.QualifiedName()}")
         {
             _propertyInfo = propertyInfo;
         }

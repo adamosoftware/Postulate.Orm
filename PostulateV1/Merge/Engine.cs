@@ -2,8 +2,7 @@
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
-using Postulate.Orm.Merge.Abstract;
-using Postulate.Orm.Merge.MergeActions;
+using Postulate.Orm.Merge.Actions;
 using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
@@ -17,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Orm.Merge
 {
-    public class Engine<TScriptGen> where TScriptGen : SqlScriptGenerator, new()
+    public class Engine<TScriptGen> where TScriptGen : SqlSyntax, new()
     {
         protected readonly Type[] _modelTypes;
         protected readonly IProgress<MergeProgress> _progress;

@@ -44,12 +44,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Merge\Merge.csproj">
-      <Project>{202c0f01-7ed0-48dc-a883-b27066d855fc}</Project>
-      <Name>Merge</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="AoReflectionHelper">
       <Version>1.0.1</Version>
     </PackageReference>

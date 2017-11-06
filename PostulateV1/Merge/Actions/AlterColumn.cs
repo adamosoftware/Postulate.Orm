@@ -9,7 +9,7 @@ namespace Postulate.Orm.Merge.Actions
 {
     public class AlterColumn : MergeAction
     {
-        public AlterColumn(SqlScriptGenerator scriptGen, PropertyInfo propertyInfo) : base(scriptGen, ObjectType.Column, ActionType.Alter, $"Altering {propertyInfo.QualifiedName()}")
+        public AlterColumn(SqlSyntax scriptGen, PropertyInfo propertyInfo) : base(scriptGen, ObjectType.Column, ActionType.Alter, $"Altering {propertyInfo.QualifiedName()}")
         {
         }
 

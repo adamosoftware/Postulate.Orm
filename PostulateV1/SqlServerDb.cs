@@ -3,8 +3,6 @@ using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
-using Postulate.Orm.Merge;
-using Postulate.Orm.Merge.Action;
 using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
@@ -23,7 +21,7 @@ namespace Postulate.Orm
     public class SqlServerDb<TKey> : SqlDb<TKey>, IDb
     {
         private const string _changesSchema = "changes";
-        private const string _deletedSchema = "deleted";        
+        private const string _deletedSchema = "deleted";
 
         public SqlServerDb(Configuration configuration, string connectionName, string userName = null) : base(configuration, connectionName, userName)
         {
@@ -56,12 +54,12 @@ namespace Postulate.Orm
             DereferenceExpression dr;
             if (result != null && propertyInfo.HasAttribute(out fk) && fk.PrimaryTableType.HasAttribute(out dr))
             {
-                DbObject obj = DbObject.FromType(fk.PrimaryTableType);
+                TableInfo obj = TableInfo.FromModelType(fk.PrimaryTableType);
                 try
                 {
                     result = connection.QueryFirst<string>(
                         $@"SELECT {dr.Expression} FROM [{obj.Schema}].[{obj.Name}]
-	    				WHERE [{fk.PrimaryTableType.IdentityColumnName()}]=@id", new { id = result });   
+	    				WHERE [{fk.PrimaryTableType.IdentityColumnName()}]=@id", new { id = result });
                 }
                 catch
                 {
@@ -88,7 +86,7 @@ namespace Postulate.Orm
                 string tableName = ChangeTrackingTableName<TRecord>();
                 return connection.QueryFirstOrDefault<int>($"SELECT [NextVersion] FROM [{_changesSchema}].[{tableName}_Versions] WHERE [RecordId]=@id", new { id = id });
             }
-            catch 
+            catch
             {
                 return 0;
             }
@@ -187,7 +185,7 @@ namespace Postulate.Orm
 
         protected override TRecord BeginRestore<TRecord>(IDbConnection connection, TKey id)
         {
-            DbObject obj = DbObject.FromType(typeof(TRecord));
+            TableInfo obj = TableInfo.FromModelType(typeof(TRecord));
             var xmlString = connection.QuerySingleOrDefault<string>($"SELECT [Data] FROM [deleted].[{obj.Schema}_{obj.Name}] WHERE [RecordId]=@id", new { id = id });
             if (string.IsNullOrEmpty(xmlString)) throw new Exception($"{obj.Schema}.{obj.Name} with record id {id} was not found to restore.");
             return FromXml<TRecord>(xmlString);
@@ -195,7 +193,7 @@ namespace Postulate.Orm
 
         protected override void CompleteRestore<TRecord>(IDbConnection connection, TKey id, IDbTransaction transaction)
         {
-            DbObject obj = DbObject.FromType(typeof(TRecord));
+            TableInfo obj = TableInfo.FromModelType(typeof(TRecord));
             connection.Execute($"DELETE [deleted].[{obj.Schema}_{obj.Name}] WHERE [RecordId]=@id", new { id = id }, transaction);
         }
 
@@ -241,7 +239,7 @@ namespace Postulate.Orm
 
         public override IEnumerable<ChangeHistory<TKey>> QueryChangeHistory<TRecord>(IDbConnection connection, TKey id, int timeZoneOffset = 0)
         {
-            DbObject obj = DbObject.FromType(typeof(TRecord));
+            TableInfo obj = TableInfo.FromModelType(typeof(TRecord));
             string tableName = $"{obj.Schema}_{obj.Name}";
 
             var results = connection.Query<ChangeHistoryRecord<TKey>>(

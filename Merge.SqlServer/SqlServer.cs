@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
@@ -13,7 +14,7 @@ using System.Reflection;
 
 namespace Postulate.Orm.Merge.SqlServer
 {
-    public class SqlServer : SqlScriptGenerator
+    public class SqlServer : SqlSyntax
     {
         public override string CommentPrefix => "-- ";
 
@@ -213,5 +214,77 @@ namespace Postulate.Orm.Merge.SqlServer
 
             return result;
         }
+
+        public override string GetColumnSyntax(PropertyInfo propertyInfo, bool forceNull = false)
+        {
+            string result = null;
+
+            CalculatedAttribute calc;
+            if (propertyInfo.HasAttribute(out calc))
+            {
+                result = $"[{propertyInfo.SqlColumnName()}] AS {calc.Expression}";
+                if (calc.IsPersistent) result += " PERSISTED";
+            }
+            else
+            {
+                if (!forceNull)
+                {
+                    result = $"[{propertyInfo.SqlColumnName()}] {GetColumnType(propertyInfo)}{GetColumnDefault(propertyInfo, forCreateTable: true)}";
+                }
+                else
+                {
+                    // forced nulls are used with AddColumn where DefaultExpression.IsConstant = false. The null constraint is added after expression is resolved
+                    result = $"[{propertyInfo.SqlColumnName()}] {GetColumnType(propertyInfo, forceNull: true)}";
+                }
+            }
+
+            return result;
+        }
+
+        public override string GetColumnType(PropertyInfo propertyInfo, bool forceNull = false)
+        {
+            string nullable = ((propertyInfo.AllowSqlNull() || forceNull) ? "NULL" : "NOT NULL");
+
+            string result = SqlDataType(propertyInfo);
+
+            CollateAttribute collate;
+            string collation = string.Empty;
+            if (propertyInfo.HasAttribute(out collate)) collation = $"COLLATE {collate.Collation} ";
+
+            return $"{result} {collation}{nullable}";
+        }
+
+        public override string GetColumnDefault(PropertyInfo propertyInfo, bool forCreateTable = false)
+        {
+            string template = (forCreateTable) ? " DEFAULT ({0})" : "{0}";
+
+            DefaultExpressionAttribute def;
+            if (propertyInfo.DeclaringType.HasAttribute(out def) && def.IsConstant && propertyInfo.Name.Equals(def.ColumnName)) return string.Format(template, Quote(propertyInfo, def.Expression));
+            if (propertyInfo.HasAttribute(out def) && def.IsConstant) return string.Format(template, Quote(propertyInfo, def.Expression));
+
+            // if the expression is part of a CREATE TABLE statement, it's not necessary to go any further
+            if (forCreateTable) return null;
+
+            if (propertyInfo.AllowSqlNull()) return "NULL";
+
+            throw new Exception($"{propertyInfo.DeclaringType.Name}.{propertyInfo.Name} property does not have a [DefaultExpression] attribute.");
+
+        }
+
+        private static string Quote(PropertyInfo propertyInfo, string expression)
+        {
+            string result = expression;
+
+            var quotedTypes = new Type[] { typeof(string), typeof(DateTime) };
+            if (quotedTypes.Any(t => t.Equals(propertyInfo.PropertyType)))
+            {
+                if (result.Contains("'") && !result.StartsWith("'") && !result.EndsWith("'")) result = result.Replace("'", "''");
+                if (!result.StartsWith("'")) result = "'" + result;
+                if (!result.EndsWith("'")) result = result + "'";
+            }
+
+            return result;
+        }
+
     }
 }

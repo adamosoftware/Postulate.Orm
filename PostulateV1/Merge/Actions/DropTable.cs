@@ -12,12 +12,12 @@ namespace Postulate.Orm.Merge.Actions
     {
         private readonly TableInfo _tableInfo;
 
-        public DropTable(SqlScriptGenerator scriptGen, TableInfo tableInfo) : base(scriptGen, ObjectType.Table, ActionType.Drop, $"Drop table {tableInfo.ToString()}")
+        public DropTable(SqlSyntax scriptGen, TableInfo tableInfo) : base(scriptGen, ObjectType.Table, ActionType.Drop, $"Drop table {tableInfo.ToString()}")
         {
             _tableInfo = tableInfo;
         }
 
-        public DropTable(SqlScriptGenerator scriptGen, Type modelType, IDbConnection connection = null) : this(scriptGen, TableInfo.FromModelType(modelType, connection: connection))
+        public DropTable(SqlSyntax scriptGen, Type modelType, IDbConnection connection = null) : this(scriptGen, TableInfo.FromModelType(modelType, connection: connection))
         {
         }
 

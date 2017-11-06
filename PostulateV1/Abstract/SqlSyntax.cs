@@ -28,7 +28,7 @@ namespace Postulate.Orm.Abstract
         Metadata
     }
 
-    public abstract partial class SqlScriptGenerator
+    public abstract class SqlSyntax
     {
         public abstract string CommentPrefix { get; }
 
@@ -89,5 +89,11 @@ namespace Postulate.Orm.Abstract
         {
             return SupportedTypes().ContainsKey(type);
         }
+
+        public abstract string GetColumnSyntax(PropertyInfo propertyInfo, bool forceNull = false);
+
+        public abstract string GetColumnType(PropertyInfo propertyInfo, bool forceNull = false);
+
+        public abstract string GetColumnDefault(PropertyInfo propertyInfo, bool forCreateTable = false);        
     }
 }
