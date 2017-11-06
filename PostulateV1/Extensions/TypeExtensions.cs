@@ -71,12 +71,12 @@ namespace Postulate.Orm.Extensions
                 !type.HasAttribute<ClusterAttribute>();
         }
 
-        public static bool IsSupportedType(this Type type, SqlSyntax scripGen)
+        public static bool IsSupportedType(this Type type, SqlSyntax syntax)
         {
             return
-                scripGen.SupportedTypes().ContainsKey(type) ||
+                syntax.SupportedTypes().ContainsKey(type) ||
                 (type.IsEnum && type.GetEnumUnderlyingType().Equals(typeof(int))) ||
-                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0], scripGen));
+                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0], syntax));
         }
 
         public static IEnumerable<PropertyInfo> GetModelPropertyInfo(this Type type, SqlSyntax scriptGen)

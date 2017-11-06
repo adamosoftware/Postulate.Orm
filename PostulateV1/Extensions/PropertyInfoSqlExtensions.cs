@@ -1,4 +1,6 @@
-﻿using Postulate.Orm.Attributes;
+﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -58,15 +60,15 @@ namespace Postulate.Orm.Extensions
             return propertyInfo.HasAttribute<PrimaryKeyAttribute>();
         }
 
-        public static DbObject GetDbObject(this PropertyInfo propertyInfo, IDbConnection connection = null)
+        public static TableInfo GetTableInfo(this PropertyInfo propertyInfo, IDbConnection connection = null)
         {
-            return DbObject.FromType(propertyInfo.ReflectedType, connection);
+            return TableInfo.FromModelType(propertyInfo.ReflectedType, connection: connection);
         }
 
-        public static IEnumerable<string> GetPrimaryKeyValidationErrors(this PropertyInfo propertyInfo)
+        public static IEnumerable<string> GetPrimaryKeyValidationErrors(this PropertyInfo propertyInfo, SqlSyntax syntax)
         {
-            if (propertyInfo.SqlColumnType().ToLower().Contains("char(max)")) yield return $"Primary key column [{propertyInfo.Name}] may not use MAX size.";
-            if (propertyInfo.PropertyType.IsNullableGeneric()) yield return $"Primary key column [{propertyInfo.Name}] may not be nullable.";
+            if (syntax.SqlDataType(propertyInfo).ToLower().Contains("car(max)")) yield return $"Primary key column {propertyInfo.Name} may not use MAX size.";            
+            if (propertyInfo.PropertyType.IsNullableGeneric()) yield return $"Primary key column {propertyInfo.Name} may not be nullable.";
         }
 
         public static string IndexName(this PropertyInfo propertyInfo)
