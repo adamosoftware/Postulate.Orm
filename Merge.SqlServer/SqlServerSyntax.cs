@@ -20,6 +20,11 @@ namespace Postulate.Orm.SqlServer
 
         public override string CommandSeparator => "\r\nGO\r\n";
 
+        public override string ApplyDelimiter(string name)
+        {
+            return string.Join(".", name.Split('.').Select(s => $"[{s}]"));
+        }
+
         public override string IsTableEmptyQuery => throw new NotImplementedException();
 
         public override string TableExistsQuery => throw new NotImplementedException();
@@ -27,11 +32,6 @@ namespace Postulate.Orm.SqlServer
         public override string ColumnExistsQuery => throw new NotImplementedException();
 
         public override string SchemaColumnQuery => throw new NotImplementedException();
-
-        public override string ApplyDelimiter(string objectName)
-        {
-            return string.Join(".", objectName.Split('.').Select(s => $"[{s}]"));
-        }
 
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
         {

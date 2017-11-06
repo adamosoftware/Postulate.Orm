@@ -12,7 +12,7 @@ namespace Postulate.Orm.MySql
 {
     public class MySqlDb<TKey> : SqlDb<TKey>
     {
-        public MySqlDb(string connectionName) : base(connectionName)
+        public MySqlDb(string connectionName) : base(connectionName, new MySqlSyntax())
         {
         }
 
@@ -41,11 +41,6 @@ namespace Postulate.Orm.MySql
             throw new NotSupportedException();
         }
 
-        protected override string ApplyDelimiter(string name)
-        {
-            return string.Join(".", name.Split('.').Select(s => $"`{s}`"));
-        }
-
         protected override TRecord BeginRestore<TRecord>(IDbConnection connection, TKey id)
         {
             throw new NotSupportedException();
@@ -70,7 +65,7 @@ namespace Postulate.Orm.MySql
         {
             Type modelType = typeof(TRecord);
             var obj = TableInfo.FromModelType(typeof(TRecord));
-            return ApplyDelimiter(obj.Name);
+            return _syntax.ApplyDelimiter(obj.Name);
         }
 
         protected override string GetInsertStatement<TRecord>()
@@ -79,7 +74,7 @@ namespace Postulate.Orm.MySql
 
             return
                 $@"INSERT INTO {GetTableName<TRecord>()} (
-                    {string.Join(", ", columns.Select(s => ApplyDelimiter(s)))}
+                    {string.Join(", ", columns.Select(s => _syntax.ApplyDelimiter(s)))}
                 ) VALUES (
                     {string.Join(", ", columns.Select(s => $"@{s}"))}
                 ); SELECT LAST_INSERT_ID()";
@@ -87,7 +82,7 @@ namespace Postulate.Orm.MySql
 
         protected override string GetDeleteStatement<TRecord>()
         {
-            return $"DELETE FROM {GetTableName<TRecord>()} WHERE {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
+            return $"DELETE FROM {GetTableName<TRecord>()} WHERE {_syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
     }
 }

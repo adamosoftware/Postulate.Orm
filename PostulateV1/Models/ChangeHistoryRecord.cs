@@ -2,7 +2,7 @@
 
 namespace Postulate.Orm.Models
 {
-    internal class ChangeHistoryRecord<TKey>
+    public class ChangeHistoryRecord<TKey>
     {
         public TKey RecordId { get; set; }
         public int Version { get; set; }

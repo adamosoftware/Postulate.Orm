@@ -6,13 +6,18 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge.MySql
+namespace Postulate.Orm.MySql
 {
     public class MySqlSyntax : SqlSyntax
     {
         public override string CommentPrefix => "# ";
 
         public override string CommandSeparator => ";\r\n\r\n";
+
+        public override string ApplyDelimiter(string objectName)
+        {
+            return string.Join(".", objectName.Split('.').Select(s => $"`{s}`"));
+        }
 
         public override string IsTableEmptyQuery => throw new NotImplementedException();
 
@@ -21,11 +26,6 @@ namespace Postulate.Orm.Merge.MySql
         public override string ColumnExistsQuery => throw new NotImplementedException();
 
         public override string SchemaColumnQuery => throw new NotImplementedException();
-
-        public override string ApplyDelimiter(string objectName)
-        {
-            throw new NotImplementedException();
-        }
 
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
         {

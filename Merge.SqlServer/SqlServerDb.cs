@@ -4,6 +4,7 @@ using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Models;
+using Postulate.Orm.SqlServer;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -23,17 +24,12 @@ namespace Postulate.Orm
         private const string _changesSchema = "changes";
         private const string _deletedSchema = "deleted";
 
-        public SqlServerDb(Configuration configuration, string connectionName, string userName = null) : base(configuration, connectionName, userName)
+        public SqlServerDb(Configuration configuration, string connectionName, string userName = null) : base(configuration, connectionName, new SqlServerSyntax(),userName)
         {
         }
 
-        public SqlServerDb(string connectionName, string userName = null) : base(connectionName, userName)
+        public SqlServerDb(string connectionName, string userName = null) : base(connectionName, new SqlServerSyntax(), userName)
         {
-        }
-
-        protected override string ApplyDelimiter(string name)
-        {
-            return string.Join(".", name.Split('.').Select(s => $"[{s}]"));
         }
 
         public override IDbConnection GetConnection()

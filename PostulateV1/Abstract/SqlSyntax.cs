@@ -34,9 +34,9 @@ namespace Postulate.Orm.Abstract
 
         public abstract string CommandSeparator { get; }
 
-        public abstract string GetTableName(Type type);
-        
         public abstract string ApplyDelimiter(string objectName);
+
+        public abstract string GetTableName(Type type);       
 
         public abstract string IsTableEmptyQuery { get; }
 

@@ -1,6 +1,6 @@
-﻿using Postulate.Orm.Attributes;
+﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Enums;
-using Postulate.Orm.Merge.Action;
 using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
@@ -38,9 +38,9 @@ namespace Postulate.Orm.Extensions
             return HasColumnAccess(provider, map[action]);
         }
 
-        public static bool IsSupportedType(this PropertyInfo propertyInfo)
+        public static bool IsSupportedType(this PropertyInfo propertyInfo, SqlSyntax syntax)
         {
-            return TypeExtensions.IsSupportedType(propertyInfo.PropertyType);
+            return syntax.SupportedTypes().ContainsKey(propertyInfo.PropertyType);
         }
 
         public static string QualifiedName(this PropertyInfo propertyInfo)
