@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
+using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
 using ReflectionHelper;
@@ -14,7 +15,7 @@ using System.Reflection;
 
 namespace Postulate.Orm.SqlServer
 {
-    public class SqlServerSyntax : SqlSyntax
+    public partial class SqlServerSyntax : SqlSyntax
     {
         public override string CommentPrefix => "-- ";
 

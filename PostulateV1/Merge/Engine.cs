@@ -78,14 +78,14 @@ namespace Postulate.Orm.Merge
             int endRange = 0;
 
             StringBuilder sb = new StringBuilder();
-            var scriptGen = new TSyntax();
+            var syntax = new TSyntax();
 
             foreach (var action in actions)
             {
                 foreach (var cmd in action.SqlCommands(connection))
                 {
                     sb.AppendLine(cmd);
-                    sb.AppendLine(scriptGen.CommandSeparator);
+                    sb.AppendLine(syntax.CommandSeparator);
                     endRange += GetLineCount(cmd) + 4;
                 }
 

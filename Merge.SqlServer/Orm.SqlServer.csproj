@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CreateIfNotExists.cs" />
+    <Compile Include="CreateTable.cs" />
     <Compile Include="SqlServerDb.cs" />
     <Compile Include="SqlServerSyntax.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

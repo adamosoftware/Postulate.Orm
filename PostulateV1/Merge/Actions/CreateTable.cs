@@ -17,7 +17,7 @@ namespace Postulate.Orm.Merge.Actions
         private readonly Type _modelType;
         private readonly bool _rebuild;
 
-        public CreateTable(SqlSyntax scriptGen, Type modelType, bool rebuild = false) : base(scriptGen, ObjectType.Table, ActionType.Create, $"Create table {modelType.Name}")
+        public CreateTable(SqlSyntax syntax, Type modelType, bool rebuild = false) : base(syntax, ObjectType.Table, ActionType.Create, $"Create table {modelType.Name}")
         {
             _modelType = modelType;
             _rebuild = rebuild;
@@ -46,79 +46,7 @@ namespace Postulate.Orm.Merge.Actions
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
 
-            yield return
-                $"CREATE TABLE {Syntax.GetTableName(_modelType)} (\r\n\t" +
-                    string.Join(",\r\n\t", CreateTableMembers()) +
-                "\r\n)";
-        }
-
-        private string[] CreateTableMembers()
-        {
-            List<string> results = new List<string>();
-
-            ClusterAttribute clusterAttribute = GetClusterAttribute();
-
-            results.AddRange(CreateTableColumns());
-
-            //results.Add(CreateTablePrimaryKey(clusterAttribute));
-
-            //results.AddRange(CreateTableUniqueConstraints(clusterAttribute));
-
-            return results.ToArray();
-        }
-
-        private ClusterAttribute GetClusterAttribute()
-        {
-            return _modelType.GetCustomAttribute<ClusterAttribute>() ?? new ClusterAttribute(ClusterOption.PrimaryKey);
-        }
-
-        private IEnumerable<string> CreateTableColumns()
-        {
-            List<string> results = new List<string>();
-
-            Position identityPos = Position.StartOfTable;
-            var ip = _modelType.GetCustomAttribute<IdentityPositionAttribute>();
-            if (ip == null) ip = _modelType.BaseType.GetCustomAttribute<IdentityPositionAttribute>();
-            if (ip != null) identityPos = ip.Position;
-
-            if (identityPos == Position.StartOfTable) results.Add(IdentityColumnSql());
-
-            results.AddRange(ColumnProperties().Select(pi =>
-            {
-                string result = Syntax.GetColumnSyntax(pi);
-                if (AddedColumns?.Contains(pi.SqlColumnName()) ?? false) result += " /* added */";
-                return result;
-            }));
-
-            if (identityPos == Position.EndOfTable) results.Add(IdentityColumnSql());
-
-            return results;
-        }
-
-        public IEnumerable<PropertyInfo> ColumnProperties()
-        {
-            return _modelType.GetProperties()
-                .Where(p =>
-                    p.CanWrite &&
-                    !p.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
-                    p.IsSupportedType(Syntax) &&
-                    !p.HasAttribute<NotMappedAttribute>());
-        }
-
-        private string IdentityColumnSql()
-        {
-            Type keyType = FindKeyType(_modelType);
-
-            return $"{Syntax.ApplyDelimiter(_modelType.IdentityColumnName())} {Syntax.KeyTypeMap()[keyType]}";
-        }
-
-        private Type FindKeyType(Type modelType)
-        {
-            if (!modelType.IsDerivedFromGeneric(typeof(Record<>))) throw new ArgumentException("Model class must derive from Record<TKey>");
-
-            Type checkType = modelType;
-            while (!checkType.IsGenericType) checkType = checkType.BaseType;
-            return checkType.GetGenericArguments()[0];
+            yield return Syntax.GetCreateTableStatement(_modelType, AddedColumns, ModifiedColumns, DeletedColumns);            
         }
     }
 }

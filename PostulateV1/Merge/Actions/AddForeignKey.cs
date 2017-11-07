@@ -31,7 +31,7 @@ namespace Postulate.Orm.Merge.Actions
             if (fk.CreateIndex && !connection.Exists("[sys].[indexes] WHERE [name]=@name", new { name = _propertyInfo.IndexName(Syntax) }))
             {
                 var obj = TableInfo.FromModelType(_propertyInfo.DeclaringType);
-                yield return $"CREATE INDEX [{_propertyInfo.IndexName(Syntax)}] ON {obj} ([{_propertyInfo.SqlColumnName()}])";
+                yield return $"CREATE INDEX [{_propertyInfo.IndexName(Syntax)}] ON {Syntax.GetTableName(obj.ModelType)} ([{_propertyInfo.SqlColumnName()}])";
             }
         }
     }

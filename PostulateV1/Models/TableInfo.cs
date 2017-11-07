@@ -2,7 +2,6 @@
 using ReflectionHelper;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data;
 
 namespace Postulate.Orm.Models
 {
@@ -11,7 +10,7 @@ namespace Postulate.Orm.Models
         public TableInfo(string name, string schema = "")
         {
             Schema = schema;
-            Name = name;            
+            Name = name;
         }
 
         public TableInfo(string name, string schema, int objectId)
@@ -31,7 +30,7 @@ namespace Postulate.Orm.Models
             if (type.HasAttribute(out TableAttribute tblAttr, a => !string.IsNullOrEmpty(a.Schema))) schema = tblAttr.Schema;
             if (type.HasAttribute(out tblAttr, a => !string.IsNullOrEmpty(a.Name))) name = tblAttr.Name;
 
-            var result = new TableInfo(schema, name) { ModelType = type };            
+            var result = new TableInfo(name, schema) { ModelType = type };
 
             return result;
         }
