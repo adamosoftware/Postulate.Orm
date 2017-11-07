@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Orm.Merge
 {
-    public class Engine<TScriptGen> where TScriptGen : SqlSyntax, new()
+    public class Engine<TSyntax> where TSyntax : SqlSyntax, new()
     {
         protected readonly Type[] _modelTypes;
         protected readonly IProgress<MergeProgress> _progress;
@@ -59,13 +59,13 @@ namespace Postulate.Orm.Merge
             int counter = 0;
             List<PropertyInfo> foreignKeys = new List<PropertyInfo>();
 
-            var scriptGen = new TScriptGen();
+            var scriptGen = new TSyntax();
             var columns = scriptGen.GetSchemaColumns(connection);
             TableInfo tableInfo = null;
 
             foreach (var type in _modelTypes)
             {
-                tableInfo = TableInfo.FromModelType(type, connection: connection);
+                tableInfo = TableInfo.FromModelType(type);
                 counter++;
                 _progress?.Report(new MergeProgress()
                 {
@@ -165,7 +165,7 @@ namespace Postulate.Orm.Merge
             int endRange = 0;
 
             StringBuilder sb = new StringBuilder();
-            var scriptGen = new TScriptGen();
+            var scriptGen = new TSyntax();
 
             foreach (var action in actions)
             {
