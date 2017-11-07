@@ -9,25 +9,6 @@ using System.Reflection;
 
 namespace Postulate.Orm.Abstract
 {
-    public enum ActionType
-    {
-        Create,
-        Alter,
-        Rename,
-        Drop,
-        DropAndCreate
-    }
-
-    public enum ObjectType
-    {
-        Table,
-        Column,
-        Key,
-        Index,
-        ForeignKey,
-        Metadata
-    }
-
     public abstract class SqlSyntax
     {
         public abstract string CommentPrefix { get; }
@@ -52,7 +33,7 @@ namespace Postulate.Orm.Abstract
 
         public abstract object SchemaColumnParameters(Type type);
 
-        public abstract int FindObjectId(IDbConnection connection, TableInfo tableInfo);
+        public abstract void FindObjectId(IDbConnection connection, TableInfo tableInfo);
 
         public abstract string SqlDataType(PropertyInfo propertyInfo);
 

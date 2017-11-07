@@ -1,9 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using Postulate.Orm.Abstract;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace Postulate.Orm.Abstract
+namespace Postulate.Orm.Merge
 {
+    public enum ActionType
+    {
+        Create,
+        Alter,
+        Rename,
+        Drop,
+        DropAndCreate
+    }
+
+    public enum ObjectType
+    {
+        Table,
+        Column,
+        Key,
+        Index,
+        ForeignKey,
+        Metadata
+    }
+
     public abstract class MergeAction
     {
         private readonly SqlSyntax _syntax;

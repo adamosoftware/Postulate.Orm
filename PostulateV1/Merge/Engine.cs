@@ -59,13 +59,12 @@ namespace Postulate.Orm.Merge
             int counter = 0;
             List<PropertyInfo> foreignKeys = new List<PropertyInfo>();
 
-            var scriptGen = new TSyntax();
-            var columns = scriptGen.GetSchemaColumns(connection);
+            var syntax = new TSyntax();
+            var columns = syntax.GetSchemaColumns(connection);
             TableInfo tableInfo = null;
 
             foreach (var type in _modelTypes)
             {
-                tableInfo = TableInfo.FromModelType(type);
                 counter++;
                 _progress?.Report(new MergeProgress()
                 {
@@ -73,14 +72,17 @@ namespace Postulate.Orm.Merge
                     PercentComplete = PercentComplete(counter, _modelTypes.Length)
                 });
 
-                if (!scriptGen.TableExists(connection, type))
+                tableInfo = TableInfo.FromModelType(type);
+                syntax.FindObjectId(connection, tableInfo);                
+
+                if (!syntax.TableExists(connection, type))
                 {
-                    results.Add(new CreateTable(scriptGen, type));
+                    results.Add(new CreateTable(syntax, type));
                     foreignKeys.AddRange(type.GetForeignKeys());
                 }
                 else
                 {
-                    var modelColInfo = type.GetModelPropertyInfo(scriptGen);
+                    var modelColInfo = type.GetModelPropertyInfo(syntax);
                     var schemaColInfo = columns[tableInfo.ObjectId];
 
                     IEnumerable<PropertyInfo> addedColumns;
@@ -89,10 +91,10 @@ namespace Postulate.Orm.Merge
 
                     if (AnyColumnsChanged(modelColInfo, schemaColInfo, out addedColumns, out modifiedColumns, out deletedColumns))
                     {
-                        if (scriptGen.IsTableEmpty(connection, type))
+                        if (syntax.IsTableEmpty(connection, type))
                         {
                             // drop and re-create table, indicating affected columns with comments in generated script
-                            results.Add(new CreateTable(scriptGen, type, rebuild: true)
+                            results.Add(new CreateTable(syntax, type, rebuild: true)
                             {
                                 AddedColumns = addedColumns.Select(pi => pi.SqlColumnName()),
                                 ModifiedColumns = modifiedColumns.Select(pi => pi.SqlColumnName()),
@@ -103,9 +105,9 @@ namespace Postulate.Orm.Merge
                         else
                         {
                             // make changes to the table without dropping it
-                            results.AddRange(addedColumns.Select(c => new AddColumn(scriptGen, c)));
-                            results.AddRange(modifiedColumns.Select(c => new AlterColumn(scriptGen, c)));
-                            results.AddRange(deletedColumns.Select(c => new DropColumn(scriptGen, c)));
+                            results.AddRange(addedColumns.Select(c => new AddColumn(syntax, c)));
+                            results.AddRange(modifiedColumns.Select(c => new AlterColumn(syntax, c)));
+                            results.AddRange(deletedColumns.Select(c => new DropColumn(syntax, c)));
                             foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey()));
                         }
                     }
@@ -114,7 +116,7 @@ namespace Postulate.Orm.Merge
                 }
             }
 
-            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(scriptGen, fk)));
+            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(syntax, fk)));
         }
 
         private bool AnyColumnsChanged(

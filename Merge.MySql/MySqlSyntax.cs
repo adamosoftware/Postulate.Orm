@@ -32,7 +32,7 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override int FindObjectId(IDbConnection connection, TableInfo tableInfo)
+        public override void FindObjectId(IDbConnection connection, TableInfo tableInfo)
         {
             throw new NotImplementedException();
         }

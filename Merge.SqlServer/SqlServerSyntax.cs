@@ -176,9 +176,9 @@ namespace Postulate.Orm.SqlServer
             };
         }
 
-        public override int FindObjectId(IDbConnection connection, TableInfo tableInfo)
+        public override void FindObjectId(IDbConnection connection, TableInfo tableInfo)
         {
-            return connection.QueryFirstOrDefault<int>("SELECT [object_id] FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = tableInfo.Schema, name = tableInfo.Name });
+            tableInfo.ObjectId = connection.QueryFirstOrDefault<int>("SELECT [object_id] FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = tableInfo.Schema, name = tableInfo.Name });
         }
 
         public override string SqlDataType(PropertyInfo propertyInfo)
