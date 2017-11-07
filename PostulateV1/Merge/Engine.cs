@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -20,6 +21,7 @@ namespace Postulate.Orm.Merge
     {
         protected readonly Type[] _modelTypes;
         protected readonly IProgress<MergeProgress> _progress;
+        protected readonly TSyntax _syntax;
 
         public Engine(Type[] modelTypes, IProgress<MergeProgress> progress)
         {
@@ -30,20 +32,25 @@ namespace Postulate.Orm.Merge
 
             _modelTypes = modelTypes;
             _progress = progress;
+            _syntax = new TSyntax();
         }
 
-        public Engine(Assembly assembly, IProgress<MergeProgress> progress)
+        public Engine(Assembly assembly, IProgress<MergeProgress> progress) : this(GetModelTypes(assembly), progress)
         {
-            _modelTypes = assembly.GetTypes()
+        }
+
+        public static Type[] GetModelTypes(Assembly assembly)
+        {
+            return assembly.GetTypes()
                 .Where(t =>
                     !t.Name.StartsWith("<>") &&
                     !t.HasAttribute<NotMappedAttribute>() &&
                     !t.IsAbstract &&
                     !t.IsInterface &&
                     t.IsDerivedFromGeneric(typeof(Record<>))).ToArray();
-
-            _progress = progress;
         }
+
+        public TSyntax Syntax { get { return _syntax; } }
 
         public async Task<IEnumerable<MergeAction>> CompareAsync(IDbConnection connection)
         {
@@ -58,6 +65,70 @@ namespace Postulate.Orm.Merge
             return results;
         }
 
+        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            Dictionary<MergeAction, LineRange> lineRanges;
+            return GetScript(connection, actions, out lineRanges);
+        }
+
+        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges)
+        {
+            lineRanges = new Dictionary<MergeAction, LineRange>();
+            int startRange = 0;
+            int endRange = 0;
+
+            StringBuilder sb = new StringBuilder();
+            var scriptGen = new TSyntax();
+
+            foreach (var action in actions)
+            {
+                foreach (var cmd in action.SqlCommands(connection))
+                {
+                    sb.AppendLine(cmd);
+                    sb.AppendLine(scriptGen.CommandSeparator);
+                    endRange += GetLineCount(cmd) + 4;
+                }
+
+                lineRanges.Add(action, new LineRange(startRange, endRange));
+                startRange = endRange;
+            }
+
+            return sb;
+        }
+
+        public void SaveScript(string fileName, IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            using (StreamWriter writer = File.CreateText(fileName))
+            {
+                writer.Write(GetScript(connection, actions));
+            }
+        }
+
+        public async Task ExecuteAsync(IDbConnection connection, IEnumerable<MergeAction> actions)
+        {
+            Validate(connection, actions);
+
+            int index = 0;
+            int max = actions.Count();
+
+            foreach (var diff in actions)
+            {
+                index++;
+                _progress?.Report(new MergeProgress() { Description = diff.Description, PercentComplete = PercentComplete(index, max) });
+
+                foreach (var cmd in diff.SqlCommands(connection))
+                {
+                    await connection.ExecuteAsync(cmd);
+                }
+            }
+        }
+
+        public async Task ExecuteAsync(IDbConnection connection)
+        {
+            var actions = await CompareAsync(connection);
+            await ExecuteAsync(connection, actions);
+        }
+
         private void DropTables(IDbConnection connection, List<MergeAction> results)
         {
             _progress?.Report(new MergeProgress() { Description = "Looking for deleted tables..." });
@@ -70,10 +141,8 @@ namespace Postulate.Orm.Merge
             int counter = 0;
             List<PropertyInfo> foreignKeys = new List<PropertyInfo>();
 
-            _progress?.Report(new MergeProgress() { Description = "Getting column info...", PercentComplete = 0 });
-
-            var syntax = new TSyntax();
-            var columns = syntax.GetSchemaColumns(connection);
+            _progress?.Report(new MergeProgress() { Description = "Getting column info...", PercentComplete = 0 });            
+            var columns = _syntax.GetSchemaColumns(connection);
 
             TableInfo tableInfo = null;
 
@@ -86,16 +155,16 @@ namespace Postulate.Orm.Merge
                     PercentComplete = PercentComplete(counter, _modelTypes.Length)
                 });                
 
-                if (!syntax.TableExists(connection, type))
+                if (!_syntax.TableExists(connection, type))
                 {
-                    results.Add(new CreateTable(syntax, type));
+                    results.Add(new CreateTable(_syntax, type));
                     foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));
                 }
                 else
                 {
                     tableInfo = TableInfo.FromModelType(type);
-                    if (!syntax.FindObjectId(connection, tableInfo)) throw new Exception($"Couldn't find Object Id for table {tableInfo}.");
-                    var modelColInfo = type.GetModelPropertyInfo(syntax);
+                    if (!_syntax.FindObjectId(connection, tableInfo)) throw new Exception($"Couldn't find Object Id for table {tableInfo}.");
+                    var modelColInfo = type.GetModelPropertyInfo(_syntax);
                     var schemaColInfo = columns[tableInfo.ObjectId];
 
                     IEnumerable<PropertyInfo> addedColumns;
@@ -104,10 +173,10 @@ namespace Postulate.Orm.Merge
 
                     if (AnyColumnsChanged(modelColInfo, schemaColInfo, out addedColumns, out modifiedColumns, out deletedColumns))
                     {
-                        if (syntax.IsTableEmpty(connection, type))
+                        if (_syntax.IsTableEmpty(connection, type))
                         {
                             // drop and re-create table, indicating affected columns with comments in generated script
-                            results.Add(new CreateTable(syntax, type, rebuild: true)
+                            results.Add(new CreateTable(_syntax, type, rebuild: true)
                             {
                                 AddedColumns = addedColumns.Select(pi => pi.SqlColumnName()),
                                 ModifiedColumns = modifiedColumns.Select(pi => pi.SqlColumnName()),
@@ -118,10 +187,10 @@ namespace Postulate.Orm.Merge
                         else
                         {
                             // make changes to the table without dropping it
-                            results.AddRange(addedColumns.Select(c => new AddColumn(syntax, c)));
-                            results.AddRange(modifiedColumns.Select(c => new AlterColumn(syntax, c)));
-                            results.AddRange(deletedColumns.Select(c => new DropColumn(syntax, c)));
-                            foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey()));
+                            results.AddRange(addedColumns.Select(c => new AddColumn(_syntax, c)));
+                            results.AddRange(modifiedColumns.Select(c => new AlterColumn(_syntax, c)));
+                            results.AddRange(deletedColumns.Select(c => new DropColumn(_syntax, c)));
+                            foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey() && _modelTypes.Contains(pi.GetForeignKeyParentType())));
                         }
                     }
 
@@ -129,7 +198,7 @@ namespace Postulate.Orm.Merge
                 }
             }
 
-            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(syntax, fk)));
+            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(_syntax, fk)));
         }
 
         private bool AnyColumnsChanged(
@@ -167,37 +236,6 @@ namespace Postulate.Orm.Merge
             return actions.Where(a => !a.IsValid(connection)).SelectMany(a => a.ValidationErrors(connection), (a, m) => new ValidationError(a, m));
         }
 
-        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions)
-        {
-            Dictionary<MergeAction, LineRange> lineRanges;
-            return GetScript(connection, actions, out lineRanges);
-        }
-
-        public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges)
-        {
-            lineRanges = new Dictionary<MergeAction, LineRange>();
-            int startRange = 0;
-            int endRange = 0;
-
-            StringBuilder sb = new StringBuilder();
-            var scriptGen = new TSyntax();
-
-            foreach (var action in actions)
-            {
-                foreach (var cmd in action.SqlCommands(connection))
-                {
-                    sb.AppendLine(cmd);
-                    sb.AppendLine(scriptGen.CommandSeparator);
-                    endRange += GetLineCount(cmd) + 4;
-                }
-
-                lineRanges.Add(action, new LineRange(startRange, endRange));
-                startRange = endRange;
-            }
-
-            return sb;
-        }
-
         private int GetLineCount(string text)
         {
             int result = 0;
@@ -210,31 +248,6 @@ namespace Postulate.Orm.Merge
                 result++;
             }
             return result;
-        }
-
-        public async Task ExecuteAsync(IDbConnection connection, IEnumerable<MergeAction> actions)
-        {
-            Validate(connection, actions);
-
-            int index = 0;
-            int max = actions.Count();
-
-            foreach (var diff in actions)
-            {
-                index++;
-                _progress?.Report(new MergeProgress() { Description = diff.Description, PercentComplete = PercentComplete(index, max) });
-
-                foreach (var cmd in diff.SqlCommands(connection))
-                {
-                    await connection.ExecuteAsync(cmd);
-                }
-            }
-        }
-
-        public async Task ExecuteAsync(IDbConnection connection)
-        {
-            var actions = await CompareAsync(connection);
-            await ExecuteAsync(connection, actions);
         }
 
         private int PercentComplete(int value, int total)
