@@ -82,6 +82,18 @@ namespace Postulate.Orm.Merge
 
             foreach (var action in actions)
             {
+                sb.AppendLine($"{Syntax.CommentPrefix} {action.Description}");
+
+                var errors = action.ValidationErrors(connection);
+                if (errors.Any())
+                {
+                    sb.AppendLine($"{Syntax.CommentPrefix} One or more validation errors were found:");
+                    foreach (var err in action.ValidationErrors(connection))
+                    {
+                        sb.AppendLine($"{Syntax.CommentPrefix} {err}");
+                    }
+                }
+
                 foreach (var cmd in action.SqlCommands(connection))
                 {
                     sb.AppendLine(cmd);
