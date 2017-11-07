@@ -26,7 +26,8 @@ namespace Postulate.Orm.Extensions
 
         public static bool ForeignKeyExists(this IDbConnection connection, PropertyInfo propertyInfo)
         {
-            return ForeignKeyExists(connection, propertyInfo.ForeignKeyName());
+            throw new NotImplementedException();
+            //return ForeignKeyExists(connection, propertyInfo.ForeignKeyName());
         }
 
         public static bool ColumnExists(this IDbConnection connection, string schema, string tableName, string columnName)

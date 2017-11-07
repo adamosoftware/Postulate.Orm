@@ -14,12 +14,13 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Postulate.Orm
+namespace Postulate.Orm.SqlServer
 {
-    public class SqlServerDb<TKey> : SqlDb<TKey>, IDb
+    public partial class SqlServerDb<TKey> : SqlDb<TKey>, IDb
     {
         private const string _changesSchema = "changes";
         private const string _deletedSchema = "deleted";

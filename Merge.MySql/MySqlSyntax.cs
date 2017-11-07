@@ -17,7 +17,7 @@ namespace Postulate.Orm.MySql
         public override string ApplyDelimiter(string objectName)
         {
             return string.Join(".", objectName.Split('.').Select(s => $"`{s}`"));
-        }
+        }        
 
         public override string IsTableEmptyQuery => throw new NotImplementedException();
 
@@ -32,7 +32,7 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override void FindObjectId(IDbConnection connection, TableInfo tableInfo)
+        public override bool FindObjectId(IDbConnection connection, TableInfo tableInfo)
         {
             throw new NotImplementedException();
         }
@@ -98,6 +98,31 @@ namespace Postulate.Orm.MySql
         }
 
         protected override string GetExcludeSchemas(IDbConnection connection)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetConstraintBaseName(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetDropForeignKeyStatement(ForeignKeyInfo foreignKeyInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetDropTableStatement(TableInfo tableInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IEnumerable<KeyColumnInfo> GetKeyColumns(IDbConnection connection, Func<KeyColumnInfo, bool> filter = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetCopyStatement<TRecord, TKey>(IEnumerable<string> paramColumns, IEnumerable<string> columns)
         {
             throw new NotImplementedException();
         }

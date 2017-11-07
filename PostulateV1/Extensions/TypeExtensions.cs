@@ -78,9 +78,9 @@ namespace Postulate.Orm.Extensions
                 (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0], syntax));
         }
 
-        public static IEnumerable<PropertyInfo> GetModelPropertyInfo(this Type type, SqlSyntax scriptGen)
+        public static IEnumerable<PropertyInfo> GetModelPropertyInfo(this Type type, SqlSyntax syntax)
         {
-            return type.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>() && scriptGen.IsSupportedType(pi.PropertyType));
+            return type.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>() && syntax.IsSupportedType(pi.PropertyType));
         }
 
         public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type, SqlSyntax scriptGen)

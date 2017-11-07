@@ -21,6 +21,17 @@ namespace Postulate.Orm.Merge
         protected readonly Type[] _modelTypes;
         protected readonly IProgress<MergeProgress> _progress;
 
+        public Engine(Type[] modelTypes, IProgress<MergeProgress> progress)
+        {
+            if (modelTypes.Any(t => !t.IsDerivedFromGeneric(typeof(Record<>))))
+            {
+                throw new ArgumentException("Model types used with Postulate.Orm.Merge.Engine must all derive from Postulate.Orm.Abstract.Record<>");
+            }            
+
+            _modelTypes = modelTypes;
+            _progress = progress;
+        }
+
         public Engine(Assembly assembly, IProgress<MergeProgress> progress)
         {
             _modelTypes = assembly.GetTypes()
@@ -59,8 +70,11 @@ namespace Postulate.Orm.Merge
             int counter = 0;
             List<PropertyInfo> foreignKeys = new List<PropertyInfo>();
 
+            _progress?.Report(new MergeProgress() { Description = "Getting column info...", PercentComplete = 0 });
+
             var syntax = new TSyntax();
             var columns = syntax.GetSchemaColumns(connection);
+
             TableInfo tableInfo = null;
 
             foreach (var type in _modelTypes)
@@ -70,18 +84,17 @@ namespace Postulate.Orm.Merge
                 {
                     Description = $"Analyzing model class '{type.Name}'...",
                     PercentComplete = PercentComplete(counter, _modelTypes.Length)
-                });
-
-                tableInfo = TableInfo.FromModelType(type);
-                syntax.FindObjectId(connection, tableInfo);                
+                });                
 
                 if (!syntax.TableExists(connection, type))
                 {
                     results.Add(new CreateTable(syntax, type));
-                    foreignKeys.AddRange(type.GetForeignKeys());
+                    foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));
                 }
                 else
                 {
+                    tableInfo = TableInfo.FromModelType(type);
+                    if (!syntax.FindObjectId(connection, tableInfo)) throw new Exception($"Couldn't find Object Id for table {tableInfo}.");
                     var modelColInfo = type.GetModelPropertyInfo(syntax);
                     var schemaColInfo = columns[tableInfo.ObjectId];
 
@@ -100,7 +113,7 @@ namespace Postulate.Orm.Merge
                                 ModifiedColumns = modifiedColumns.Select(pi => pi.SqlColumnName()),
                                 DeletedColumns = deletedColumns.Select(sc => sc.ColumnName)
                             });
-                            foreignKeys.AddRange(type.GetForeignKeys());
+                            foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));
                         }
                         else
                         {

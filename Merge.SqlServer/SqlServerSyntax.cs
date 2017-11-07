@@ -28,10 +28,10 @@ namespace Postulate.Orm.SqlServer
         public override string IsTableEmptyQuery => throw new NotImplementedException();
 
         public override string TableExistsQuery => 
-            "SELECT 1 FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name";
+            "[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name";
 
         public override string ColumnExistsQuery =>
-            @"SELECT 1 FROM [sys].[columns] [col] INNER JOIN [sys].[tables] [tbl] ON [col].[object_id]=[tbl].[object_id]
+            @"[sys].[columns] [col] INNER JOIN [sys].[tables] [tbl] ON [col].[object_id]=[tbl].[object_id]
 			WHERE SCHEMA_NAME([tbl].[schema_id])=@schema AND [tbl].[name]=@tableName AND [col].[name]=@columnName";        
 
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
@@ -91,7 +91,8 @@ namespace Postulate.Orm.SqlServer
 
         public override object TableExistsParameters(Type type)
         {
-            throw new NotImplementedException();
+            TableInfo tbl = TableInfo.FromModelType(type);
+            return tbl;
         }
 
         public override Dictionary<Type, string> KeyTypeMap(bool withDefaults = true)
@@ -176,9 +177,10 @@ namespace Postulate.Orm.SqlServer
             };
         }
 
-        public override void FindObjectId(IDbConnection connection, TableInfo tableInfo)
+        public override bool FindObjectId(IDbConnection connection, TableInfo tableInfo)
         {
             tableInfo.ObjectId = connection.QueryFirstOrDefault<int>("SELECT [object_id] FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = tableInfo.Schema, name = tableInfo.Name });
+            return (tableInfo.ObjectId != 0);
         }
 
         public override string SqlDataType(PropertyInfo propertyInfo)

@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CreateIfNotExists.cs" />
     <Compile Include="SqlServerDb.cs" />
     <Compile Include="SqlServerSyntax.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

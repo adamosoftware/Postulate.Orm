@@ -33,7 +33,7 @@ namespace Postulate.Orm.Abstract
 
         public abstract object SchemaColumnParameters(Type type);
 
-        public abstract void FindObjectId(IDbConnection connection, TableInfo tableInfo);
+        public abstract bool FindObjectId(IDbConnection connection, TableInfo tableInfo);
 
         public abstract string SqlDataType(PropertyInfo propertyInfo);
 
@@ -44,8 +44,7 @@ namespace Postulate.Orm.Abstract
         }
 
         public bool TableExists(IDbConnection connection, Type t)
-        {
-            //return connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = schema, name = tableName });
+        {            
             return connection.Exists(TableExistsQuery, TableExistsParameters(t));
         }
 

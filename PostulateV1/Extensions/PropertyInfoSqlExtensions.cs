@@ -24,6 +24,19 @@ namespace Postulate.Orm.Extensions
             return result;
         }
 
+        public static bool IsForeignKey(this PropertyInfo propertyInfo)
+        {
+            try
+            {
+                var fk = GetForeignKeyAttribute(propertyInfo);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static Attributes.ForeignKeyAttribute GetForeignKeyAttribute(this PropertyInfo propertyInfo)
         {
             Attributes.ForeignKeyAttribute fk;

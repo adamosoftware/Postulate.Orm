@@ -39,6 +39,7 @@ namespace Postulate.Orm.Models
         public string Schema { get; private set; }
         public string Name { get; private set; }
         public Type ModelType { get; private set; }
+
         public int ObjectId { get; set; }
 
         public override string ToString()

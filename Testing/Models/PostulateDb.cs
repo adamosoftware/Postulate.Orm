@@ -1,4 +1,4 @@
-﻿using Postulate.Orm;
+﻿using Postulate.Orm.SqlServer;
 using System.Configuration;
 
 namespace Testing.Models
@@ -17,6 +17,6 @@ namespace Testing.Models
         {
             MergeExcludeSchemas = "HangFire,Whatsit,Nevermore";
             MergeExcludeTables = "Rhomboid,Occlusus";
-        }                
+        }
     }
 }

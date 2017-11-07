@@ -48,22 +48,6 @@ namespace Postulate.Orm.Extensions
             return $"{propertyInfo.ReflectedType.Name}.{propertyInfo.Name}";
         }
 
-        public static bool IsForeignKey(this PropertyInfo propertyInfo)
-        {
-            var fk = GetForeignKeyInfo(propertyInfo);
-            return (fk != null);
-        }
-
-        public static ForeignKeyAttribute GetForeignKeyInfo(this PropertyInfo propertyInfo)
-        {
-            ForeignKeyAttribute attr;
-            if (propertyInfo.HasAttribute(out attr)) return attr;
-
-            Type[] types = { propertyInfo.DeclaringType, propertyInfo.ReflectedType };
-            var fkType = types.FirstOrDefault(t => t.HasAttribute(out attr, a => a.ColumnName.Equals(propertyInfo.SqlColumnName())));
-            return attr;
-        }
-
         public static ColumnInfo ToColumnInfo(this PropertyInfo propertyInfo)
         {
             return ColumnInfo.FromPropertyInfo(propertyInfo);

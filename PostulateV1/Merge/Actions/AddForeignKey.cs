@@ -10,7 +10,7 @@ namespace Postulate.Orm.Merge.Actions
     {
         private readonly PropertyInfo _propertyInfo;
 
-        public AddForeignKey(SqlSyntax scriptGen, PropertyInfo propertyInfo) : base(scriptGen, ObjectType.ForeignKey, ActionType.Create, propertyInfo.QualifiedName())
+        public AddForeignKey(SqlSyntax scriptGen, PropertyInfo propertyInfo) : base(scriptGen, ObjectType.ForeignKey, ActionType.Create, $"Add foreign key {propertyInfo.QualifiedName()}")
         {
             _propertyInfo = propertyInfo;
         }

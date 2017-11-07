@@ -16,6 +16,11 @@ namespace Postulate.Orm.MySql
         {
         }
 
+        public override void CreateIfNotExists(Action<IDbConnection> seedAction = null)
+        {
+            throw new NotSupportedException();
+        }
+
         public override IDbConnection GetConnection()
         {
             return new MySqlConnection(ConnectionString);
