@@ -70,7 +70,7 @@ namespace Postulate.Orm.SqlServer
                 .Where(p =>
                     p.CanWrite &&
                     !p.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
-                    p.IsSupportedType(this) &&
+                    IsSupportedType(p.PropertyType) &&                    
                     !p.HasAttribute<NotMappedAttribute>());
         }
 

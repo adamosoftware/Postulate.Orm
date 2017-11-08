@@ -40,7 +40,7 @@ namespace Postulate.Orm.Extensions
 
         public static bool IsSupportedType(this PropertyInfo propertyInfo, SqlSyntax syntax)
         {
-            return syntax.SupportedTypes().ContainsKey(propertyInfo.PropertyType);
+            return syntax.IsSupportedType(propertyInfo.PropertyType);
         }
 
         public static string QualifiedName(this PropertyInfo propertyInfo)

@@ -40,8 +40,7 @@ namespace Postulate.Orm.Abstract
         public abstract string SqlDataType(PropertyInfo propertyInfo);
 
         public bool IsTableEmpty(IDbConnection connection, Type t)
-        {
-            //$"SELECT COUNT(1) FROM [{schema}].[{tableName}]"
+        {            
             return ((connection.QueryFirstOrDefault<int?>(IsTableEmptyQuery, null) ?? 0) == 0);
         }
 
@@ -74,7 +73,10 @@ namespace Postulate.Orm.Abstract
 
         public bool IsSupportedType(Type type)
         {
-            return SupportedTypes().ContainsKey(type);
+            return
+               SupportedTypes().ContainsKey(type) ||
+               (type.IsEnum && type.GetEnumUnderlyingType().Equals(typeof(int))) ||
+               (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
         }
 
         public abstract string GetColumnSyntax(PropertyInfo propertyInfo, bool forceNull = false);

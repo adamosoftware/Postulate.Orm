@@ -16,7 +16,8 @@ namespace Postulate.Orm.Commands
     {
         Preview,
         Execute,
-        Validate
+        Validate,
+        SaveScript
     }
 
     internal class Program
@@ -34,8 +35,7 @@ namespace Postulate.Orm.Commands
                 Action action = FindAction(args);
 
                 Assembly assembly = Assembly.LoadFile(modelClassAssembly);
-                var config = ConfigurationManager.OpenExeConfiguration(assembly.Location);
-                string connectionString = config.ConnectionStrings.ConnectionStrings[connectionName].ConnectionString;
+                var config = ConfigurationManager.OpenExeConfiguration(assembly.Location);                
 
                 DefaultSqlSyntaxAttribute syntaxAttr;
                 SupportedSyntax syntaxValue = (assembly.HasAttribute(out syntaxAttr)) ? syntaxAttr.Syntax : FindSyntax(args);
@@ -43,11 +43,11 @@ namespace Postulate.Orm.Commands
                 switch (syntaxValue)
                 {
                     case SupportedSyntax.MySql:
-                        RunMerge<MySqlDb<int>, MySqlSyntax>(assembly, new MySqlDb<int>(connectionName), action);
+                        RunMerge<MySqlDb<int>, MySqlSyntax>(assembly, new MySqlDb<int>(config, connectionName), action);
                         break;
 
                     case SupportedSyntax.SqlServer:
-                        RunMerge<SqlServerDb<int>, SqlServerSyntax>(assembly, new SqlServerDb<int>(connectionName), action);
+                        RunMerge<SqlServerDb<int>, SqlServerSyntax>(assembly, new SqlServerDb<int>(config, connectionName), action);
                         break;
                 }
             }
@@ -63,7 +63,7 @@ namespace Postulate.Orm.Commands
             string result;
             if (TryFindNameInArray(args, "action=", out result))
             {
-                return (Action)Enum.Parse(typeof(Action), result);
+                return (Action)Enum.Parse(typeof(Action), result, true);
             }
             return Action.Preview;
         }
@@ -72,6 +72,8 @@ namespace Postulate.Orm.Commands
             where TDb : SqlDb<int>
             where TSyntax : SqlSyntax, new()
         {
+            Console.WriteLine(action.ToString());
+
             db.CreateIfNotExists();
 
             var engine = new Engine<TSyntax>(assembly, new Progress<MergeProgress>(ShowProgress));
@@ -79,15 +81,35 @@ namespace Postulate.Orm.Commands
             {
                 switch (action)
                 {
+                    case Action.Validate:
+                        break;
+
                     case Action.Preview:
                         var actions = engine.CompareAsync(cn).Result;
-                        Console.WriteLine(engine.GetScript(cn, actions));
+                        var script = engine.GetScript(cn, actions).ToString();
+                        SaveScript(assembly.Location, script);
+                        Console.WriteLine();
+                        Console.WriteLine(script);
                         break;
 
                     case Action.Execute:
                         engine.ExecuteAsync(cn).Wait();
                         break;
                 }
+            }
+        }
+
+        private static void SaveScript(string assemblyPath, string script)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(assemblyPath) + ".sql";
+            string outputFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Model Merge", fileName);
+
+            string folder = Path.GetDirectoryName(outputFile);
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+            using (StreamWriter writer = File.CreateText(outputFile))
+            {
+                writer.Write(script);
             }
         }
 

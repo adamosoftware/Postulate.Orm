@@ -1,3 +1,22 @@
+--  Create table Organization
+CREATE TABLE [dbo].[Organization] (
+	[Id] int identity(1,1),
+	[Name] nvarchar(100) NOT NULL,
+	[Description] nvarchar(255) NULL,
+	[EffectiveDate] datetime NULL,
+	[BillingRate] decimal(5, 2) NOT NULL,
+	[EndDate] datetime NULL,
+	[ContractLength] AS DATEDIFF(d, [EffectiveDate], [EndDate]),
+	[DateCreated] datetime NOT NULL,
+	[CreatedBy] nvarchar(20) NOT NULL,
+	[DateModified] datetime NULL,
+	[ModifiedBy] nvarchar(20) NULL,
+	CONSTRAINT [PK_Organization] PRIMARY KEY CLUSTERED ([Name]),
+	CONSTRAINT [U_Organization_Id] UNIQUE ([Id])
+)
+
+GO
+
 --  Create table TableA
 CREATE TABLE [dbo].[TableA] (
 	[Id] int identity(1,1),
@@ -5,6 +24,7 @@ CREATE TABLE [dbo].[TableA] (
 	[LastName] nvarchar(50) NOT NULL,
 	[DateCreated] datetime NOT NULL,
 	[CreatedBy] nvarchar(20) NOT NULL,
+	[DateModified] datetime NULL,
 	[ModifiedBy] nvarchar(20) NULL,
 	CONSTRAINT [PK_TableA] PRIMARY KEY CLUSTERED ([FirstName], [LastName]),
 	CONSTRAINT [U_TableA_Id] UNIQUE ([Id])
@@ -19,6 +39,7 @@ CREATE TABLE [dbo].[TableB] (
 	[Description] nvarchar(500) NULL,
 	[DateCreated] datetime NOT NULL,
 	[CreatedBy] nvarchar(20) NOT NULL,
+	[DateModified] datetime NULL,
 	[ModifiedBy] nvarchar(20) NULL,
 	CONSTRAINT [PK_TableB] PRIMARY KEY CLUSTERED ([Id])
 )
@@ -34,23 +55,9 @@ CREATE TABLE [dbo].[TableC] (
 	[AnotherValue] int NOT NULL,
 	[DateCreated] datetime NOT NULL,
 	[CreatedBy] nvarchar(20) NOT NULL,
+	[DateModified] datetime NULL,
 	[ModifiedBy] nvarchar(20) NULL,
 	CONSTRAINT [PK_TableC] PRIMARY KEY CLUSTERED ([Id])
-)
-
-GO
-
---  Create table Organization
-CREATE TABLE [dbo].[Organization] (
-	[Id] int identity(1,1),
-	[Name] nvarchar(100) NOT NULL,
-	[Description] nvarchar(255) NULL,
-	[BillingRate] decimal(5, 2) NOT NULL,
-	[DateCreated] datetime NOT NULL,
-	[CreatedBy] nvarchar(20) NOT NULL,
-	[ModifiedBy] nvarchar(20) NULL,
-	CONSTRAINT [PK_Organization] PRIMARY KEY CLUSTERED ([Name]),
-	CONSTRAINT [U_Organization_Id] UNIQUE ([Id])
 )
 
 GO
