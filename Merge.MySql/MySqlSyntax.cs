@@ -148,5 +148,10 @@ namespace Postulate.Orm.MySql
         {
             throw new NotImplementedException();
         }
+
+        public override TableInfo GetTableInfoFromType(Type type)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -60,6 +60,20 @@ namespace Testing
             }
         }
 
+        [TestMethod]
+        public void AddColumns()
+        {
+            Type[] modelClasses = GetModelClasses();
+            var engine = GetEngine(modelClasses);
+            var db = GetDb();
+
+            using (var cn = db.GetConnection())
+            {
+                DropTables(cn, engine.Syntax, modelClasses);
+                engine.ExecuteAsync(cn).Wait();
+            }
+        }
+
         private static Type[] GetModelClasses()
         {
             return new Type[]
@@ -78,7 +92,9 @@ namespace Testing
                 if (syntax.TableExists(cn, tbl))
                 {
                     cn.Execute($"DELETE {syntax.GetTableName(tbl)}");
-                    var drop = new DropTable(syntax, TableInfo.FromModelType(tbl));
+                    var obj = TableInfo.FromModelType(tbl, "dbo");
+                    syntax.FindObjectId(cn, obj);
+                    var drop = new DropTable(syntax, obj);
                     foreach (var cmd in drop.SqlCommands(cn)) cn.Execute(cmd);
                 }
             }

@@ -100,5 +100,7 @@ namespace Postulate.Orm.Abstract
         public abstract string GetForeignKeyStatement(PropertyInfo propertyInfo);
 
         public abstract string GetCreateColumnIndexStatement(PropertyInfo propertyInfo);
+
+        public abstract TableInfo GetTableInfoFromType(Type type);
     }
 }

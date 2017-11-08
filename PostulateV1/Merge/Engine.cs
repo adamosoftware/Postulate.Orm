@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,6 +23,8 @@ namespace Postulate.Orm.Merge
         protected readonly Type[] _modelTypes;
         protected readonly IProgress<MergeProgress> _progress;
         protected readonly TSyntax _syntax;
+
+        private Stopwatch _stopwatch = null;
 
         public Engine(Type[] modelTypes, IProgress<MergeProgress> progress)
         {
@@ -51,6 +54,8 @@ namespace Postulate.Orm.Merge
         }
 
         public TSyntax Syntax { get { return _syntax; } }
+
+        public Stopwatch Stopwatch { get { return _stopwatch; } }
 
         public async Task<IEnumerable<MergeAction>> CompareAsync(IDbConnection connection)
         {
@@ -118,6 +123,8 @@ namespace Postulate.Orm.Merge
 
         public async Task ExecuteAsync(IDbConnection connection, IEnumerable<MergeAction> actions)
         {
+            _stopwatch = Stopwatch.StartNew();
+
             Validate(connection, actions);
 
             int index = 0;
@@ -133,12 +140,20 @@ namespace Postulate.Orm.Merge
                     await connection.ExecuteAsync(cmd);
                 }
             }
+
+            _stopwatch.Stop();
+            _progress?.Report(new MergeProgress() { Description = $"Execute ran in {_stopwatch.ElapsedMilliseconds}ms", PercentComplete = 100 });
         }
 
         public async Task ExecuteAsync(IDbConnection connection)
         {
+            _stopwatch = Stopwatch.StartNew();
+
             var actions = await CompareAsync(connection);
             await ExecuteAsync(connection, actions);
+
+            _stopwatch.Stop();
+            _progress?.Report(new MergeProgress() { Description = $"Compare + Execute ran in {_stopwatch.ElapsedMilliseconds}ms", PercentComplete = 100 });
         }
 
         private void DropTables(IDbConnection connection, List<MergeAction> results)
@@ -165,7 +180,9 @@ namespace Postulate.Orm.Merge
                 {
                     Description = $"Analyzing model class '{type.Name}'...",
                     PercentComplete = PercentComplete(counter, _modelTypes.Length)
-                });                
+                });
+                
+                tableInfo = _syntax.GetTableInfoFromType(type);                
 
                 if (!_syntax.TableExists(connection, type))
                 {
@@ -174,8 +191,8 @@ namespace Postulate.Orm.Merge
                 }
                 else
                 {
-                    tableInfo = TableInfo.FromModelType(type);
                     if (!_syntax.FindObjectId(connection, tableInfo)) throw new Exception($"Couldn't find Object Id for table {tableInfo}.");
+
                     var modelColInfo = type.GetModelPropertyInfo(_syntax);
                     var schemaColInfo = columns[tableInfo.ObjectId];
 
@@ -205,6 +222,8 @@ namespace Postulate.Orm.Merge
                             foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey() && _modelTypes.Contains(pi.GetForeignKeyParentType())));
                         }
                     }
+
+                    // todo: AnyForeignKeysChanged()
 
                     // todo: AnyKeysChanged()
                 }

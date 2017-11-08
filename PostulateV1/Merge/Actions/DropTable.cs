@@ -23,6 +23,8 @@ namespace Postulate.Orm.Merge.Actions
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
+            if (_tableInfo.ObjectId == 0) throw new InvalidOperationException($"Can't drop dependent foreign keys on table {_tableInfo} because the ObjectId property is not set.");
+
             foreach (var fk in Syntax.GetDependentForeignKeys(connection, _tableInfo)) yield return Syntax.GetDropForeignKeyStatement(fk);
 
             yield return Syntax.GetDropTableStatement(_tableInfo);

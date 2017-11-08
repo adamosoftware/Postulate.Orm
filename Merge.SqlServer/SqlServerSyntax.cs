@@ -94,7 +94,7 @@ namespace Postulate.Orm.SqlServer
 
         public override object TableExistsParameters(Type type)
         {
-            TableInfo tbl = TableInfo.FromModelType(type);
+            TableInfo tbl = TableInfo.FromModelType(type, "dbo");
             return tbl;
         }
 
@@ -377,6 +377,11 @@ namespace Postulate.Orm.SqlServer
         {
             var obj = TableInfo.FromModelType(propertyInfo.DeclaringType);
             return $"CREATE INDEX [{propertyInfo.IndexName(this)}] ON {GetTableName(obj.ModelType)} ([{propertyInfo.SqlColumnName()}])";
+        }
+
+        public override TableInfo GetTableInfoFromType(Type type)
+        {
+            return TableInfo.FromModelType(type, "dbo");
         }
     }
 }
