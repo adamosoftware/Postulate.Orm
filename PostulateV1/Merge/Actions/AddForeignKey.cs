@@ -19,20 +19,12 @@ namespace Postulate.Orm.Merge.Actions
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
-            // todo: move this to SqlSyntax abstract methods
-            ForeignKeyAttribute fk = _propertyInfo.GetForeignKeyAttribute();
-            string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
-            yield return
-                $"ALTER TABLE {Syntax.GetTableName(_propertyInfo.DeclaringType)} ADD CONSTRAINT [{_propertyInfo.ForeignKeyName(Syntax)}] FOREIGN KEY (\r\n" +
-                    $"\t[{_propertyInfo.SqlColumnName()}]\r\n" +
-                $") REFERENCES {Syntax.GetTableName(fk.PrimaryTableType)} (\r\n" +
-                    $"\t[{fk.PrimaryTableType.IdentityColumnName()}]\r\n" +
-                ")" + cascadeDelete;
+            yield return Syntax.GetForeignKeyStatement(_propertyInfo);
 
-            if (fk.CreateIndex && !connection.Exists("[sys].[indexes] WHERE [name]=@name", new { name = _propertyInfo.IndexName(Syntax) }))
+            ForeignKeyAttribute fk = _propertyInfo.GetForeignKeyAttribute();
+            if (fk.CreateIndex && !Syntax.IndexExists(connection, _propertyInfo.IndexName(Syntax)))
             {
-                var obj = TableInfo.FromModelType(_propertyInfo.DeclaringType);
-                yield return $"CREATE INDEX [{_propertyInfo.IndexName(Syntax)}] ON {Syntax.GetTableName(obj.ModelType)} ([{_propertyInfo.SqlColumnName()}])";
+                yield return Syntax.GetCreateColumnIndexStatement(_propertyInfo);
             }
         }
     }

@@ -27,6 +27,8 @@ namespace Postulate.Orm.MySql
 
         public override string SchemaColumnQuery => throw new NotImplementedException();
 
+        public override string IndexExistsQuery => throw new NotImplementedException();
+
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
         {
             throw new NotImplementedException();
@@ -133,6 +135,16 @@ namespace Postulate.Orm.MySql
         }
 
         public override string[] CreateTableMembers(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetForeignKeyStatement(PropertyInfo propertyInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetCreateColumnIndexStatement(PropertyInfo propertyInfo)
         {
             throw new NotImplementedException();
         }

@@ -40,6 +40,8 @@ namespace Postulate.Orm.SqlServer
             return ColumnInfo.FromPropertyInfo(propertyInfo);
         }
 
+        public override string IndexExistsQuery => "[sys].[indexes] WHERE [name]=@name";
+
         public override string SchemaColumnQuery => throw new NotImplementedException();
 
         public override IEnumerable<ForeignKeyInfo> GetDependentForeignKeys(IDbConnection connection, TableInfo tableInfo)
@@ -357,6 +359,24 @@ namespace Postulate.Orm.SqlServer
                     {tableName}
                 WHERE
                     {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
+        }
+
+        public override string GetForeignKeyStatement(PropertyInfo propertyInfo)
+        {
+            Attributes.ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
+            string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
+            return
+                $"ALTER TABLE {GetTableName(propertyInfo.DeclaringType)} ADD CONSTRAINT [{propertyInfo.ForeignKeyName(this)}] FOREIGN KEY (\r\n" +
+                    $"\t[{propertyInfo.SqlColumnName()}]\r\n" +
+                $") REFERENCES {GetTableName(fk.PrimaryTableType)} (\r\n" +
+                    $"\t[{fk.PrimaryTableType.IdentityColumnName()}]\r\n" +
+                ")" + cascadeDelete;
+        }
+
+        public override string GetCreateColumnIndexStatement(PropertyInfo propertyInfo)
+        {
+            var obj = TableInfo.FromModelType(propertyInfo.DeclaringType);
+            return $"CREATE INDEX [{propertyInfo.IndexName(this)}] ON {GetTableName(obj.ModelType)} ([{propertyInfo.SqlColumnName()}])";
         }
     }
 }

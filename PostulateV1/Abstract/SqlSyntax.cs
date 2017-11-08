@@ -17,7 +17,7 @@ namespace Postulate.Orm.Abstract
 
         public abstract string ApplyDelimiter(string objectName);
 
-        public abstract string GetTableName(Type type);       
+        public abstract string GetTableName(Type type);
 
         public abstract string IsTableEmptyQuery { get; }
 
@@ -28,6 +28,8 @@ namespace Postulate.Orm.Abstract
         public abstract string ColumnExistsQuery { get; }
 
         public abstract object ColumnExistsParameters(PropertyInfo propertyInfo);
+
+        public abstract string IndexExistsQuery { get; }
 
         public abstract string SchemaColumnQuery { get; }
 
@@ -44,13 +46,18 @@ namespace Postulate.Orm.Abstract
         }
 
         public bool TableExists(IDbConnection connection, Type t)
-        {            
+        {
             return connection.Exists(TableExistsQuery, TableExistsParameters(t));
         }
 
         public bool ColumnExists(IDbConnection connection, PropertyInfo pi)
         {
             return connection.Exists(ColumnExistsQuery, ColumnExistsParameters(pi));
+        }
+
+        public bool IndexExists(IDbConnection connection, string name)
+        {
+            return connection.Exists(IndexExistsQuery, new { name = name });
         }
 
         public abstract ILookup<int, ColumnInfo> GetSchemaColumns(IDbConnection connection);
@@ -89,5 +96,9 @@ namespace Postulate.Orm.Abstract
         public abstract IEnumerable<KeyColumnInfo> GetKeyColumns(IDbConnection connection, Func<KeyColumnInfo, bool> filter = null);
 
         public abstract string GetCopyStatement<TRecord, TKey>(IEnumerable<string> paramColumns, IEnumerable<string> columns) where TRecord : Record<TKey>;
+
+        public abstract string GetForeignKeyStatement(PropertyInfo propertyInfo);
+
+        public abstract string GetCreateColumnIndexStatement(PropertyInfo propertyInfo);
     }
 }
