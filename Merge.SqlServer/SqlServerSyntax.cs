@@ -24,9 +24,7 @@ namespace Postulate.Orm.SqlServer
         public override string ApplyDelimiter(string name)
         {
             return string.Join(".", name.Split('.').Select(s => $"[{s}]"));
-        }
-
-        public override string IsTableEmptyQuery => throw new NotImplementedException();
+        }        
 
         public override string TableExistsQuery => 
             "[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name";
@@ -37,7 +35,13 @@ namespace Postulate.Orm.SqlServer
 
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
         {
-            return ColumnInfo.FromPropertyInfo(propertyInfo);
+            return ColumnInfo.FromPropertyInfo(propertyInfo, this);
+        }
+
+        public override bool IsTableEmpty(IDbConnection connection, Type type)
+        {
+            var obj = GetTableInfoFromType(type);
+            return ((connection.QueryFirstOrDefault<int?>($"SELECT COUNT(1) FROM [{obj.Schema}].[{obj.Name}]", null) ?? 0) == 0);
         }
 
         public override string IndexExistsQuery => "[sys].[indexes] WHERE [name]=@name";
@@ -149,7 +153,7 @@ namespace Postulate.Orm.SqlServer
                 $@"SELECT SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [c].[Name] AS [ColumnName],
 					[t].[object_id] AS [ObjectID], TYPE_NAME([c].[system_type_id]) AS [DataType],
 					[c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
-					[c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation]
+					[c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation], [c].[is_computed] AS [IsCalculated]
 				FROM
 					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
                 WHERE

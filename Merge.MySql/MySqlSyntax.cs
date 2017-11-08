@@ -19,15 +19,13 @@ namespace Postulate.Orm.MySql
             return string.Join(".", objectName.Split('.').Select(s => $"`{s}`"));
         }        
 
-        public override string IsTableEmptyQuery => throw new NotImplementedException();
-
         public override string TableExistsQuery => throw new NotImplementedException();
 
         public override string ColumnExistsQuery => throw new NotImplementedException();
 
         public override string SchemaColumnQuery => throw new NotImplementedException();
 
-        public override string IndexExistsQuery => throw new NotImplementedException();
+        public override string IndexExistsQuery => throw new NotImplementedException();        
 
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
         {
@@ -150,6 +148,11 @@ namespace Postulate.Orm.MySql
         }
 
         public override TableInfo GetTableInfoFromType(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool IsTableEmpty(IDbConnection connection, Type t)
         {
             throw new NotImplementedException();
         }

@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\DefaultSqlSyntaxAttribute.cs" />
+    <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Merge\MergeAction.cs" />
     <Compile Include="Abstract\SeedData.cs" />
     <Compile Include="Abstract\SqlDb_ChangeTracking.cs" />

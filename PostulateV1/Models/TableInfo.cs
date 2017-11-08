@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Postulate.Orm.Models
 {
     public class TableInfo
-    {
+    {        
         public TableInfo(string name, string schema = "")
         {
             Schema = schema;
@@ -18,7 +18,7 @@ namespace Postulate.Orm.Models
             Schema = schema;
             Name = name;
             ObjectId = objectId;
-        }
+        }        
 
         public static TableInfo FromModelType(Type type, string defaultSchema = "")
         {

@@ -83,9 +83,9 @@ namespace Postulate.Orm.Extensions
             return type.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>() && syntax.IsSupportedType(pi.PropertyType));
         }
 
-        public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type, SqlSyntax scriptGen)
+        public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type, SqlSyntax syntax)
         {
-            return GetModelPropertyInfo(type, scriptGen).Select(pi => ColumnInfo.FromPropertyInfo(pi));
+            return GetModelPropertyInfo(type, syntax).Select(pi => ColumnInfo.FromPropertyInfo(pi, syntax));
         }
 
         public static IEnumerable<PropertyInfo> GetForeignKeys(this Type type)

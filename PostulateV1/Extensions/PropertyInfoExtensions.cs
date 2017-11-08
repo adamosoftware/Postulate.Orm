@@ -48,9 +48,9 @@ namespace Postulate.Orm.Extensions
             return $"{propertyInfo.ReflectedType.Name}.{propertyInfo.Name}";
         }
 
-        public static ColumnInfo ToColumnInfo(this PropertyInfo propertyInfo)
+        public static ColumnInfo ToColumnInfo(this PropertyInfo propertyInfo, SqlSyntax syntax)
         {
-            return ColumnInfo.FromPropertyInfo(propertyInfo);
+            return ColumnInfo.FromPropertyInfo(propertyInfo, syntax);
         }
     }
 }

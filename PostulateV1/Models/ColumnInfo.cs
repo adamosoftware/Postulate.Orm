@@ -1,24 +1,44 @@
-﻿using Postulate.Orm.Extensions;
-using System;
+﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
+using ReflectionHelper;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace Postulate.Orm.Models
 {
     public class ColumnInfo
-    {
+    {        
         public ColumnInfo()
         {
         }
 
-        public static ColumnInfo FromPropertyInfo(PropertyInfo propertyInfo)
+        public static ColumnInfo FromPropertyInfo(PropertyInfo propertyInfo, SqlSyntax syntax)
         {
-            var tbl = TableInfo.FromModelType(propertyInfo.ReflectedType);
+            var tbl = syntax.GetTableInfoFromType(propertyInfo.ReflectedType);            
             ColumnInfo result = new ColumnInfo()
             {
                 Schema = tbl.Schema,
                 TableName = tbl.Name,
-                ColumnName = propertyInfo.SqlColumnName()
+                ColumnName = propertyInfo.SqlColumnName(),
+                PropertyInfo = propertyInfo,
+                DataType = syntax.SqlDataType(propertyInfo),
+                IsNullable = propertyInfo.AllowSqlNull(),
+                IsCalculated = propertyInfo.HasAttribute<CalculatedAttribute>(),
             };
+
+            DecimalPrecisionAttribute precisionAttr;
+            if (propertyInfo.HasAttribute(out precisionAttr))
+            {
+                result.Precision = precisionAttr.Precision;
+                result.Scale = precisionAttr.Scale;
+            }
+
+            CollateAttribute collateAttr;
+            if (propertyInfo.HasAttribute(out collateAttr))
+            {
+                result.Collation = collateAttr.Collation;
+            }
 
             return result;
         }
@@ -83,38 +103,6 @@ namespace Postulate.Orm.Models
             return $"{Schema}.{TableName}.{ColumnName}";
         }
 
-        public string GetDataTypeSyntax(bool withCollation = true)
-        {
-            string result = null;
-            switch (DataType)
-            {
-                case "nvarchar":
-                case "char":
-                case "varchar":
-                case "binary":
-                case "varbinary":
-                    result = $"{DataType}({Length})";
-                    break;
-
-                case "decimal":
-                    result = $"{DataType}({Precision}, {Scale})";
-                    break;
-
-                default:
-                    result = DataType;
-                    break;
-            }
-
-            if (withCollation && !string.IsNullOrEmpty(Collation))
-            {
-                result += " COLLATE " + Collation;
-            }
-
-            result += (IsNullable) ? " NULL" : " NOT NULL";
-
-            return result;
-        }
-
         public virtual string GetSyntax()
         {
             return null;
@@ -125,14 +113,38 @@ namespace Postulate.Orm.Models
             // if schema + table + name are the same....
             if (this.Equals(columnInfo))
             {
+                // alter the columnInfo.DataType to reflect the size so it's comparable to how data type is reported by PropertyInfo
+                if (columnInfo.DataType.Contains("var") && !columnInfo.DataType.Contains("("))
+                {
+                    int divisor = (columnInfo.DataType.Contains("nvar")) ? 2 : 1;
+                    columnInfo.DataType += $"({columnInfo.ByteLength / divisor})";
+                }
+
+                // apply the scale and precision to the data type just like with length
+                if (columnInfo.DataType.Contains("decimal") && !columnInfo.DataType.Contains("("))
+                {
+                    columnInfo.DataType += $"({columnInfo.Precision}, {columnInfo.Scale})";
+                }
+
                 // then any other property diff is considered an alter
-                if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;
-                if (ByteLength != columnInfo.ByteLength) return true;
+                if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;                
                 if (IsNullable != columnInfo.IsNullable) return true;
                 if (IsCalculated != columnInfo.IsCalculated) return true;
-                if (Precision != columnInfo.Precision) return true;
-                if (Scale != columnInfo.Scale) return true;
-                if (!Collation?.Equals(columnInfo.Collation) ?? true) return true;
+
+                DecimalPrecisionAttribute scaleAttr = null;
+                if (PropertyInfo?.HasAttribute(out scaleAttr) ?? false)
+                {
+                    if (Precision != columnInfo.Precision) return true;
+                    if (Scale != columnInfo.Scale) return true;
+                }
+
+                CollateAttribute collation = null;
+                if (PropertyInfo?.HasAttribute(out collation) ?? false)
+                {
+                    if (!collation.Collation?.Equals(columnInfo.Collation) ?? true) return true;
+                }                
+
+                // note -- don't compare the ByteLength property because it's not reported by PropertyInfo
             }
             return false;
         }

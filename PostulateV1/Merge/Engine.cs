@@ -186,7 +186,7 @@ namespace Postulate.Orm.Merge
 
                 if (!_syntax.TableExists(connection, type))
                 {
-                    results.Add(new CreateTable(_syntax, type));
+                    results.Add(new CreateTable(_syntax, tableInfo));
                     foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));
                 }
                 else
@@ -205,7 +205,7 @@ namespace Postulate.Orm.Merge
                         if (_syntax.IsTableEmpty(connection, type))
                         {
                             // drop and re-create table, indicating affected columns with comments in generated script
-                            results.Add(new CreateTable(_syntax, type, rebuild: true)
+                            results.Add(new CreateTable(_syntax, tableInfo, rebuild: true)
                             {
                                 AddedColumns = addedColumns.Select(pi => pi.SqlColumnName()),
                                 ModifiedColumns = modifiedColumns.Select(pi => pi.SqlColumnName()),
@@ -236,14 +236,14 @@ namespace Postulate.Orm.Merge
             IEnumerable<PropertyInfo> modelPropertyInfo, IEnumerable<ColumnInfo> schemaColumnInfo,
             out IEnumerable<PropertyInfo> addedColumns, out IEnumerable<PropertyInfo> modifiedColumns, out IEnumerable<ColumnInfo> deletedColumns)
         {
-            addedColumns = modelPropertyInfo.Where(pi => !schemaColumnInfo.Contains(pi.ToColumnInfo()));
+            addedColumns = modelPropertyInfo.Where(pi => !schemaColumnInfo.Contains(pi.ToColumnInfo(Syntax)));
 
-            modifiedColumns = from mp in modelPropertyInfo
-                              join sc in schemaColumnInfo on mp.ToColumnInfo() equals sc
-                              where mp.ToColumnInfo().IsAlteredFrom(sc)
-                              select mp;
+            modifiedColumns = (from mp in modelPropertyInfo
+                              join sc in schemaColumnInfo on mp.SqlColumnName() equals sc.ColumnName
+                              where mp.ToColumnInfo(Syntax).IsAlteredFrom(sc)
+                              select mp).ToList();
 
-            deletedColumns = schemaColumnInfo.Where(sc => !modelPropertyInfo.Select(pi => pi.ToColumnInfo()).Contains(sc));
+            deletedColumns = schemaColumnInfo.Where(sc => !modelPropertyInfo.Select(pi => pi.ToColumnInfo(Syntax)).Contains(sc));
 
             return (addedColumns.Any() || modifiedColumns.Any() || deletedColumns.Any());
         }

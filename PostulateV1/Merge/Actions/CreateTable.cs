@@ -1,6 +1,7 @@
 ﻿using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
+using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -12,12 +13,16 @@ namespace Postulate.Orm.Merge.Actions
 {
     public class CreateTable : MergeAction
     {
+        private readonly TableInfo _tableInfo;
         private readonly Type _modelType;
         private readonly bool _rebuild;
 
-        public CreateTable(SqlSyntax syntax, Type modelType, bool rebuild = false) : base(syntax, ObjectType.Table, ActionType.Create, $"Create table {modelType.Name}")
+        public CreateTable(SqlSyntax syntax, TableInfo tableInfo, bool rebuild = false) : base(syntax, ObjectType.Table, ActionType.Create, $"Create table {tableInfo}")
         {
-            _modelType = modelType;
+            if (tableInfo.ModelType == null) throw new ArgumentException("CreateTable requires a TableInfo that has its ModelType property set.");
+
+            _tableInfo = tableInfo;
+            _modelType = tableInfo.ModelType;
             _rebuild = rebuild;
         }
 
@@ -40,7 +45,7 @@ namespace Postulate.Orm.Merge.Actions
         {
             if (_rebuild)
             {
-                var drop = new DropTable(this.Syntax, _modelType, connection);
+                var drop = new DropTable(this.Syntax, _tableInfo);
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
 

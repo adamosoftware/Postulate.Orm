@@ -38,7 +38,7 @@ namespace Postulate.Orm.SqlServer
         private ClusterAttribute GetClusterAttribute(Type type)
         {
             return type.GetCustomAttribute<ClusterAttribute>() ?? new ClusterAttribute(ClusterOption.PrimaryKey);
-        }
+        }        
 
         private IEnumerable<string> CreateTableColumns(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
         {

@@ -1,10 +1,8 @@
-﻿using Dapper;
-using Postulate.Orm.Abstract;
+﻿using Postulate.Orm.Abstract;
 using Postulate.Orm.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 namespace Postulate.Orm.Merge.Actions
 {
@@ -17,7 +15,7 @@ namespace Postulate.Orm.Merge.Actions
             _tableInfo = tableInfo;
         }
 
-        public DropTable(SqlSyntax scriptGen, Type modelType, IDbConnection connection = null) : this(scriptGen, TableInfo.FromModelType(modelType))
+        public DropTable(SqlSyntax syntax, Type modelType, IDbConnection connection = null) : this(syntax, syntax.GetTableInfoFromType(modelType))
         {
         }
 

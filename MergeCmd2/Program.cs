@@ -79,21 +79,24 @@ namespace Postulate.Orm.Commands
             var engine = new Engine<TSyntax>(assembly, new Progress<MergeProgress>(ShowProgress));
             using (var cn = db.GetConnection())
             {
+                var actions = engine.CompareAsync(cn).Result;
+                var script = engine.GetScript(cn, actions).ToString();
+
+                SaveScript(assembly.Location, script);
+                Console.WriteLine();
+                Console.WriteLine(script);
+
                 switch (action)
                 {
                     case Action.Validate:
                         break;
 
-                    case Action.Preview:
-                        var actions = engine.CompareAsync(cn).Result;
-                        var script = engine.GetScript(cn, actions).ToString();
-                        SaveScript(assembly.Location, script);
-                        Console.WriteLine();
-                        Console.WriteLine(script);
+                    case Action.Preview:                        
                         break;
 
                     case Action.Execute:
-                        engine.ExecuteAsync(cn).Wait();
+                        engine.ExecuteAsync(cn, actions).Wait();
+                        Console.WriteLine("Script executed successfully.");
                         break;
                 }
             }

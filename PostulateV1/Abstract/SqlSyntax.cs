@@ -17,9 +17,7 @@ namespace Postulate.Orm.Abstract
 
         public abstract string ApplyDelimiter(string objectName);
 
-        public abstract string GetTableName(Type type);
-
-        public abstract string IsTableEmptyQuery { get; }
+        public abstract string GetTableName(Type type);      
 
         public abstract string TableExistsQuery { get; }
 
@@ -39,10 +37,7 @@ namespace Postulate.Orm.Abstract
 
         public abstract string SqlDataType(PropertyInfo propertyInfo);
 
-        public bool IsTableEmpty(IDbConnection connection, Type t)
-        {            
-            return ((connection.QueryFirstOrDefault<int?>(IsTableEmptyQuery, null) ?? 0) == 0);
-        }
+        public abstract bool IsTableEmpty(IDbConnection connection, Type t);        
 
         public bool TableExists(IDbConnection connection, Type t)
         {
@@ -79,7 +74,7 @@ namespace Postulate.Orm.Abstract
                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
         }
 
-        public abstract string GetColumnSyntax(PropertyInfo propertyInfo, bool forceNull = false);
+        public abstract string GetColumnSyntax(PropertyInfo propertyInfo, bool forceNull = false);        
 
         public abstract string GetColumnType(PropertyInfo propertyInfo, bool forceNull = false);
 

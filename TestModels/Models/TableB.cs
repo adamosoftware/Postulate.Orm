@@ -13,5 +13,7 @@ namespace Testing.Models
 
         [MaxLength(500)]
         public string Description { get; set; }
+
+        public DateTime? EffectiveDate { get; set; }
     }
 }
