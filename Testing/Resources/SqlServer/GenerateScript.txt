@@ -1,0 +1,70 @@
+--  Create table TableA
+CREATE TABLE [dbo].[TableA] (
+	[Id] int identity(1,1),
+	[FirstName] nvarchar(50) NOT NULL,
+	[LastName] nvarchar(50) NOT NULL,
+	[DateCreated] datetime NOT NULL,
+	[CreatedBy] nvarchar(20) NOT NULL,
+	[ModifiedBy] nvarchar(20) NULL,
+	CONSTRAINT [PK_TableA] PRIMARY KEY CLUSTERED ([FirstName], [LastName]),
+	CONSTRAINT [U_TableA_Id] UNIQUE ([Id])
+)
+
+GO
+
+--  Create table TableB
+CREATE TABLE [dbo].[TableB] (
+	[Id] int identity(1,1),
+	[OrganizationId] int NOT NULL,
+	[Description] nvarchar(500) NULL,
+	[DateCreated] datetime NOT NULL,
+	[CreatedBy] nvarchar(20) NOT NULL,
+	[ModifiedBy] nvarchar(20) NULL,
+	CONSTRAINT [PK_TableB] PRIMARY KEY CLUSTERED ([Id])
+)
+
+GO
+
+--  Create table TableC
+CREATE TABLE [dbo].[TableC] (
+	[Id] int identity(1,1),
+	[SomeValue] bigint NOT NULL,
+	[SomeDate] datetime NOT NULL,
+	[SomeDouble] float NOT NULL,
+	[AnotherValue] int NOT NULL,
+	[DateCreated] datetime NOT NULL,
+	[CreatedBy] nvarchar(20) NOT NULL,
+	[ModifiedBy] nvarchar(20) NULL,
+	CONSTRAINT [PK_TableC] PRIMARY KEY CLUSTERED ([Id])
+)
+
+GO
+
+--  Create table Organization
+CREATE TABLE [dbo].[Organization] (
+	[Id] int identity(1,1),
+	[Name] nvarchar(100) NOT NULL,
+	[Description] nvarchar(255) NULL,
+	[BillingRate] decimal(5, 2) NOT NULL,
+	[DateCreated] datetime NOT NULL,
+	[CreatedBy] nvarchar(20) NOT NULL,
+	[ModifiedBy] nvarchar(20) NULL,
+	CONSTRAINT [PK_Organization] PRIMARY KEY CLUSTERED ([Name]),
+	CONSTRAINT [U_Organization_Id] UNIQUE ([Id])
+)
+
+GO
+
+--  Add foreign key TableB.OrganizationId
+ALTER TABLE [dbo].[TableB] ADD CONSTRAINT [FK_TableB_OrganizationId] FOREIGN KEY (
+	[OrganizationId]
+) REFERENCES [dbo].[Organization] (
+	[Id]
+)
+
+GO
+
+CREATE INDEX [IX_TableB_OrganizationId] ON [dbo].[TableB] ([OrganizationId])
+
+GO
+

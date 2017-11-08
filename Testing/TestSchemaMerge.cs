@@ -7,7 +7,9 @@ using Postulate.Orm.SqlServer;
 using System;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using Testing.Models;
 
 namespace Testing
@@ -53,7 +55,8 @@ namespace Testing
             using (var cn = db.GetConnection())
             {
                 var actions = engine.CompareAsync(cn).Result;
-                engine.SaveScript(@"C:\Users\Adam\Desktop\Postulate Schema Merge.txt", cn, actions);
+                var script = engine.GetScript(cn, actions).ToString();
+                Assert.IsTrue(script.Equals(GetEmbeddedResource("Testing.Resources.SqlServer.GenerateScript.txt")));
             }
         }
 
@@ -84,6 +87,17 @@ namespace Testing
         private void ReportProgress(MergeProgress obj)
         {
             Debug.WriteLine(obj.ToString());
+        }
+
+        private static string GetEmbeddedResource(string name)
+        {
+            using (Stream stream = Assembly.GetCallingAssembly().GetManifestResourceStream(name))
+            {
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
         }
     }
 }
