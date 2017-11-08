@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Postulate.Orm.MySql</RootNamespace>
-    <AssemblyName>Postulate.Orm.MySql</AssemblyName>
+    <ProjectGuid>{7A3513E9-A2AF-4D0A-B3C1-7357679B05B5}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Postulate.Orm.Commands</RootNamespace>
+    <AssemblyName>MergeModel</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -41,26 +43,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MySqlDb.cs" />
-    <Compile Include="MySqlSyntax.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Merge.MySql\Orm.MySql.csproj">
+      <Project>{f8ac8db0-dfe0-4fce-a7b5-11c5316c7a62}</Project>
+      <Name>Orm.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Merge.SqlServer\Orm.SqlServer.csproj">
+      <Project>{6160bbde-24a4-4964-961f-39a4a5d036d4}</Project>
+      <Name>Orm.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PostulateV1\Core.csproj">
+      <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AoReflectionHelper">
       <Version>1.0.1</Version>
     </PackageReference>
-    <PackageReference Include="Dapper">
-      <Version>1.50.2</Version>
-    </PackageReference>
     <PackageReference Include="MySql.Data">
       <Version>6.10.4</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PostulateV1\Core.csproj">
-      <Project>{74D32DED-6B61-4C06-99B7-4BF11A7325E0}</Project>
-      <Name>Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

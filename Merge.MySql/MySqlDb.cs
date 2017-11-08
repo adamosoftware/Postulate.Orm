@@ -5,6 +5,7 @@ using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Linq;
 
@@ -12,7 +13,11 @@ namespace Postulate.Orm.MySql
 {
     public class MySqlDb<TKey> : SqlDb<TKey>
     {
-        public MySqlDb(string connectionName) : base(connectionName, new MySqlSyntax())
+        public MySqlDb(string connectionName, string userName = null) : base(connectionName, new MySqlSyntax(), userName)
+        {
+        }
+
+        public MySqlDb(Configuration config, string connectionName, string userName = null) : base(config, connectionName, new MySqlSyntax(), userName)
         {
         }
 

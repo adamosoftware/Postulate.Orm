@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orm.SqlServer", "Merge.SqlS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orm.MySql", "Merge.MySql\Orm.MySql.csproj", "{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MergeUI", "MergeUI\MergeUI.csproj", "{AD8D1EA1-7B84-42A5-8249-4CC32204CEF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MergeCmd2", "MergeCmd2\MergeCmd2.csproj", "{7A3513E9-A2AF-4D0A-B3C1-7357679B05B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD8D1EA1-7B84-42A5-8249-4CC32204CEF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD8D1EA1-7B84-42A5-8249-4CC32204CEF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD8D1EA1-7B84-42A5-8249-4CC32204CEF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD8D1EA1-7B84-42A5-8249-4CC32204CEF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3513E9-A2AF-4D0A-B3C1-7357679B05B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3513E9-A2AF-4D0A-B3C1-7357679B05B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3513E9-A2AF-4D0A-B3C1-7357679B05B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3513E9-A2AF-4D0A-B3C1-7357679B05B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
