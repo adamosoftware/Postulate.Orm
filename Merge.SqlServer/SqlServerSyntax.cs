@@ -83,7 +83,7 @@ namespace Postulate.Orm.SqlServer
 
         public override string GetTableName(Type type)
         {
-            var tableInfo = TableInfo.FromModelType(type, "dbo");
+            var tableInfo = GetTableInfoFromType(type);
             return $"[{tableInfo.Schema}].[{tableInfo.Name}]";
         }
 
@@ -93,9 +93,8 @@ namespace Postulate.Orm.SqlServer
         }
 
         public override object TableExistsParameters(Type type)
-        {
-            TableInfo tbl = TableInfo.FromModelType(type, "dbo");
-            return tbl;
+        {            
+            return GetTableInfoFromType(type);
         }
 
         public override Dictionary<Type, string> KeyTypeMap(bool withDefaults = true)
