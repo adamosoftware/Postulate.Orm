@@ -13,9 +13,7 @@ using System.Threading;
 namespace Postulate.Orm.SqlServer
 {
     public partial class SqlServerDb<TKey> : SqlDb<TKey>, IDb
-    {
-        public override bool AllowCreateIfNotExists => true;
-
+    {        
         public override void CreateIfNotExists(Action<IDbConnection> seedAction = null)
         {
             try

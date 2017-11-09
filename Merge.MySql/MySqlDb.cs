@@ -21,11 +21,19 @@ namespace Postulate.Orm.MySql
         {
         }
 
-        public override bool AllowCreateIfNotExists => false;
-
         public override void CreateIfNotExists(Action<IDbConnection> seedAction = null)
         {
-            throw new NotSupportedException();
+            try
+            {
+                using (var cn = GetConnection())
+                {
+                    cn.Open();
+                }
+            }
+            catch (Exception exc)
+            {
+                throw new NotSupportedException("Currently, the Postulate MySql implementation is not able to create databases on the fly. Please create the database manually and attempt the operation again.", exc);
+            }
         }
 
         public override IDbConnection GetConnection()

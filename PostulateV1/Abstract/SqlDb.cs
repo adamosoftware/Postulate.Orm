@@ -78,9 +78,7 @@ namespace Postulate.Orm.Abstract
                 string name = _connectionString.Substring(1);
                 _connectionString = ConnectionStringReference.Resolve(name);
             }
-        }
-
-        public abstract bool AllowCreateIfNotExists { get; }
+        }      
 
         public abstract void CreateIfNotExists(Action<IDbConnection> seedAction = null);
 

@@ -87,7 +87,7 @@ namespace Postulate.MergeUI.ViewModels
 
         private async Task GenerateScriptInnerAsync<TSyntax>(SqlDb<int> db, TSyntax syntax, IProgress<MergeProgress> showProgress) where TSyntax : SqlSyntax, new()
         {
-            if (db.AllowCreateIfNotExists) db.CreateIfNotExists();
+            db.CreateIfNotExists();
 
             var engine = new Engine<TSyntax>(Assembly, showProgress);
 
