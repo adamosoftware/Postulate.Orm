@@ -12,27 +12,26 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.MergeUI.ViewModels
+namespace Postulate.MergeUI
 {
-    internal class AssemblyConnector
+    internal class ScriptManager
     {
-        private static string cn;
-
         public SupportedSyntax CurrentSyntax { get; private set; }
         public Assembly Assembly { get; private set; }
         public Configuration Configuration { get; private set; }
-        public string[] ConnectionNames { get; set; }
-
+        public string[] ConnectionNames { get; private set; }
+        public SqlSyntax Syntax { get; private set; }
         public IEnumerable<MergeAction> Actions { get; private set; }
         public Dictionary<MergeAction, LineRange> LineRanges { get; private set; }
         public StringBuilder Script { get; private set; }
+        public ILookup<MergeAction, string> ValidationErrors { get; private set; }
 
-        private AssemblyConnector()
+        private ScriptManager()
         {
             // use FromFile
         }
 
-        public static AssemblyConnector FromFile(string fileName, SupportedSyntax? syntax = null)
+        public static ScriptManager FromFile(string fileName, SupportedSyntax? syntax = null)
         {
             var assembly = Assembly.LoadFile(fileName);
 
@@ -41,9 +40,10 @@ namespace Postulate.MergeUI.ViewModels
                 ((assembly.HasAttribute(out defaultSyntax)) ? defaultSyntax.Syntax :
                     throw new ArgumentException("Could not determine the SQL syntax. Please specify the SupportedSyntax argument or use the [DefaultSqlSyntaxAttribute] on the assembly."));
 
-            var result = new AssemblyConnector();
+            var result = new ScriptManager();
             result.Assembly = assembly;
             result.Configuration = ConfigurationManager.OpenExeConfiguration(assembly.Location);
+            result.CurrentSyntax = currentSyntax;
 
             List<string> connectionNames = new List<string>();
             foreach (ConnectionStringSettings connectionStr in result.Configuration.ConnectionStrings.ConnectionStrings)
@@ -75,11 +75,11 @@ namespace Postulate.MergeUI.ViewModels
             var db = ConnectionProviders[CurrentSyntax].GetDb.Invoke(this.Configuration, connectionName);
             switch (CurrentSyntax)
             {
-                case SupportedSyntax.MySql:
+                case SupportedSyntax.MySql:                    
                     await GenerateScriptInnerAsync(db, new MySqlSyntax(), showProgress);
                     break;
 
-                case SupportedSyntax.SqlServer:
+                case SupportedSyntax.SqlServer:                    
                     await GenerateScriptInnerAsync(db, new SqlServerSyntax(), showProgress);
                     break;
             }
@@ -87,6 +87,8 @@ namespace Postulate.MergeUI.ViewModels
 
         private async Task GenerateScriptInnerAsync<TSyntax>(SqlDb<int> db, TSyntax syntax, IProgress<MergeProgress> showProgress) where TSyntax : SqlSyntax, new()
         {
+            Syntax = new TSyntax(); // this is so I can still get the CommentPrefix in the script output if no actions are found
+
             db.CreateIfNotExists();
 
             var engine = new Engine<TSyntax>(Assembly, showProgress);
@@ -94,8 +96,13 @@ namespace Postulate.MergeUI.ViewModels
             using (var cn = db.GetConnection())
             {
                 cn.Open();
-                var actions = await engine.CompareAsync(cn);
-                Script = engine.GetScript(cn, actions);
+                Actions = await engine.CompareAsync(cn);
+                Dictionary<MergeAction, LineRange> lineRanges;
+                Script = engine.GetScript(cn, Actions, out lineRanges);
+                LineRanges = lineRanges;
+                ValidationErrors = Actions
+                    .SelectMany(item => item.ValidationErrors(cn).Select(msg => new { Action = item, Message = msg }))
+                    .ToLookup(item2 => item2.Action, item2 => item2.Message);
             }
         }
     }

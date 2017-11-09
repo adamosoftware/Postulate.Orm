@@ -36,7 +36,7 @@
             this.btnExecute = new System.Windows.Forms.ToolStripButton();
             this.btnSaveAs = new System.Windows.Forms.ToolStripButton();
             this.btnRefresh = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.btnSelectFile = new System.Windows.Forms.ToolStripButton();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.pbMain = new System.Windows.Forms.ToolStripProgressBar();
             this.tslStatus = new System.Windows.Forms.ToolStripStatusLabel();
@@ -65,7 +65,7 @@
             this.btnExecute,
             this.btnSaveAs,
             this.btnRefresh,
-            this.toolStripButton1});
+            this.btnSelectFile});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(646, 25);
@@ -81,6 +81,7 @@
             // tbAssembly
             // 
             this.tbAssembly.Name = "tbAssembly";
+            this.tbAssembly.ReadOnly = true;
             this.tbAssembly.Size = new System.Drawing.Size(353, 25);
             // 
             // btnExecute
@@ -110,16 +111,18 @@
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(23, 22);
             this.btnRefresh.Text = "toolStripButton1";
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
-            // toolStripButton1
+            // btnSelectFile
             // 
-            this.toolStripButton1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton1.Text = "...";
+            this.btnSelectFile.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.btnSelectFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnSelectFile.Image = ((System.Drawing.Image)(resources.GetObject("btnSelectFile.Image")));
+            this.btnSelectFile.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSelectFile.Name = "btnSelectFile";
+            this.btnSelectFile.Size = new System.Drawing.Size(23, 22);
+            this.btnSelectFile.Text = "...";
+            this.btnSelectFile.Click += new System.EventHandler(this.btnSelectFile_Click);
             // 
             // statusStrip1
             // 
@@ -147,7 +150,6 @@
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer1.Location = new System.Drawing.Point(0, 25);
             this.splitContainer1.Name = "splitContainer1";
             // 
@@ -180,10 +182,14 @@
             // tvwActions
             // 
             this.tvwActions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tvwActions.ImageIndex = 0;
+            this.tvwActions.ImageList = this.imageList1;
             this.tvwActions.Location = new System.Drawing.Point(0, 0);
             this.tvwActions.Name = "tvwActions";
+            this.tvwActions.SelectedImageIndex = 0;
             this.tvwActions.Size = new System.Drawing.Size(194, 175);
             this.tvwActions.TabIndex = 0;
+            this.tvwActions.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterExpand);
             // 
             // tbScript
             // 
@@ -246,6 +252,7 @@
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Postulate Schema Merge";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
@@ -271,7 +278,7 @@
         private System.Windows.Forms.ToolStripButton btnExecute;
         private System.Windows.Forms.ToolStripButton btnSaveAs;
         private System.Windows.Forms.ToolStripButton btnRefresh;
-        private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripButton btnSelectFile;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripProgressBar pbMain;
         private System.Windows.Forms.ToolStripStatusLabel tslStatus;

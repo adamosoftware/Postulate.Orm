@@ -56,7 +56,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\ActionNode.cs" />
     <Compile Include="ViewModels\ActionTypeNode.cs" />
-    <Compile Include="ViewModels\AssemblyConnector.cs" />
+    <Compile Include="ScriptManager.cs" />
+    <Compile Include="ViewModels\ConnectionNode.cs" />
     <Compile Include="ViewModels\ObjectTypeNode.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
