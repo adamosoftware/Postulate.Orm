@@ -24,7 +24,7 @@ namespace Postulate.MergeUI
         public IEnumerable<MergeAction> Actions { get; private set; }
         public Dictionary<MergeAction, LineRange> LineRanges { get; private set; }
         public StringBuilder Script { get; private set; }
-        public ILookup<MergeAction, string> ValidationErrors { get; private set; }
+        public ILookup<MergeAction, string> ValidationErrors { get; private set; }        
 
         private ScriptManager()
         {
@@ -76,16 +76,16 @@ namespace Postulate.MergeUI
             switch (CurrentSyntax)
             {
                 case SupportedSyntax.MySql:                    
-                    await GenerateScriptInnerAsync(db, new MySqlSyntax(), showProgress);
+                    await GenerateScriptInnerAsync<MySqlSyntax>(db, showProgress);
                     break;
 
                 case SupportedSyntax.SqlServer:                    
-                    await GenerateScriptInnerAsync(db, new SqlServerSyntax(), showProgress);
+                    await GenerateScriptInnerAsync<SqlServerSyntax>(db, showProgress);
                     break;
             }
         }
 
-        private async Task GenerateScriptInnerAsync<TSyntax>(SqlDb<int> db, TSyntax syntax, IProgress<MergeProgress> showProgress) where TSyntax : SqlSyntax, new()
+        private async Task GenerateScriptInnerAsync<TSyntax>(SqlDb<int> db, IProgress<MergeProgress> showProgress) where TSyntax : SqlSyntax, new()
         {
             Syntax = new TSyntax(); // this is so I can still get the CommentPrefix in the script output if no actions are found
 
@@ -104,6 +104,30 @@ namespace Postulate.MergeUI
                     .SelectMany(item => item.ValidationErrors(cn).Select(msg => new { Action = item, Message = msg }))
                     .ToLookup(item2 => item2.Action, item2 => item2.Message);
             }
+        }
+
+        public string ScriptSelectActions(string connectionName, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges)
+        {
+            var db = ConnectionProviders[CurrentSyntax].GetDb.Invoke(this.Configuration, connectionName);
+            switch (CurrentSyntax)
+            {
+                case SupportedSyntax.MySql:
+                    return ScripSelectActionsInner<MySqlSyntax>(db, actions, out lineRanges);
+
+                case SupportedSyntax.SqlServer:
+                    return ScripSelectActionsInner<SqlServerSyntax>(db, actions, out lineRanges);                    
+            }
+
+            throw new ArgumentException($"Unrecognized CurrentSyntax setting {CurrentSyntax}.");
+        }
+
+        private string ScripSelectActionsInner<TSyntax>(SqlDb<int> db, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges) where TSyntax : SqlSyntax, new()
+        {
+            var engine = new Engine<TSyntax>(Assembly, null);
+            using (var cn = db.GetConnection())
+            {
+                return engine.GetScript(cn, actions, out lineRanges).ToString();
+            }                
         }
     }
 

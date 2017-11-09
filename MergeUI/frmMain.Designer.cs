@@ -41,20 +41,24 @@
             this.pbMain = new System.Windows.Forms.ToolStripProgressBar();
             this.tslStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.splcActions = new System.Windows.Forms.SplitContainer();
             this.tvwActions = new System.Windows.Forms.TreeView();
             this.tbScript = new FastColoredTextBoxNS.FastColoredTextBox();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.lblErrors = new System.Windows.Forms.Label();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
-            this.splitContainer2.Panel1.SuspendLayout();
-            this.splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splcActions)).BeginInit();
+            this.splcActions.Panel1.SuspendLayout();
+            this.splcActions.Panel2.SuspendLayout();
+            this.splcActions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tbScript)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -155,7 +159,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.splitContainer2);
+            this.splitContainer1.Panel1.Controls.Add(this.splcActions);
             // 
             // splitContainer1.Panel2
             // 
@@ -164,23 +168,29 @@
             this.splitContainer1.SplitterDistance = 194;
             this.splitContainer1.TabIndex = 2;
             // 
-            // splitContainer2
+            // splcActions
             // 
-            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer2.Name = "splitContainer2";
-            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.splcActions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splcActions.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splcActions.Location = new System.Drawing.Point(0, 0);
+            this.splcActions.Name = "splcActions";
+            this.splcActions.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // splitContainer2.Panel1
+            // splcActions.Panel1
             // 
-            this.splitContainer2.Panel1.Controls.Add(this.tvwActions);
-            this.splitContainer2.Size = new System.Drawing.Size(194, 298);
-            this.splitContainer2.SplitterDistance = 175;
-            this.splitContainer2.TabIndex = 1;
+            this.splcActions.Panel1.Controls.Add(this.tvwActions);
+            // 
+            // splcActions.Panel2
+            // 
+            this.splcActions.Panel2.Controls.Add(this.lblErrors);
+            this.splcActions.Panel2.Controls.Add(this.pictureBox1);
+            this.splcActions.Size = new System.Drawing.Size(194, 298);
+            this.splcActions.SplitterDistance = 175;
+            this.splcActions.TabIndex = 1;
             // 
             // tvwActions
             // 
+            this.tvwActions.CheckBoxes = true;
             this.tvwActions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tvwActions.ImageIndex = 0;
             this.tvwActions.ImageList = this.imageList1;
@@ -189,7 +199,9 @@
             this.tvwActions.SelectedImageIndex = 0;
             this.tvwActions.Size = new System.Drawing.Size(194, 175);
             this.tvwActions.TabIndex = 0;
+            this.tvwActions.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterCheck);
             this.tvwActions.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterExpand);
+            this.tvwActions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterSelect);
             // 
             // tbScript
             // 
@@ -240,6 +252,27 @@
             this.imageList1.Images.SetKeyName(6, "ForeignKey");
             this.imageList1.Images.SetKeyName(7, "Key");
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(12, 12);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(36, 36);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.TabStop = false;
+            // 
+            // lblErrors
+            // 
+            this.lblErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblErrors.Location = new System.Drawing.Point(54, 12);
+            this.lblErrors.Name = "lblErrors";
+            this.lblErrors.Size = new System.Drawing.Size(124, 97);
+            this.lblErrors.TabIndex = 3;
+            this.lblErrors.Text = "label1";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
@@ -249,6 +282,7 @@
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
             this.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Postulate Schema Merge";
@@ -261,10 +295,12 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.splitContainer2.Panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
-            this.splitContainer2.ResumeLayout(false);
+            this.splcActions.Panel1.ResumeLayout(false);
+            this.splcActions.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splcActions)).EndInit();
+            this.splcActions.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tbScript)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -285,8 +321,10 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TreeView tvwActions;
         private FastColoredTextBoxNS.FastColoredTextBox tbScript;
-        private System.Windows.Forms.SplitContainer splitContainer2;
+        private System.Windows.Forms.SplitContainer splcActions;
         private System.Windows.Forms.ImageList imageList1;
+        private System.Windows.Forms.Label lblErrors;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

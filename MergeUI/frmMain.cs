@@ -1,7 +1,9 @@
 ﻿using AdamOneilSoftware;
+using FastColoredTextBoxNS;
 using Postulate.MergeUI.ViewModels;
 using Postulate.Orm.Merge;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -105,6 +107,8 @@ namespace Postulate.MergeUI
                     }
                     actionTypeNode.Expand();
                 }
+
+                connectionNode.Checked = true;
             }
             finally
             {
@@ -125,6 +129,51 @@ namespace Postulate.MergeUI
             {
                 ConnectionNode cnNode = tvwActions.SelectedNode?.FindParentNode<ConnectionNode>();
                 if (cnNode != null) await BuildViewAsync(cnNode);
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
+
+        private void tvwActions_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            try
+            {
+                ActionNode nd = e.Node as ActionNode;
+                if (nd?.Checked ?? false) tbScript.Selection = new Range(tbScript, new Place(0, nd.StartLine), new Place(0, nd.EndLine));
+
+                if (!nd?.IsValid ?? false)
+                {
+                    splcActions.Panel2Collapsed = false;
+                    lblErrors.Text = string.Join("\r\n", nd.ValidationErrors);
+                }
+                else
+                {
+                    splcActions.Panel2Collapsed = true;
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+
+        }
+
+        private void tvwActions_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            try
+            {
+                tvwActions.AfterCheck -= tvwActions_AfterCheck;
+                e.Node.CheckChildNodes(e.Node.Checked);
+                tvwActions.AfterCheck += tvwActions_AfterCheck;
+
+                ConnectionNode nd = e.Node.FindParentNode<ConnectionNode>();
+                if (nd == null) nd = e.Node as ConnectionNode;
+                var selectedActions = tvwActions.FindNodes<ActionNode>(true, node => node.Checked);
+                
+                Dictionary<Orm.Merge.MergeAction, LineRange> lineRanges;
+                tbScript.Text = _scriptManager.ScriptSelectActions(nd.ConnectionName, selectedActions.Select(node => node.Action), out lineRanges);                    
             }
             catch (Exception exc)
             {
