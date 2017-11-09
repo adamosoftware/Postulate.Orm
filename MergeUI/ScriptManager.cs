@@ -106,28 +106,54 @@ namespace Postulate.MergeUI
             }
         }
 
-        public string ScriptSelectActions(string connectionName, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges)
+        public string ScriptSelectedActions(string connectionName, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges)
         {
             var db = ConnectionProviders[CurrentSyntax].GetDb.Invoke(this.Configuration, connectionName);
             switch (CurrentSyntax)
             {
                 case SupportedSyntax.MySql:
-                    return ScripSelectActionsInner<MySqlSyntax>(db, actions, out lineRanges);
+                    return ScripSelectedActionsInner<MySqlSyntax>(db, actions, out lineRanges);
 
                 case SupportedSyntax.SqlServer:
-                    return ScripSelectActionsInner<SqlServerSyntax>(db, actions, out lineRanges);                    
+                    return ScripSelectedActionsInner<SqlServerSyntax>(db, actions, out lineRanges);                    
             }
 
             throw new ArgumentException($"Unrecognized CurrentSyntax setting {CurrentSyntax}.");
         }
 
-        private string ScripSelectActionsInner<TSyntax>(SqlDb<int> db, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges) where TSyntax : SqlSyntax, new()
+        private string ScripSelectedActionsInner<TSyntax>(SqlDb<int> db, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges) where TSyntax : SqlSyntax, new()
         {
             var engine = new Engine<TSyntax>(Assembly, null);
             using (var cn = db.GetConnection())
             {
                 return engine.GetScript(cn, actions, out lineRanges).ToString();
             }                
+        }
+
+        public async Task ExecuteSelectedActionsAsync(string connectionName, IEnumerable<MergeAction> actions, IProgress<MergeProgress> showProgress)
+        {
+            var db = ConnectionProviders[CurrentSyntax].GetDb.Invoke(this.Configuration, connectionName);
+            switch (CurrentSyntax)
+            {
+                case SupportedSyntax.MySql:
+                    await ExecuteSelectedActionsInnerAsync<MySqlSyntax>(db, actions, showProgress);
+                    return;
+
+                case SupportedSyntax.SqlServer:
+                    await ExecuteSelectedActionsInnerAsync<SqlServerSyntax>(db, actions, showProgress);
+                    return;
+            }
+
+            throw new ArgumentException($"Unrecognized CurrentSyntax setting {CurrentSyntax}.");
+        }
+
+        private async Task ExecuteSelectedActionsInnerAsync<TSyntax>(SqlDb<int> db, IEnumerable<MergeAction> actions, IProgress<MergeProgress> progress) where TSyntax : SqlSyntax, new()
+        {
+            var engine = new Engine<TSyntax>(Assembly, progress);
+            using (var cn = db.GetConnection())
+            {
+                await engine.ExecuteAsync(cn, actions);
+            }
         }
     }
 

@@ -173,7 +173,37 @@ namespace Postulate.MergeUI
                 var selectedActions = tvwActions.FindNodes<ActionNode>(true, node => node.Checked);
                 
                 Dictionary<Orm.Merge.MergeAction, LineRange> lineRanges;
-                tbScript.Text = _scriptManager.ScriptSelectActions(nd.ConnectionName, selectedActions.Select(node => node.Action), out lineRanges);                    
+                tbScript.Text = _scriptManager.ScriptSelectedActions(nd.ConnectionName, selectedActions.Select(node => node.Action), out lineRanges);                    
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
+
+        private async void btnExecute_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ConnectionNode nd = tvwActions.SelectedNode.FindParentNode<ConnectionNode>();
+                if (nd == null) nd = tvwActions.SelectedNode as ConnectionNode;
+                if (nd == null) throw new Exception("Couldn't find connection node");
+
+                var selectedActions = nd.FindNodes<ActionNode>(true, node => node.Checked);
+                await _scriptManager.ExecuteSelectedActionsAsync(nd.ConnectionName, selectedActions.Select(node => node.Action), new Progress<MergeProgress>(ShowProgress));
+
+                await BuildViewAsync(nd);
+
+                string message = "Changes executed successfully!";
+                bool exit = false;
+                if (!tvwActions.FindNodes<ActionNode>().Any())
+                {
+                    message += " Schema Merge will exit since there are no more changes.";
+                    exit = true;
+                }
+                MessageBox.Show(message);
+
+                if (exit) Application.Exit();
             }
             catch (Exception exc)
             {

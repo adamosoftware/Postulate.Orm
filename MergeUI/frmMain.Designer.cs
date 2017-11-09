@@ -96,6 +96,7 @@
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(67, 22);
             this.btnExecute.Text = "Execute";
+            this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
             // 
             // btnSaveAs
             // 
