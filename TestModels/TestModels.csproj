@@ -49,9 +49,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PostulateV1\Core.csproj">
+    <ProjectReference Include="..\PostulateV1\Orm.Core.csproj">
       <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
-      <Name>Core</Name>
+      <Name>Orm.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

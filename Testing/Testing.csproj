@@ -92,9 +92,9 @@
       <Project>{6160bbde-24a4-4964-961f-39a4a5d036d4}</Project>
       <Name>Orm.SqlServer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PostulateV1\Core.csproj">
+    <ProjectReference Include="..\PostulateV1\Orm.Core.csproj">
       <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
-      <Name>Core</Name>
+      <Name>Orm.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
