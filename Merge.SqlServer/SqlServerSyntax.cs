@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
-using Postulate.Orm.Enums;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
 using ReflectionHelper;
@@ -24,14 +23,14 @@ namespace Postulate.Orm.SqlServer
         public override string ApplyDelimiter(string name)
         {
             return string.Join(".", name.Split('.').Select(s => $"[{s}]"));
-        }        
+        }
 
-        public override string TableExistsQuery => 
+        public override string TableExistsQuery =>
             "[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name";
 
         public override string ColumnExistsQuery =>
             @"[sys].[columns] [col] INNER JOIN [sys].[tables] [tbl] ON [col].[object_id]=[tbl].[object_id]
-			WHERE SCHEMA_NAME([tbl].[schema_id])=@schema AND [tbl].[name]=@tableName AND [col].[name]=@columnName";        
+			WHERE SCHEMA_NAME([tbl].[schema_id])=@schema AND [tbl].[name]=@tableName AND [col].[name]=@columnName";
 
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
         {
@@ -97,7 +96,7 @@ namespace Postulate.Orm.SqlServer
         }
 
         public override object TableExistsParameters(Type type)
-        {            
+        {
             return GetTableInfoFromType(type);
         }
 
@@ -279,7 +278,6 @@ namespace Postulate.Orm.SqlServer
             if (propertyInfo.AllowSqlNull()) return "NULL";
 
             throw new Exception($"{propertyInfo.DeclaringType.Name}.{propertyInfo.Name} property does not have a [DefaultExpression] attribute.");
-
         }
 
         private static string Quote(PropertyInfo propertyInfo, string expression)
@@ -351,7 +349,7 @@ namespace Postulate.Orm.SqlServer
         public override string GetCopyStatement<TRecord, TKey>(IEnumerable<string> paramColumns, IEnumerable<string> columns)
         {
             string tableName = GetTableName(typeof(TRecord));
-            return 
+            return
                 $@"INSERT INTO {tableName} (
                     {string.Join(", ", columns.Concat(paramColumns.Select(col => ApplyDelimiter(col))))}
                 ) OUTPUT

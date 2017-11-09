@@ -4,7 +4,6 @@ using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Models;
-using Postulate.Orm.SqlServer;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -14,7 +13,6 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 

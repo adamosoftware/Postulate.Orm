@@ -21,6 +21,8 @@ namespace Postulate.Orm.MySql
         {
         }
 
+        public override bool AllowCreateIfNotExists => false;
+
         public override void CreateIfNotExists(Action<IDbConnection> seedAction = null)
         {
             throw new NotSupportedException();

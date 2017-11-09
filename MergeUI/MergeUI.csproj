@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{AD8D1EA1-7B84-42A5-8249-4CC32204CEF4}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>MergeUI</RootNamespace>
+    <RootNamespace>Postulate.MergeUI</RootNamespace>
     <AssemblyName>MergeUI</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -53,6 +54,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\ActionNode.cs" />
+    <Compile Include="ViewModels\ActionTypeNode.cs" />
+    <Compile Include="ViewModels\AssemblyConnector.cs" />
+    <Compile Include="ViewModels\ObjectTypeNode.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -64,6 +69,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -79,9 +85,32 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AoReflectionHelper">
+      <Version>1.0.1</Version>
+    </PackageReference>
     <PackageReference Include="AoWinFormsExt">
       <Version>1.0.11</Version>
     </PackageReference>
+    <PackageReference Include="FCTB">
+      <Version>2.16.21</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Merge.MySql\Orm.MySql.csproj">
+      <Project>{f8ac8db0-dfe0-4fce-a7b5-11c5316c7a62}</Project>
+      <Name>Orm.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Merge.SqlServer\Orm.SqlServer.csproj">
+      <Project>{6160bbde-24a4-4964-961f-39a4a5d036d4}</Project>
+      <Name>Orm.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PostulateV1\Orm.Core.csproj">
+      <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
+      <Name>Orm.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

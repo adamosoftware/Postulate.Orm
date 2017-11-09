@@ -80,6 +80,8 @@ namespace Postulate.Orm.Abstract
             }
         }
 
+        public abstract bool AllowCreateIfNotExists { get; }
+
         public abstract void CreateIfNotExists(Action<IDbConnection> seedAction = null);
 
         private string FindConnectionString(string location, string connection)
