@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Postulate implementation for MySql")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Adam O'Neil Software")]
-[assembly: AssemblyProduct("Postulate.Orm.MySql")]
+[assembly: AssemblyProduct("Postulate ORM for MySql")]
 [assembly: AssemblyCopyright("Copyright © Adam O'Neil Software 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

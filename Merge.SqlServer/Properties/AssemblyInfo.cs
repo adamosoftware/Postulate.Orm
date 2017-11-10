@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Postulate implementation for SQL Server")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Adam O'Neil Software")]
-[assembly: AssemblyProduct("Postulate.Orm.SqlServer")]
+[assembly: AssemblyProduct("Postulate ORM for SQL Server")]
 [assembly: AssemblyCopyright("Copyright © Adam O'Neil 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
