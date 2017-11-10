@@ -4,6 +4,7 @@ using Postulate.MergeUI.ViewModels;
 using Postulate.Orm.Merge;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,11 +20,13 @@ namespace Postulate.MergeUI
             InitializeComponent();
         }
 
-        private void btnSelectFile_Click(object sender, EventArgs e)
+        public string StartupFile { get; set; }
+
+        private async void btnSelectFile_Click(object sender, EventArgs e)
         {
             try
             {
-                SelectAssembly();
+                await SelectAssemblyAsync();
             }
             catch (Exception exc)
             {
@@ -31,26 +34,50 @@ namespace Postulate.MergeUI
             }
         }
 
-        private bool SelectAssembly()
+        private async Task<bool> SelectAssemblyAsync()
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Filter = "Assemblies|*.exe;*.dll|All Files|*.*";
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                tbAssembly.Text = dlg.FileName;
-                _scriptManager = ScriptManager.FromFile(dlg.FileName);
-                tvwActions.Nodes.Clear();
-                this.Text = $"Postulate Schema Merge - {_scriptManager.CurrentSyntax.ToString()}";
-                foreach (string name in _scriptManager.ConnectionNames) tvwActions.Nodes.Add(new ConnectionNode(name));
+                await SelectAssemblyInner(dlg.FileName);
                 return true;
             }
 
             return false;
         }
 
-        private void frmMain_Load(object sender, EventArgs e)
+        private async Task SelectAssemblyInner(string fileName)
         {
-            btnSelectFile_Click(sender, e);
+            tbAssembly.Text = fileName;
+            _scriptManager = ScriptManager.FromFile(fileName);
+            tvwActions.Nodes.Clear();
+            this.Text = $"Postulate Schema Merge - {_scriptManager.CurrentSyntax.ToString()}";
+            foreach (string name in _scriptManager.ConnectionNames)
+            {
+                ConnectionNode cnNode = new ConnectionNode(name);
+                tvwActions.Nodes.Add(cnNode);
+                await BuildViewAsync(cnNode);
+            }
+        }
+
+        private async void frmMain_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(StartupFile) && File.Exists(StartupFile))
+                {
+                    await SelectAssemblyInner(StartupFile);                    
+                }
+                else
+                {
+                    btnSelectFile_Click(sender, e);
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
         }
 
         private async Task BuildViewAsync(ConnectionNode connectionNode)
@@ -123,18 +150,11 @@ namespace Postulate.MergeUI
             }
         }
 
-        private async void tvwActions_AfterSelect(object sender, TreeViewEventArgs e)
+        private void tvwActions_AfterSelect(object sender, TreeViewEventArgs e)
         {
             try
             {
                 splcActions.Panel2Collapsed = true;
-
-                ConnectionNode cnNode = e.Node as ConnectionNode;
-                if (cnNode != null)
-                {
-                    await BuildViewAsync(cnNode);
-                    return;
-                }                
 
                 ActionNode nd = e.Node as ActionNode;
                 if (nd?.Checked ?? false) tbScript.Selection = new Range(tbScript, new Place(0, nd.StartLine), new Place(0, nd.EndLine));

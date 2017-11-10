@@ -9,11 +9,13 @@ namespace Postulate.MergeUI
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main()
+        private static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmMain());
+
+            string startupFile = ((args?.Length ?? 0) == 1) ? args[0] : null;
+            Application.Run(new frmMain() { StartupFile = startupFile });
         }
     }
 }
