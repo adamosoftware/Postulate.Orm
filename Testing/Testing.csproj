@@ -60,17 +60,7 @@
   <ItemGroup>
     <Compile Include="Blobak.cs" />
     <Compile Include="CommandBuilding.cs" />
-    <Compile Include="Models\AppTable.cs" />
-    <Compile Include="Models\BaseTable.cs" />
-    <Compile Include="Models\Item.cs" />
-    <Compile Include="Models\Organization.cs" />
-    <Compile Include="Models\PostulateDb.cs" />
     <Compile Include="CrudOperations.cs" />
-    <Compile Include="Models\TableA.cs" />
-    <Compile Include="Models\TableB.cs" />
-    <Compile Include="Models\TableC.cs" />
-    <Compile Include="Models\CreateIfNotExistsDb.cs" />
-    <Compile Include="Models\TableD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveMultiple.cs" />
     <Compile Include="TestChangeTracking.cs" />
@@ -95,6 +85,10 @@
     <ProjectReference Include="..\PostulateV1\Orm.Core.csproj">
       <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
       <Name>Orm.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestModels\TestModels.csproj">
+      <Project>{20fcd224-4a12-4b29-88fc-0e3fa25a05f2}</Project>
+      <Name>TestModels</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
