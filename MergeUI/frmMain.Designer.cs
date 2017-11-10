@@ -43,10 +43,10 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splcActions = new System.Windows.Forms.SplitContainer();
             this.tvwActions = new System.Windows.Forms.TreeView();
-            this.tbScript = new FastColoredTextBoxNS.FastColoredTextBox();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lblErrors = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.tbScript = new FastColoredTextBoxNS.FastColoredTextBox();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -57,8 +57,8 @@
             this.splcActions.Panel1.SuspendLayout();
             this.splcActions.Panel2.SuspendLayout();
             this.splcActions.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbScript)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbScript)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -166,7 +166,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tbScript);
             this.splitContainer1.Size = new System.Drawing.Size(646, 298);
-            this.splitContainer1.SplitterDistance = 194;
+            this.splitContainer1.SplitterDistance = 166;
             this.splitContainer1.TabIndex = 2;
             // 
             // splcActions
@@ -185,7 +185,7 @@
             // 
             this.splcActions.Panel2.Controls.Add(this.lblErrors);
             this.splcActions.Panel2.Controls.Add(this.pictureBox1);
-            this.splcActions.Size = new System.Drawing.Size(194, 298);
+            this.splcActions.Size = new System.Drawing.Size(166, 298);
             this.splcActions.SplitterDistance = 175;
             this.splcActions.TabIndex = 1;
             // 
@@ -198,11 +198,44 @@
             this.tvwActions.Location = new System.Drawing.Point(0, 0);
             this.tvwActions.Name = "tvwActions";
             this.tvwActions.SelectedImageIndex = 0;
-            this.tvwActions.Size = new System.Drawing.Size(194, 175);
+            this.tvwActions.Size = new System.Drawing.Size(166, 175);
             this.tvwActions.TabIndex = 0;
             this.tvwActions.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterCheck);
-            this.tvwActions.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterExpand);
             this.tvwActions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwActions_AfterSelect);
+            // 
+            // imageList1
+            // 
+            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList1.Images.SetKeyName(0, "Alter");
+            this.imageList1.Images.SetKeyName(1, "Create");
+            this.imageList1.Images.SetKeyName(2, "Drop");
+            this.imageList1.Images.SetKeyName(3, "Table");
+            this.imageList1.Images.SetKeyName(4, "Column");
+            this.imageList1.Images.SetKeyName(5, "Database");
+            this.imageList1.Images.SetKeyName(6, "ForeignKey");
+            this.imageList1.Images.SetKeyName(7, "Key");
+            // 
+            // lblErrors
+            // 
+            this.lblErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblErrors.Location = new System.Drawing.Point(54, 12);
+            this.lblErrors.Name = "lblErrors";
+            this.lblErrors.Size = new System.Drawing.Size(96, 97);
+            this.lblErrors.TabIndex = 3;
+            this.lblErrors.Text = "label1";
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(12, 12);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(36, 36);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.TabStop = false;
             // 
             // tbScript
             // 
@@ -236,43 +269,9 @@
             this.tbScript.RightBracket = ')';
             this.tbScript.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
             this.tbScript.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("tbScript.ServiceColors")));
-            this.tbScript.Size = new System.Drawing.Size(448, 298);
+            this.tbScript.Size = new System.Drawing.Size(476, 298);
             this.tbScript.TabIndex = 0;
             this.tbScript.Zoom = 100;
-            // 
-            // imageList1
-            // 
-            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList1.Images.SetKeyName(0, "Alter");
-            this.imageList1.Images.SetKeyName(1, "Create");
-            this.imageList1.Images.SetKeyName(2, "Drop");
-            this.imageList1.Images.SetKeyName(3, "Table");
-            this.imageList1.Images.SetKeyName(4, "Column");
-            this.imageList1.Images.SetKeyName(5, "Database");
-            this.imageList1.Images.SetKeyName(6, "ForeignKey");
-            this.imageList1.Images.SetKeyName(7, "Key");
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(12, 12);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(36, 36);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
-            // 
-            // lblErrors
-            // 
-            this.lblErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblErrors.Location = new System.Drawing.Point(54, 12);
-            this.lblErrors.Name = "lblErrors";
-            this.lblErrors.Size = new System.Drawing.Size(124, 97);
-            this.lblErrors.TabIndex = 3;
-            this.lblErrors.Text = "label1";
             // 
             // frmMain
             // 
@@ -300,8 +299,8 @@
             this.splcActions.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splcActions)).EndInit();
             this.splcActions.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.tbScript)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbScript)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

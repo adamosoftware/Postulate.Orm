@@ -48,6 +48,8 @@ namespace Postulate.MergeUI
             List<string> connectionNames = new List<string>();
             foreach (ConnectionStringSettings connectionStr in result.Configuration.ConnectionStrings.ConnectionStrings)
             {
+                if (!IsLocalConfigElement(connectionStr, result.Configuration.FilePath)) continue;
+
                 if (ConnectionProviders[currentSyntax].ProviderNames.Contains(connectionStr.ProviderName))
                 {
                     connectionNames.Add(connectionStr.Name);
@@ -56,6 +58,11 @@ namespace Postulate.MergeUI
             result.ConnectionNames = connectionNames.ToArray();
 
             return result;
+        }
+
+        private static bool IsLocalConfigElement(ConnectionStringSettings connectionStr, string fileName)
+        {
+            return connectionStr.ElementInformation.Properties["name"].Source.Equals(fileName);
         }
 
         public static Dictionary<SupportedSyntax, DbConnector> ConnectionProviders

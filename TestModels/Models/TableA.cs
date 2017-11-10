@@ -13,5 +13,8 @@ namespace Testing.Models
         [PrimaryKey]
         [MaxLength(50)]
         public string LastName { get; set; }
+
+        [MaxLength(500)]
+        public string Description { get; set; }
     }
 }

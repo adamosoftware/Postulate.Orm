@@ -53,19 +53,6 @@ namespace Postulate.MergeUI
             btnSelectFile_Click(sender, e);
         }
 
-        private async void tvwActions_AfterExpand(object sender, TreeViewEventArgs e)
-        {
-            try
-            {
-                ConnectionNode cnNode = e.Node as ConnectionNode;
-                if (cnNode != null) await BuildViewAsync(cnNode);
-            }
-            catch (Exception exc)
-            {
-                MessageBox.Show(exc.Message);
-            }
-        }
-
         private async Task BuildViewAsync(ConnectionNode connectionNode)
         {
             connectionNode.Nodes.Clear();
@@ -136,10 +123,17 @@ namespace Postulate.MergeUI
             }
         }
 
-        private void tvwActions_AfterSelect(object sender, TreeViewEventArgs e)
+        private async void tvwActions_AfterSelect(object sender, TreeViewEventArgs e)
         {
             try
             {
+                ConnectionNode cnNode = e.Node as ConnectionNode;
+                if (cnNode != null)
+                {
+                    await BuildViewAsync(cnNode);
+                    return;
+                }                
+
                 ActionNode nd = e.Node as ActionNode;
                 if (nd?.Checked ?? false) tbScript.Selection = new Range(tbScript, new Place(0, nd.StartLine), new Place(0, nd.EndLine));
 
@@ -157,7 +151,6 @@ namespace Postulate.MergeUI
             {
                 MessageBox.Show(exc.Message);
             }
-
         }
 
         private void tvwActions_AfterCheck(object sender, TreeViewEventArgs e)
