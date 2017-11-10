@@ -7,6 +7,7 @@ using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -25,6 +26,7 @@ namespace Postulate.MergeUI
         public Dictionary<MergeAction, LineRange> LineRanges { get; private set; }
         public StringBuilder Script { get; private set; }
         public ILookup<MergeAction, string> ValidationErrors { get; private set; }        
+        public Stopwatch Stopwatch { get; private set; }
 
         private ScriptManager()
         {
@@ -104,6 +106,7 @@ namespace Postulate.MergeUI
             {
                 cn.Open();
                 Actions = await engine.CompareAsync(cn);
+                Stopwatch = engine.Stopwatch;
                 Dictionary<MergeAction, LineRange> lineRanges;
                 Script = engine.GetScript(cn, Actions, out lineRanges);
                 LineRanges = lineRanges;
@@ -179,7 +182,7 @@ namespace Postulate.MergeUI
         public string[] ProviderNames { get; private set; }
 
         /// <summary>
-        /// Method that returns a live connection when given a connection string
+        /// Method that returns a live SqlDb when given a configuration and connection name
         /// </summary>
         public Func<Configuration, string, SqlDb<int>> GetDb { get; private set; }
     }

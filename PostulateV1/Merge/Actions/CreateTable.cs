@@ -17,7 +17,7 @@ namespace Postulate.Orm.Merge.Actions
         private readonly Type _modelType;
         private readonly bool _rebuild;
 
-        public CreateTable(SqlSyntax syntax, TableInfo tableInfo, bool rebuild = false) : base(syntax, ObjectType.Table, ActionType.Create, $"Create table {tableInfo}")
+        public CreateTable(SqlSyntax syntax, TableInfo tableInfo, bool rebuild = false) : base(syntax, ObjectType.Table, ActionType.Create, $"{tableInfo}")
         {
             if (tableInfo.ModelType == null) throw new ArgumentException("CreateTable requires a TableInfo that has its ModelType property set.");
 

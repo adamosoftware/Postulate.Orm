@@ -10,7 +10,7 @@ namespace Postulate.Orm.Merge.Actions
     {
         private readonly TableInfo _tableInfo;
 
-        public DropTable(SqlSyntax syntax, TableInfo tableInfo) : base(syntax, ObjectType.Table, ActionType.Drop, $"Drop table {tableInfo.ToString()}")
+        public DropTable(SqlSyntax syntax, TableInfo tableInfo) : base(syntax, ObjectType.Table, ActionType.Drop, $"{tableInfo}")
         {
             _tableInfo = tableInfo;
         }

@@ -88,19 +88,19 @@ namespace Postulate.MergeUI
                             ndAction.EndLine = _scriptManager.LineRanges[action].End;
                             ndAction.ValidationErrors = _scriptManager.ValidationErrors[action].ToArray();
                             objectTypeNode.Nodes.Add(ndAction);
-                        }
-
-                        objectTypeNode.Expand();
-                    }
-                    actionTypeNode.Expand();
+                        }                        
+                    }                    
                 }
 
                 connectionNode.Checked = true;
+                connectionNode.ExpandAll();
             }
             finally
             {
                 pbMain.Visible = false;
-                tslStatus.Text = "Ready";
+                string status = "Ready";
+                if (_scriptManager.Stopwatch != null) status += $", ran in {_scriptManager.Stopwatch.ElapsedMilliseconds:n0}ms";
+                tslStatus.Text = status;
             }
         }
 

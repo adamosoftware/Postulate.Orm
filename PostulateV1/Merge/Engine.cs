@@ -61,11 +61,15 @@ namespace Postulate.Orm.Merge
         {
             List<MergeAction> results = new List<MergeAction>();
 
+            _stopwatch = Stopwatch.StartNew();
+
             await Task.Run(() =>
             {
                 SyncTablesAndColumns(connection, results);
                 DropTables(connection, results);
             });
+
+            _stopwatch.Stop();
 
             return results;
         }
@@ -78,6 +82,8 @@ namespace Postulate.Orm.Merge
 
         public StringBuilder GetScript(IDbConnection connection, IEnumerable<MergeAction> actions, out Dictionary<MergeAction, LineRange> lineRanges)
         {
+            _stopwatch = Stopwatch.StartNew();
+
             lineRanges = new Dictionary<MergeAction, LineRange>();
             int startRange = 0;
             int endRange = 0;
@@ -109,6 +115,8 @@ namespace Postulate.Orm.Merge
                 lineRanges.Add(action, new LineRange(startRange, endRange));
                 startRange = endRange;
             }
+
+            _stopwatch.Stop();
 
             return sb;
         }

@@ -7,7 +7,7 @@ namespace Postulate.Orm.Merge.Actions
 {
     public class DropColumn : MergeAction
     {
-        public DropColumn(SqlSyntax scriptGen, ColumnInfo columnInfo) : base(scriptGen, ObjectType.Column, ActionType.Drop, $"Drop column {columnInfo.ToString()}")
+        public DropColumn(SqlSyntax scriptGen, ColumnInfo columnInfo) : base(scriptGen, ObjectType.Column, ActionType.Drop, $"{columnInfo}")
         {
         }
 
