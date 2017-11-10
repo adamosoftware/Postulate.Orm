@@ -127,6 +127,8 @@ namespace Postulate.MergeUI
         {
             try
             {
+                splcActions.Panel2Collapsed = true;
+
                 ConnectionNode cnNode = e.Node as ConnectionNode;
                 if (cnNode != null)
                 {
@@ -141,10 +143,6 @@ namespace Postulate.MergeUI
                 {
                     splcActions.Panel2Collapsed = false;
                     lblErrors.Text = string.Join("\r\n", nd.ValidationErrors);
-                }
-                else
-                {
-                    splcActions.Panel2Collapsed = true;
                 }
             }
             catch (Exception exc)
