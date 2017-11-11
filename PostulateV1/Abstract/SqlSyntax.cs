@@ -33,6 +33,8 @@ namespace Postulate.Orm.Abstract
 
         public abstract object SchemaColumnParameters(Type type);
 
+        public abstract bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo fromColumn, out string constraintName);
+
         public abstract bool FindObjectId(IDbConnection connection, TableInfo tableInfo);
 
         public abstract string SqlDataType(PropertyInfo propertyInfo);
@@ -43,6 +45,8 @@ namespace Postulate.Orm.Abstract
         {
             return connection.Exists(TableExistsQuery, TableExistsParameters(t));
         }
+
+        internal abstract string DropPrimaryKeyStatement(TableInfo affectedTable, string pkName);
 
         public bool ColumnExists(IDbConnection connection, PropertyInfo pi)
         {
@@ -55,6 +59,8 @@ namespace Postulate.Orm.Abstract
         }
 
         public abstract string AddColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false);
+
+        public abstract string AddPrimaryKeyStatement(TableInfo affectedTable);
 
         public abstract string AlterColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo);
 

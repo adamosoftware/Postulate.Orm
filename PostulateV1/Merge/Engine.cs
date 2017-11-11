@@ -205,7 +205,7 @@ namespace Postulate.Orm.Merge
                     var schemaColInfo = columns[tableInfo.ObjectId];
 
                     IEnumerable<PropertyInfo> addedColumns;
-                    IEnumerable<PropertyInfo> modifiedColumns;
+                    IEnumerable<AlterColumn> modifiedColumns;
                     IEnumerable<ColumnInfo> deletedColumns;
 
                     if (AnyColumnsChanged(modelColInfo, schemaColInfo, out addedColumns, out modifiedColumns, out deletedColumns))
@@ -216,7 +216,7 @@ namespace Postulate.Orm.Merge
                             results.Add(new CreateTable(_syntax, tableInfo, rebuild: true)
                             {
                                 AddedColumns = addedColumns.Select(pi => pi.SqlColumnName()),
-                                ModifiedColumns = modifiedColumns.Select(pi => pi.SqlColumnName()),
+                                ModifiedColumns = modifiedColumns.Select(ac => ac.ColumnName),
                                 DeletedColumns = deletedColumns.Select(sc => sc.ColumnName)
                             });
                             foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));
@@ -225,7 +225,7 @@ namespace Postulate.Orm.Merge
                         {
                             // make changes to the table without dropping it
                             results.AddRange(addedColumns.Select(c => new AddColumn(_syntax, c)));
-                            results.AddRange(modifiedColumns.Select(c => new AlterColumn(_syntax, c)));
+                            results.AddRange(modifiedColumns);
                             results.AddRange(deletedColumns.Select(c => new DropColumn(_syntax, c)));
                             foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey() && _modelTypes.Contains(pi.GetForeignKeyParentType())));
                         }
@@ -242,14 +242,14 @@ namespace Postulate.Orm.Merge
 
         private bool AnyColumnsChanged(
             IEnumerable<PropertyInfo> modelPropertyInfo, IEnumerable<ColumnInfo> schemaColumnInfo,
-            out IEnumerable<PropertyInfo> addedColumns, out IEnumerable<PropertyInfo> modifiedColumns, out IEnumerable<ColumnInfo> deletedColumns)
+            out IEnumerable<PropertyInfo> addedColumns, out IEnumerable<AlterColumn> modifiedColumns, out IEnumerable<ColumnInfo> deletedColumns)
         {
             addedColumns = modelPropertyInfo.Where(pi => !schemaColumnInfo.Contains(pi.ToColumnInfo(Syntax)));
 
             modifiedColumns = (from mp in modelPropertyInfo
                               join sc in schemaColumnInfo on mp.SqlColumnName() equals sc.ColumnName
                               where mp.ToColumnInfo(Syntax).IsAlteredFrom(sc)
-                              select mp).ToList();
+                              select new AlterColumn(Syntax, sc, mp)).ToList();
 
             deletedColumns = schemaColumnInfo.Where(sc => !modelPropertyInfo.Select(pi => pi.ToColumnInfo(Syntax)).Contains(sc));
 
