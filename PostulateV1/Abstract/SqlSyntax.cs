@@ -54,6 +54,12 @@ namespace Postulate.Orm.Abstract
             return connection.Exists(IndexExistsQuery, new { name = name });
         }
 
+        public abstract string AddColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false);
+
+        public abstract string AlterColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo);
+
+        public abstract string UpdateColumnWithExpressionStatement(TableInfo tableInfo, PropertyInfo propertyInfo, string expression);
+
         public abstract ILookup<int, ColumnInfo> GetSchemaColumns(IDbConnection connection);
 
         public abstract IEnumerable<TableInfo> GetSchemaTables(IDbConnection connection);

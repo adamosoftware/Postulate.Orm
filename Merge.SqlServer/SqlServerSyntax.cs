@@ -384,5 +384,25 @@ namespace Postulate.Orm.SqlServer
         {
             return TableInfo.FromModelType(type, "dbo");
         }
+
+        public override string AddColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false)
+        {
+            return ColumnStatementInner("ADD", tableInfo, propertyInfo, forceNull);
+        }
+
+        public override string AlterColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo)
+        {
+            return ColumnStatementInner("ALTER COLUMN", tableInfo, propertyInfo, false);
+        }
+
+        private string ColumnStatementInner(string action, TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false)
+        {
+            return $"ALTER TABLE [{tableInfo.Schema}].[{tableInfo.Name}] {action} {GetColumnSyntax(propertyInfo, forceNull)}";
+        }
+
+        public override string UpdateColumnWithExpressionStatement(TableInfo tableInfo, PropertyInfo propertyInfo, string expression)
+        {
+            return $"UPDATE [{tableInfo.Schema}].[{tableInfo.Name}] SET [{propertyInfo.SqlColumnName()}]={expression}";
+        }
     }
 }

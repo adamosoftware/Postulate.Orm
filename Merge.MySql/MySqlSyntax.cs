@@ -156,5 +156,20 @@ namespace Postulate.Orm.MySql
         {
             throw new NotImplementedException();
         }
+
+        public override string AddColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string AlterColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string UpdateColumnWithExpressionStatement(TableInfo tableInfo, PropertyInfo propertyInfo, string expression)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

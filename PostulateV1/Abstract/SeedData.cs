@@ -17,7 +17,7 @@ namespace Postulate.Orm.Abstract
                 var existingRecord = connection.QuerySingleOrDefault<TRecord>($"SELECT * FROM {ExistsCriteria}", record);
                 // this will cause the existing seed record to be updated instead of inserted
                 if (existingRecord != null) record.Id = existingRecord.Id;                
-                db.Save(record);
+                db.Save(connection, record);
             }
         }
 
