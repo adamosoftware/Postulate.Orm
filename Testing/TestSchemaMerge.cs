@@ -74,6 +74,13 @@ namespace Testing
             }
         }
 
+        [TestMethod]
+        public void TableASeedData()
+        {
+            var sd = new TableASeedData();
+            sd.Generate(GetDb());
+        }
+
         private static Type[] GetModelClasses()
         {
             return new Type[]
