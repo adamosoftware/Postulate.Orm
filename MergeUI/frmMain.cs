@@ -221,5 +221,11 @@ namespace Postulate.MergeUI
                 MessageBox.Show(exc.Message);
             }
         }
+
+        private void tslAbout_Click(object sender, EventArgs e)
+        {
+            frmAbout dlg = new frmAbout();
+            dlg.ShowDialog();
+        }
     }
 }

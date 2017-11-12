@@ -47,6 +47,7 @@
             this.lblErrors = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tbScript = new FastColoredTextBoxNS.FastColoredTextBox();
+            this.tslAbout = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -133,7 +134,8 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.pbMain,
-            this.tslStatus});
+            this.tslStatus,
+            this.tslAbout});
             this.statusStrip1.Location = new System.Drawing.Point(0, 323);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(646, 22);
@@ -273,6 +275,16 @@
             this.tbScript.TabIndex = 0;
             this.tbScript.Zoom = 100;
             // 
+            // tslAbout
+            // 
+            this.tslAbout.IsLink = true;
+            this.tslAbout.Name = "tslAbout";
+            this.tslAbout.Size = new System.Drawing.Size(459, 17);
+            this.tslAbout.Spring = true;
+            this.tslAbout.Text = "About";
+            this.tslAbout.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.tslAbout.Click += new System.EventHandler(this.tslAbout_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
@@ -325,6 +337,7 @@
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.Label lblErrors;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.ToolStripStatusLabel tslAbout;
     }
 }
 
