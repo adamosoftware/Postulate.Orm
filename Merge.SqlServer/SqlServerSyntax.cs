@@ -404,5 +404,20 @@ namespace Postulate.Orm.SqlServer
         {
             return $"UPDATE [{tableInfo.Schema}].[{tableInfo.Name}] SET [{propertyInfo.SqlColumnName()}]={expression}";
         }
+
+        public override string AddPrimaryKeyStatement(TableInfo affectedTable)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string DropPrimaryKeyStatement(TableInfo affectedTable, string pkName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo fromColumn, out string constraintName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

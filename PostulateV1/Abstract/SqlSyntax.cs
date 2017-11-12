@@ -46,7 +46,7 @@ namespace Postulate.Orm.Abstract
             return connection.Exists(TableExistsQuery, TableExistsParameters(t));
         }
 
-        internal abstract string DropPrimaryKeyStatement(TableInfo affectedTable, string pkName);
+        public abstract string DropPrimaryKeyStatement(TableInfo affectedTable, string pkName);
 
         public bool ColumnExists(IDbConnection connection, PropertyInfo pi)
         {

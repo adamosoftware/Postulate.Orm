@@ -63,4 +63,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>nuget pack "$(ProjectPath)" -properties Configuration=Release</PostBuildEvent>
+  </PropertyGroup>
 </Project>
