@@ -1,10 +1,7 @@
-﻿using Dapper;
-using Postulate.Orm.Attributes;
-using Postulate.Orm.Exceptions;
+﻿using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
-using Postulate.Orm.Merge;
-using Postulate.Orm.Merge.Action;
+using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -29,6 +26,8 @@ namespace Postulate.Orm.Abstract
     /// <typeparam name="TKey">Data type of unique keys used on all model classes for this database</typeparam>
     public abstract partial class SqlDb<TKey> : IDb
     {
+        private readonly SqlSyntax _syntax;
+
         public const string IdentityColumnName = "Id";
 
         public string UserName { get; set; }
@@ -39,15 +38,18 @@ namespace Postulate.Orm.Abstract
 
         private readonly string _connectionString;
 
-        public SqlDb(Configuration configuration, string connectionName, string userName = null)
+        public SqlDb(Configuration configuration, string connectionName, SqlSyntax syntax, string userName = null)
         {
+            _syntax = syntax;
             _connectionString = configuration.ConnectionStrings.ConnectionStrings[connectionName].ConnectionString;
             UserName = userName;
             ConnectionName = connectionName;
         }
 
-        public SqlDb(string connection, string userName = null, ConnectionSource connectionSource = ConnectionSource.ConfigFile)
+        public SqlDb(string connection, SqlSyntax syntax, string userName = null, ConnectionSource connectionSource = ConnectionSource.ConfigFile)
         {
+            _syntax = syntax;
+
             UserName = userName;
 
             switch (connectionSource)
@@ -76,7 +78,9 @@ namespace Postulate.Orm.Abstract
                 string name = _connectionString.Substring(1);
                 _connectionString = ConnectionStringReference.Resolve(name);
             }
-        }
+        }      
+
+        public abstract void CreateIfNotExists(Action<IDbConnection> seedAction = null);
 
         private string FindConnectionString(string location, string connection)
         {
@@ -109,19 +113,17 @@ namespace Postulate.Orm.Abstract
         private Dictionary<string, string> _deleteCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _copyCommands = new Dictionary<string, string>();
 
+        protected SqlSyntax Syntax { get { return _syntax; } }
+
         protected virtual string GetTableName<TRecord>() where TRecord : Record<TKey>
-        {
-            Type modelType = typeof(TRecord);
-            string schema;
-            string tableName;
-            CreateTable.ParseNameAndSchema(modelType, out schema, out tableName);
-            string result = schema + "." + tableName;
-            return ApplyDelimiter(result);
+        {            
+            var obj = TableInfo.FromModelType(typeof(TRecord));
+            return _syntax.ApplyDelimiter(obj.ToString());
         }
 
         protected virtual string GetFindStatement<TRecord>() where TRecord : Record<TKey>, new()
         {
-            string whereClause = $" WHERE {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
+            string whereClause = $" WHERE {_syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
 
             string customWhere = (new TRecord()).CustomFindWhereClause();
             if (!string.IsNullOrEmpty(customWhere)) whereClause = " WHERE " + customWhere;
@@ -135,8 +137,8 @@ namespace Postulate.Orm.Abstract
             if (!string.IsNullOrEmpty(customCmd)) return customCmd;
 
             return
-                $@"SELECT {ApplyDelimiter(typeof(TRecord).IdentityColumnName())},
-                    {string.Join(", ", GetColumnNames<TRecord>().Select(name => ApplyDelimiter(name)).Concat(GetCalculatedColumnNames<TRecord>()))}
+                $@"SELECT {_syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())},
+                    {string.Join(", ", GetColumnNames<TRecord>().Select(name => _syntax.ApplyDelimiter(name)).Concat(GetCalculatedColumnNames<TRecord>()))}
                 FROM
                     {GetTableName<TRecord>()}";
         }
@@ -145,7 +147,7 @@ namespace Postulate.Orm.Abstract
         {
             return typeof(TRecord).GetProperties().Where(pi =>
                 pi.HasAttribute<CalculatedAttribute>() &&
-                pi.IsSupportedType()).Select(pi => ApplyDelimiter(pi.SqlColumnName()));
+                pi.IsSupportedType(_syntax)).Select(pi => _syntax.ApplyDelimiter(pi.SqlColumnName()));
         }
 
         protected virtual string GetInsertStatement<TRecord>() where TRecord : Record<TKey>
@@ -154,7 +156,7 @@ namespace Postulate.Orm.Abstract
 
             return
                 $@"INSERT INTO {GetTableName<TRecord>()} (
-                    {string.Join(", ", columns.Select(s => ApplyDelimiter(s)))}
+                    {string.Join(", ", columns.Select(s => _syntax.ApplyDelimiter(s)))}
                 ) OUTPUT [inserted].[{typeof(TRecord).IdentityColumnName()}] VALUES (
                     {string.Join(", ", columns.Select(s => $"@{s}"))}
                 )";
@@ -166,14 +168,14 @@ namespace Postulate.Orm.Abstract
 
             return
                 $@"UPDATE {GetTableName<TRecord>()} SET
-                    {string.Join(", ", columns.Select(s => $"{ApplyDelimiter(s)} = @{s}"))}
+                    {string.Join(", ", columns.Select(s => $"{_syntax.ApplyDelimiter(s)} = @{s}"))}
                 WHERE
-                    {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
+                    {_syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
 
         protected virtual string GetDeleteStatement<TRecord>() where TRecord : Record<TKey>
         {
-            return $"DELETE {GetTableName<TRecord>()} WHERE {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
+            return $"DELETE {GetTableName<TRecord>()} WHERE {_syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
 
         protected IEnumerable<PropertyInfo> GetEditableColumns<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
@@ -183,7 +185,7 @@ namespace Postulate.Orm.Abstract
                 !pi.Name.Equals(typeof(TRecord).IdentityColumnName()) &&
                 !pi.HasAttribute<CalculatedAttribute>() &&
                 !pi.HasAttribute<NotMappedAttribute>() &&
-                pi.IsSupportedType() &&
+                pi.IsSupportedType(_syntax) &&
                 (predicate?.Invoke(pi) ?? true));
         }
 
@@ -194,9 +196,7 @@ namespace Postulate.Orm.Abstract
                 ColumnAttribute colAttr;
                 return (pi.HasAttribute(out colAttr) && !string.IsNullOrEmpty(colAttr.Name)) ? colAttr.Name : pi.Name;
             });
-        }
-
-        protected abstract string ApplyDelimiter(string name);
+        }        
 
         private string GetCommand<TRecord>(Dictionary<string, string> dictionary, Func<string> commandBuilder)
         {

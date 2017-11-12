@@ -39,9 +39,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BlobakLib">
-      <HintPath>..\..\..\..\Visual Studio 2015\Projects\BlobBackupLib\BlobBackupLib\bin\Debug\BlobakLib.dll</HintPath>
-    </Reference>
     <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
     </Reference>
@@ -50,12 +47,6 @@
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.1.11\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="PostulateDemo2">
-      <HintPath>..\..\PostulateDemo2\PostulateDemo2\bin\Debug\PostulateDemo2.exe</HintPath>
-    </Reference>
-    <Reference Include="SampleModels">
-      <HintPath>..\..\Postulate.Mvc\SampleWebApp\bin\SampleModels.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -69,35 +60,39 @@
   <ItemGroup>
     <Compile Include="Blobak.cs" />
     <Compile Include="CommandBuilding.cs" />
-    <Compile Include="Models\AppTable.cs" />
-    <Compile Include="Models\BaseTable.cs" />
-    <Compile Include="Models\Item.cs" />
-    <Compile Include="Models\Organization.cs" />
-    <Compile Include="Models\PostulateDb.cs" />
     <Compile Include="CrudOperations.cs" />
-    <Compile Include="Models\TableA.cs" />
-    <Compile Include="Models\TableB.cs" />
-    <Compile Include="Models\TableC.cs" />
-    <Compile Include="Models\CreateIfNotExistsDb.cs" />
-    <Compile Include="Models\TableD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveMultiple.cs" />
-    <Compile Include="SchemaMerge2Test.cs" />
-    <Compile Include="SchemaMergeTest.cs" />
     <Compile Include="TestChangeTracking.cs" />
     <Compile Include="TestDeleteTracking.cs" />
     <Compile Include="TestFind.cs" />
     <Compile Include="TestConnectionStringRef.cs" />
+    <Compile Include="TestSchemaMerge.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PostulateV1\Postulate.Orm.csproj">
-      <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
-      <Name>Postulate.Orm</Name>
+    <ProjectReference Include="..\Merge.MySql\Orm.MySql.csproj">
+      <Project>{f8ac8db0-dfe0-4fce-a7b5-11c5316c7a62}</Project>
+      <Name>Orm.MySql</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Merge.SqlServer\Orm.SqlServer.csproj">
+      <Project>{6160bbde-24a4-4964-961f-39a4a5d036d4}</Project>
+      <Name>Orm.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PostulateV1\Orm.Core.csproj">
+      <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
+      <Name>Orm.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestModels\TestModels.csproj">
+      <Project>{20fcd224-4a12-4b29-88fc-0e3fa25a05f2}</Project>
+      <Name>TestModels</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\SqlServer\GenerateScript.txt" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,6 +1,7 @@
-﻿using Postulate.Orm.Attributes;
+﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Enums;
-using Postulate.Orm.Merge.Action;
+using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -37,14 +38,19 @@ namespace Postulate.Orm.Extensions
             return HasColumnAccess(provider, map[action]);
         }
 
-        public static bool IsSupportedType(this PropertyInfo propertyInfo)
+        public static bool IsSupportedType(this PropertyInfo propertyInfo, SqlSyntax syntax)
         {
-            return TypeExtensions.IsSupportedType(propertyInfo.PropertyType);
+            return syntax.IsSupportedType(propertyInfo.PropertyType);
         }
 
-        public static bool IsFKEnclosedBy(this PropertyInfo propertyInfo, IEnumerable<CreateTable> createTables)
+        public static string QualifiedName(this PropertyInfo propertyInfo)
         {
-            return (createTables.Any(ct => ct.ContainsProperty(propertyInfo)) && createTables.Any(ct => ct.IsReferencedBy(propertyInfo)));
+            return $"{propertyInfo.ReflectedType.Name}.{propertyInfo.Name}";
+        }
+
+        public static ColumnInfo ToColumnInfo(this PropertyInfo propertyInfo, SqlSyntax syntax)
+        {
+            return ColumnInfo.FromPropertyInfo(propertyInfo, syntax);
         }
     }
 }

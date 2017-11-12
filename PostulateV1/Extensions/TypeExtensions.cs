@@ -1,9 +1,10 @@
 ﻿using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
-using Postulate.Orm.Merge.Action;
+using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 
@@ -58,16 +59,8 @@ namespace Postulate.Orm.Extensions
 
         public static string GetSchema(this Type type)
         {
-            string schema, name;
-            CreateTable.ParseNameAndSchema(type, out schema, out name);
-            return schema;
-        }
-
-        public static string GetTableName(this Type type)
-        {
-            string schema, name;
-            CreateTable.ParseNameAndSchema(type, out schema, out name);
-            return name;
+            var obj = TableInfo.FromModelType(type);
+            return obj.Schema;
         }
 
         public static bool HasClusteredPrimaryKey(this Type type)
@@ -77,12 +70,27 @@ namespace Postulate.Orm.Extensions
                 !type.HasAttribute<ClusterAttribute>();
         }
 
-        public static bool IsSupportedType(this Type type)
+        public static bool IsSupportedType(this Type type, SqlSyntax syntax)
         {
             return
-                CreateTable.SupportedTypes().ContainsKey(type) ||
+                syntax.SupportedTypes().ContainsKey(type) ||
                 (type.IsEnum && type.GetEnumUnderlyingType().Equals(typeof(int))) ||
-                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
+                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0], syntax));
+        }
+
+        public static IEnumerable<PropertyInfo> GetModelPropertyInfo(this Type type, SqlSyntax syntax)
+        {
+            return type.GetProperties().Where(pi => !pi.HasAttribute<NotMappedAttribute>() && syntax.IsSupportedType(pi.PropertyType));
+        }
+
+        public static IEnumerable<ColumnInfo> GetModelColumnInfo(this Type type, SqlSyntax syntax)
+        {
+            return GetModelPropertyInfo(type, syntax).Select(pi => ColumnInfo.FromPropertyInfo(pi, syntax));
+        }
+
+        public static IEnumerable<PropertyInfo> GetForeignKeys(this Type type)
+        {
+            return type.GetProperties().Where(pi => pi.IsForeignKey());
         }
     }
 }

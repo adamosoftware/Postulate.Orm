@@ -1,15 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Postulate.Orm.Merge;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper;
-using BlobakLib.Models;
-using Postulate.Orm.Extensions;
 
 namespace Testing
 {
@@ -23,14 +12,15 @@ namespace Testing
 
         private const string dbName = "BlobakBlankDb";
 
+        /*
         [TestMethod]
         public void SchemaMergeBlankDb()
-        {            
+        {
             using (var cn = new SqlConnection(ConnectionString("master")))
             {
                 cn.Open();
                 cn.Execute($@"
-                    IF EXISTS(SELECT 1 FROM sys.databases WHERE name='{dbName}') 
+                    IF EXISTS(SELECT 1 FROM sys.databases WHERE name='{dbName}')
                     BEGIN
                         ALTER DATABASE [{dbName}] SET single_user with rollback immediate
                         DROP DATABASE [{dbName}]
@@ -45,8 +35,9 @@ namespace Testing
                 cn.Open();
                 sm.Execute(cn);
             }
-        }
+        }*/
 
+        /*
         [TestMethod]
         public void SchemaMergeRecoverFKs()
         {
@@ -72,7 +63,7 @@ namespace Testing
 
                 Assert.IsTrue(fkNames.All(s => cn.Exists("[sys].[foreign_keys] WHERE [name]=@name", new { name = s })));
             }
-
         }
+        */
     }
 }

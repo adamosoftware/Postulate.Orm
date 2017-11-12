@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Postulate.Orm.SqlServer</id>
+    <version>$version$-beta</version>
+    <title>$title$</title>
+    <authors>Adam O'Neil Software</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/adamosoftware/Postulate.Orm/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/adamosoftware/Postulate.Orm</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Lightweight code-first ORM made with Dapper, targeting SQL Server</description>
+    <copyright>$copyright$</copyright>
+    <tags>orm dapper codefirst sqlserver</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework="net40"/>
+      <frameworkAssembly assemblyName="System.Configuration" targetFramework="net40"/>
+    </frameworkAssemblies>
+  </metadata>
+</package>
