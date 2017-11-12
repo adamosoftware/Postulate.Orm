@@ -12,5 +12,9 @@
     <description>Lightweight code-first ORM made with Dapper, targeting MySql</description>
     <copyright>$copyright$</copyright>
     <tags>orm dapper codefirst mysql</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework="net40"/>
+      <frameworkAssembly assemblyName="System.Configuration" targetFramework="net40"/>
+    </frameworkAssemblies>
   </metadata>
 </package>

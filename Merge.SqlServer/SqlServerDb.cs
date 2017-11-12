@@ -89,7 +89,7 @@ namespace Postulate.Orm.SqlServer
 
         private static string ChangeTrackingTableName<TRecord>()
         {
-            TableInfo obj = TableInfo.FromModelType(typeof(TRecord));
+            TableInfo obj = TableInfo.FromModelType(typeof(TRecord), "dbo");
             return $"{obj.Schema}_{obj.Name}";
         }
 

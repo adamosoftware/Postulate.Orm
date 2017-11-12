@@ -12,5 +12,9 @@
     <description>Lightweight code-first ORM made with Dapper, targeting SQL Server</description>
     <copyright>$copyright$</copyright>
     <tags>orm dapper codefirst sqlserver</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework="net40"/>
+      <frameworkAssembly assemblyName="System.Configuration" targetFramework="net40"/>
+    </frameworkAssemblies>
   </metadata>
 </package>
