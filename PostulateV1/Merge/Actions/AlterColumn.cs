@@ -19,7 +19,7 @@ namespace Postulate.Orm.Merge.Actions
         {
             _columnName = toColumn.SqlColumnName();
             _fromColumn = fromColumn;
-            _affectedTable = Syntax.GetTableInfoFromType(_fromColumn.PropertyInfo.ReflectedType);
+            _affectedTable = Syntax.GetTableInfoFromType(toColumn.ReflectedType);
             _toColumn = toColumn;
         }        
 
