@@ -74,7 +74,10 @@ namespace Postulate.Orm.MySql
 
         public override Dictionary<Type, string> KeyTypeMap(bool withDefaults = true)
         {
-            throw new NotImplementedException();
+            return new Dictionary<Type, string>()
+            {
+                { typeof(int), $"int {((withDefaults) ? "auto_increment" : string.Empty)}" }
+            };
         }
 
         public override object SchemaColumnParameters(Type type)
@@ -89,7 +92,21 @@ namespace Postulate.Orm.MySql
 
         public override Dictionary<Type, string> SupportedTypes(string length = null, byte precision = 0, byte scale = 0)
         {
-            throw new NotImplementedException();
+            return new Dictionary<Type, string>()
+            {
+                { typeof(bool), "boolean" },
+                { typeof(byte), "tinyint" },
+                { typeof(string), $"varchar({length})" },
+                { typeof(int), "int" },
+                { typeof(DateTime), "datetime" },
+                { typeof(decimal), "decimal" },
+                { typeof(Guid), "char(36)" },
+                { typeof(long), "bigint" },
+                { typeof(TimeSpan), "time" },
+                { typeof(byte[]), $"varbinary({length})" },
+                { typeof(Int16), "smallint" },
+                { typeof(Single), "float" }
+            };
         }
 
         public override object TableExistsParameters(Type type)
