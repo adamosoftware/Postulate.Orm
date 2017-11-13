@@ -46,7 +46,7 @@ namespace Postulate.Orm.Abstract
                 columnNames.Add(propName);
                 PropertyInfo pi = typeof(TRecord).GetProperty(propName);
                 dp.Add(propName, expr.Compile().Invoke(record));
-                return $"[{pi.SqlColumnName()}]=@{propName}";
+                return $"{Syntax.ApplyDelimiter(pi.SqlColumnName())}=@{propName}";
             }).Concat(
                 modelType.GetProperties().Where(pi =>
                     pi.HasAttribute<ColumnAccessAttribute>(a => a.Access == Access.UpdateOnly) &&
@@ -54,10 +54,10 @@ namespace Postulate.Orm.Abstract
                         .Select(pi =>
                         {
                             if (columnNames.Contains(pi.SqlColumnName())) throw new InvalidOperationException($"Can't set column {pi.SqlColumnName()} with the Update method because it has a ColumnAccess(UpdateOnly) attribute.");
-                            return $"[{pi.SqlColumnName()}]=@{pi.SqlColumnName()}";
+                            return $"{Syntax.ApplyDelimiter(pi.SqlColumnName())}=@{pi.SqlColumnName()}";
                         })));
 
-            string cmd = $"UPDATE {GetTableName<TRecord>()} SET {setClause} WHERE [{identityCol}]=@{identityCol}";
+            string cmd = $"UPDATE {GetTableName<TRecord>()} SET {setClause} WHERE {Syntax.ApplyDelimiter(identityCol)}=@{identityCol}";
 
             SaveInner(connection, record, SaveAction.Update, (r, t) =>
             {
