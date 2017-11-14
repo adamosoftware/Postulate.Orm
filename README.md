@@ -1,6 +1,11 @@
 # Postulate ORM
 
-Postulate is a lightweight code-first ORM for SQL Server made with [Dapper](https://github.com/StackExchange/Dapper). It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, and uniquely -- a very convenient way to synchronize your model classes to your database using an .exe run in your build event.
+Postulate is a lightweight code-first ORM made with [Dapper](https://github.com/StackExchange/Dapper) for .NET's `IDbConnection` interface. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, and uniquely -- a very convenient way to synchronize your model classes to your database.
+
+Nuget package status:
+- **Postulate.Orm** version 0.9.220 targets SQL Server. The Schema Merge feature works for SQL Server only. To add MySql support, I started a couple new packages:
+- **Postulate.Orm.SqlServer** version 1.0.3*-beta* uses a new Schema Merge archictecture refactored to support MySql, and a new WinForms merge UI app is in progress that will eventually support both SQL Server and MySql.
+- **Postulate.Orm.MySql** version 1.0.3*-alpha* supports CRUD operations, and has no schema merge capability yet.
 
 I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the schema merge feature works only for SQL Server. (There is a MySql project [here](https://github.com/adamosoftware/Postulate.Orm.MySql).)
 
@@ -14,7 +19,7 @@ To get started:
 
 2. Install nuget package **Postulate.Orm** in both projects in your solution.
 
-3. Install the Schema Merge app from the [MergeUI releases](https://github.com/adamosoftware/Postulate.MergeUI/releases) page. This will create a desktop icon that looks like this:
+3. Install the Schema Merge app from the [MergeUI releases](https://github.com/adamosoftware/Postulate.MergeUI/releases) page. Note that Schema Merge capability works only with SQL Server currently. This will create a desktop icon that looks like this:
 
     ![img](https://adamosoftware.blob.core.windows.net/images/schema_merge_icon.png)
 
