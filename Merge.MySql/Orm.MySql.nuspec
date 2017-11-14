@@ -16,5 +16,8 @@
       <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework="net40"/>
       <frameworkAssembly assemblyName="System.Configuration" targetFramework="net40"/>
     </frameworkAssemblies>
+    <dependencies>
+      <dependency id="MySql.Data" version="6.10.4"/>
+    </dependencies>
   </metadata>
 </package>
