@@ -1,6 +1,6 @@
 # Postulate ORM
 
-Postulate is a lightweight code-first ORM made with [Dapper](https://github.com/StackExchange/Dapper) for .NET's `IDbConnection` interface. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, and uniquely -- a very convenient way to synchronize your model classes to your database.
+Postulate is a lightweight code-first ORM made with [Dapper](https://github.com/StackExchange/Dapper) for .NET's `IDbConnection` interface. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, and uniquely (for SQL Server only at the moment) -- a very convenient way to synchronize your model classes to your database.
 
 Nuget package status:
 - **Postulate.Orm** version 0.9.220 targets SQL Server. The Schema Merge feature works for SQL Server only. To add MySql support, I started a couple new packages:
