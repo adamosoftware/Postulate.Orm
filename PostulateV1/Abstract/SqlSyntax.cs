@@ -1,8 +1,10 @@
 ﻿using Dapper;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
+using ReflectionHelper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -16,6 +18,19 @@ namespace Postulate.Orm.Abstract
         public abstract string CommandSeparator { get; }
 
         public abstract string ApplyDelimiter(string objectName);
+
+        public string SelectExpression(PropertyInfo propertyInfo)
+        {
+            string result = ApplyDelimiter(propertyInfo.SqlColumnName());
+
+            ColumnAttribute colAttr;
+            if (propertyInfo.HasAttribute(out colAttr, a => !string.IsNullOrEmpty(a.Name)))
+            {
+                result += " AS " + ApplyDelimiter(propertyInfo.Name);
+            }
+
+            return result;
+        }
 
         public abstract string GetTableName(Type type);      
 

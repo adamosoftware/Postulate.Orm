@@ -136,9 +136,11 @@ namespace Postulate.Orm.Abstract
             string customCmd = (new TRecord()).CustomFindCommandText();
             if (!string.IsNullOrEmpty(customCmd)) return customCmd;
 
+            var columns = GetEditableColumns<TRecord>();
+
             return
                 $@"SELECT {_syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())},
-                    {string.Join(", ", GetColumnNames<TRecord>().Select(name => _syntax.ApplyDelimiter(name)).Concat(GetCalculatedColumnNames<TRecord>()))}
+                    {string.Join(", ", columns.Select(pi => Syntax.SelectExpression(pi)).Concat(GetCalculatedColumnNames<TRecord>()))}
                 FROM
                     {GetTableName<TRecord>()}";
         }
@@ -147,7 +149,7 @@ namespace Postulate.Orm.Abstract
         {
             return typeof(TRecord).GetProperties().Where(pi =>
                 pi.HasAttribute<CalculatedAttribute>() &&
-                pi.IsSupportedType(_syntax)).Select(pi => _syntax.ApplyDelimiter(pi.SqlColumnName()));
+                pi.IsSupportedType(_syntax)).Select(pi => Syntax.ApplyDelimiter(pi.SqlColumnName()));
         }
 
         protected virtual string GetInsertStatement<TRecord>() where TRecord : Record<TKey>
