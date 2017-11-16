@@ -1,23 +1,24 @@
 ﻿using ConsoleApp.Models;
-using Postulate;
-using Postulate.Orm.SqlServer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Testing.Models;
 using Dapper;
+using Postulate;
+using System;
 
 namespace ConsoleApp
 {
-    class Program
+    internal class Program
     {
         private static SampleMySqlDb _db = new SampleMySqlDb();
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
+        {            
+            Customer c = _db.FindWhere<Customer>("`Email` IS NOT NULL", null);
+            Console.WriteLine(c);
+            Console.ReadLine();
+        }
+
+        private static void Main2(string[] args)
         {
-            var newCustomer = new Customer() { LastName = "Higgenbotham", FirstName = "Jupsider", Email = "whatever" };
+            var newCustomer = new Customer() { LastName = "Higgenbotham", FirstName = "Jupsider", VeryMuchEmail = "whatever" };
             _db.Save(newCustomer);
 
             newCustomer.EffectiveDate = new DateTime(1983, 1, 1);
@@ -36,7 +37,6 @@ namespace ConsoleApp
                 }
                 Console.ReadLine();
             }
-
         }
     }
 }
