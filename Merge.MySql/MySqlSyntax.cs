@@ -105,7 +105,8 @@ namespace Postulate.Orm.MySql
                 { typeof(TimeSpan), "time" },
                 { typeof(byte[]), $"varbinary({length})" },
                 { typeof(Int16), "smallint" },
-                { typeof(Single), "float" }
+                { typeof(Single), "float" },
+                { typeof(Double), "double" }
             };
         }
 
