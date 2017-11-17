@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\Query.cs" />
     <Compile Include="Attributes\DefaultSqlSyntaxAttribute.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Merge\MergeAction.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Models\KeyColumnInfo.cs" />
     <Compile Include="Models\LineRange.cs" />
     <Compile Include="Models\MergeProgress.cs" />
+    <Compile Include="Models\QueryTrace.cs" />
     <Compile Include="Models\TableInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\PropertyChange.cs" />

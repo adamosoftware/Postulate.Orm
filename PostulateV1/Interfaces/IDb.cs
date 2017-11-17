@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using Postulate.Orm.Abstract;
+using System.Data;
 
 namespace Postulate.Orm.Interfaces
 {
@@ -10,6 +11,7 @@ namespace Postulate.Orm.Interfaces
         int Version { get; }
 
         IDbConnection GetConnection();
+        SqlSyntax Syntax { get; }
 
         string ConnectionName { get; }
     }

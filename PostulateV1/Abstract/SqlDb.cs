@@ -113,7 +113,7 @@ namespace Postulate.Orm.Abstract
         private Dictionary<string, string> _deleteCommands = new Dictionary<string, string>();
         private Dictionary<string, string> _copyCommands = new Dictionary<string, string>();
 
-        protected SqlSyntax Syntax { get { return _syntax; } }
+        public SqlSyntax Syntax { get { return _syntax; } }
 
         protected virtual string GetTableName<TRecord>() where TRecord : Record<TKey>
         {            
