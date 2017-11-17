@@ -92,5 +92,23 @@ namespace Postulate.Orm.Extensions
         {
             return type.GetProperties().Where(pi => pi.IsForeignKey());
         }
+
+        public static string ToCaseStatement<TEnum>(this TEnum type, string expression) where TEnum : Type
+        {
+            string result = $"CASE {expression}";
+
+            var names = Enum.GetNames(type);
+
+            int index = 0;
+            foreach (var value in Enum.GetValues(typeof(TEnum)))
+            {
+                result += $" WHEN {Convert.ToInt32(value)} THEN '{names[index]}'\r\n";
+                index++;
+            }
+
+            result += "END";
+
+            return result;
+        }
     }
 }

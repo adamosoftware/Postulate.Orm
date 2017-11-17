@@ -1,10 +1,14 @@
 ﻿using Dapper;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Models;
+using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Postulate.Orm.Abstract
@@ -65,7 +69,7 @@ namespace Postulate.Orm.Abstract
             Exception queryException = null;
             Stopwatch sw = Stopwatch.StartNew();
 
-            _resolvedSql = ResolveQuery();
+            ResolveQuery();
 
             try
             {                
@@ -92,7 +96,7 @@ namespace Postulate.Orm.Abstract
             Exception queryException = null;
             Stopwatch sw = Stopwatch.StartNew();
 
-            _resolvedSql = ResolveQuery();
+            ResolveQuery();
 
             try
             {
@@ -114,9 +118,37 @@ namespace Postulate.Orm.Abstract
 
         }
 
-        private string ResolveQuery()
+        private void ResolveQuery()
         {
-            throw new NotImplementedException();
+            string result = _sql;
+
+            Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
+            {
+                { InternalStringExtensions.WhereToken, "WHERE" }, // query has no where clause, so it needs the word WHERE inserted
+                { InternalStringExtensions.AndWhereToken, "AND" } // query already contains a WHERE clause, we're just adding to it
+            };
+            string token;
+            if (result.ContainsAny(new string[] { InternalStringExtensions.WhereToken, InternalStringExtensions.AndWhereToken }, out token))
+            {
+                bool anyCriteria = false;
+                List<string> terms = new List<string>();
+                var baseProps = GetType().BaseType.GetProperties().Select(pi => pi.Name);
+                var builtInParams = _sql.GetParameterNames(true).Select(p => p.ToLower());
+                foreach (var pi in GetType().GetProperties().Where(pi => !baseProps.Contains(pi.Name) && !builtInParams.Contains(pi.Name.ToLower())))
+                {
+                    object value = pi.GetValue(this);
+                    if (value != null)
+                    {
+                        WhereAttribute whereAttr = pi.GetAttribute<WhereAttribute>();
+                        string expression = (whereAttr != null) ? whereAttr.Expression : $"{_db.Syntax.ApplyDelimiter(pi.Name)}=@{pi.Name}";
+                        terms.Add(expression);
+                        anyCriteria = true;
+                    }
+                }
+                result = result.Replace(token, (anyCriteria) ? $"{whereBuilder[token]} {string.Join(" AND ", terms)}" : string.Empty);
+            }
+
+            _resolvedSql = result;
         }
     }
 }
