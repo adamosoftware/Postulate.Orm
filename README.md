@@ -1,6 +1,6 @@
 # Postulate ORM
 
-Postulate is a lightweight code-first ORM made with [Dapper](https://github.com/StackExchange/Dapper) for .NET's `IDbConnection` interface. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, and uniquely (for SQL Server only at the moment) -- a very convenient way to synchronize your model classes to your database.
+Postulate is a lightweight code-first ORM made with [Dapper](https://github.com/StackExchange/Dapper) for .NET's `IDbConnection` interface. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, strong-typed queries, and uniquely (for SQL Server only at the moment) -- a very convenient way to synchronize your model classes to your database.
 
 Nuget package status:
 - **Postulate.Orm** version 0.9.220 targets SQL Server. The Schema Merge feature works for SQL Server only. To add MySql support, I started a couple new packages:
@@ -9,7 +9,7 @@ Nuget package status:
 
 I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the schema merge feature works only for SQL Server, currently. A MySql implementation is coming.
 
-Regarding Linq and inline SQL, I respect the genius that is Linq, but I'm still more comfortable with inline SQL so long as it's isolated to some degree from the application. I have another project [Postulate.Sql](https://github.com/adamosoftware/Postulate.Sql) that deals specifically with queries, and another project [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) that builds upon this. The ORM project here is really about CRUD only.
+Regarding Linq and inline SQL, I respect the genius that is Linq, but I'm still more comfortable with inline SQL so long as it's isolated to some degree from the application. The [Query&lt;TResult&gt;](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Query.cs) class offers strong-typed query and trace capability, and another project [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) that builds upon this.
 
 For a video demo, please see this at [Vimeo.com](https://vimeo.com/219400011). Also see the [CodeProject.com article here](https://www.codeproject.com/Articles/1191399/Intro-to-Postulate-ORM).
 
