@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -14,7 +13,7 @@ namespace Postulate.Orm.Extensions
 
         internal static IEnumerable<string> GetParameterNames(this string sql, bool cleaned = false)
         {
-            var matches = Regex.Matches(sql, InternalStringExtensions.SqlParamRegex);
+            var matches = Regex.Matches(sql, SqlParamRegex);
             return matches.OfType<Match>().Select(m => (cleaned) ? m.Value.Substring(1) : m.Value);
         }
 

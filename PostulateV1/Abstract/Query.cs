@@ -1,8 +1,7 @@
 ﻿using Dapper;
-using Postulate.Orm.Attributes;
-using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Models;
+using Postulate.Orm.Attributes;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
@@ -10,14 +9,16 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Postulate.Orm.Extensions;
+
 
 namespace Postulate.Orm.Abstract
 {
     public abstract class Query<TResult>
     {
-        private readonly string _sql;
-        private string _resolvedSql;
+        private readonly string _sql;      
         private readonly IDb _db;
+        private string _resolvedSql;
 
         public Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
 
@@ -66,59 +67,34 @@ namespace Postulate.Orm.Abstract
         private IEnumerable<TResult> ExecuteInner(IDbConnection connection, object parameters)
         {
             IEnumerable<TResult> results = null;
-            Exception queryException = null;
+            
+            _resolvedSql = ResolveWhereClause();
+
             Stopwatch sw = Stopwatch.StartNew();
+            results = connection.Query<TResult>(_resolvedSql, parameters);
+            sw.Stop();
 
-            ResolveQuery();
-
-            try
-            {                
-                results = connection.Query<TResult>(_resolvedSql, parameters);
-            }
-            catch (Exception exc)
-            {
-                queryException = exc;
-            }
-            finally
-            {
-                sw.Stop();
-                if (queryException == null) TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds));
-            }
-
-            if (queryException != null) throw queryException;
+            TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds));
 
             return results;
-        }        
+        }
 
         private async Task<IEnumerable<TResult>> ExecuteInnerAsync(IDbConnection connection, object parameters)
         {
-            IEnumerable<TResult> results = null;
-            Exception queryException = null;
+            IEnumerable<TResult> results = null;            
+
+            _resolvedSql = ResolveWhereClause();
+
             Stopwatch sw = Stopwatch.StartNew();
+            results = await connection.QueryAsync<TResult>(_resolvedSql, parameters);
+            sw.Stop();
 
-            ResolveQuery();
-
-            try
-            {
-                results = await connection.QueryAsync<TResult>(_resolvedSql, parameters);
-            }
-            catch (Exception exc)
-            {
-                queryException = exc;
-            }
-            finally
-            {
-                sw.Stop();
-                if (queryException == null) TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds));
-            }
-
-            if (queryException != null) throw queryException;
+            TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds));
 
             return results;
-
         }
 
-        private void ResolveQuery()
+        private string ResolveWhereClause()
         {
             string result = _sql;
 
@@ -148,7 +124,7 @@ namespace Postulate.Orm.Abstract
                 result = result.Replace(token, (anyCriteria) ? $"{whereBuilder[token]} {string.Join(" AND ", terms)}" : string.Empty);
             }
 
-            _resolvedSql = result;
+            return result;
         }
     }
 }
