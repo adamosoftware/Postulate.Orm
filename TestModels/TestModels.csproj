@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\BaseTable.cs" />
+    <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\Organization.cs" />
     <Compile Include="Models\PostulateDb.cs" />
     <Compile Include="Models\TableA.cs" />

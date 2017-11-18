@@ -36,67 +36,76 @@ namespace Postulate.Orm.Abstract
 
         public CommandType CommandType { get; set; } = CommandType.Text;
 
-        public IEnumerable<TResult> Execute(object parameters = null)
+        /// <summary>
+        /// Lets you specify where in the application a query is called so that trace information is potentially more useful
+        /// </summary>
+        public string TraceContext { get; set; }
+
+        public IEnumerable<TResult> Execute()
         {
             using (var cn = _db.GetConnection())
             {
                 cn.Open();
-                return ExecuteInner(cn, parameters);
+                return ExecuteInner(cn);
             }
         }
 
-        public IEnumerable<TResult> Execute(IDbConnection connection, object parameters = null)
+        public IEnumerable<TResult> Execute(IDbConnection connection)
         {
-            return ExecuteInner(connection, parameters);
+            return ExecuteInner(connection);
         }
 
-        public async Task<IEnumerable<TResult>> ExecuteAsync(object parameters = null)
+        public async Task<IEnumerable<TResult>> ExecuteAsync()
         {
             using (var cn = _db.GetConnection())
             {
                 cn.Open();
-                return await ExecuteInnerAsync(cn, parameters);
+                return await ExecuteInnerAsync(cn);
             }
         }
 
-        public async Task<IEnumerable<TResult>> ExecuteAsync(IDbConnection connection, object parameters = null)
+        public async Task<IEnumerable<TResult>> ExecuteAsync(IDbConnection connection)
         {
-            return await ExecuteInnerAsync(connection, parameters);
+            return await ExecuteInnerAsync(connection);
         }
 
-        private IEnumerable<TResult> ExecuteInner(IDbConnection connection, object parameters)
+        private IEnumerable<TResult> ExecuteInner(IDbConnection connection)
         {
             IEnumerable<TResult> results = null;
-            
-            _resolvedSql = ResolveWhereClause();
+
+            List<QueryTrace.Parameter> parameters;
+            _resolvedSql = ResolveQuery(_sql, this, out parameters);
 
             Stopwatch sw = Stopwatch.StartNew();
-            results = connection.Query<TResult>(_resolvedSql, parameters);
+            results = connection.Query<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds));
+            TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
 
             return results;
         }
 
-        private async Task<IEnumerable<TResult>> ExecuteInnerAsync(IDbConnection connection, object parameters)
+        private async Task<IEnumerable<TResult>> ExecuteInnerAsync(IDbConnection connection)
         {
-            IEnumerable<TResult> results = null;            
+            IEnumerable<TResult> results = null;
 
-            _resolvedSql = ResolveWhereClause();
+            List<QueryTrace.Parameter> parameters;
+            _resolvedSql = ResolveQuery(_sql, this, out parameters);
 
             Stopwatch sw = Stopwatch.StartNew();
-            results = await connection.QueryAsync<TResult>(_resolvedSql, parameters);
+            results = await connection.QueryAsync<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds));
+            TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
 
             return results;
         }
 
-        private string ResolveWhereClause()
+        private static string ResolveQuery(string sql, Query<TResult> query, out List<QueryTrace.Parameter> parameters)
         {
-            string result = _sql;
+            string result = sql;
+            List<string> terms = new List<string>();
+            parameters = new List<QueryTrace.Parameter>();
 
             Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
             {
@@ -107,18 +116,26 @@ namespace Postulate.Orm.Abstract
             if (result.ContainsAny(new string[] { InternalStringExtensions.WhereToken, InternalStringExtensions.AndWhereToken }, out token))
             {
                 bool anyCriteria = false;
-                List<string> terms = new List<string>();
-                var baseProps = GetType().BaseType.GetProperties().Select(pi => pi.Name);
-                var builtInParams = _sql.GetParameterNames(true).Select(p => p.ToLower());
-                foreach (var pi in GetType().GetProperties().Where(pi => !baseProps.Contains(pi.Name) && !builtInParams.Contains(pi.Name.ToLower())))
+                
+                var baseProps = query.GetType().BaseType.GetProperties().Select(pi => pi.Name);
+                var builtInParams = sql.GetParameterNames(true).Select(p => p.ToLower());
+                
+                // loop through this query's properties, but ignore base properties (like ResolvedSql and TraceCallback) since they are never part of WHERE clause                
+                foreach (var pi in query.GetType().GetProperties().Where(pi => !baseProps.Contains(pi.Name)))
                 {
-                    object value = pi.GetValue(this);
+                    object value = pi.GetValue(query);
                     if (value != null)
                     {
-                        WhereAttribute whereAttr = pi.GetAttribute<WhereAttribute>();
-                        string expression = (whereAttr != null) ? whereAttr.Expression : $"{_db.Syntax.ApplyDelimiter(pi.Name)}=@{pi.Name}";
-                        terms.Add(expression);
-                        anyCriteria = true;
+                        parameters.Add(new QueryTrace.Parameter() { Name = pi.Name, Value = value });
+
+                        // built-in params are not part of the WHERE clause, so they are excluded from added terms
+                        if (!builtInParams.Contains(pi.Name.ToLower()))
+                        {
+                            WhereAttribute whereAttr = pi.GetAttribute<WhereAttribute>();
+                            string expression = (whereAttr != null) ? whereAttr.Expression : $"{query._db.Syntax.ApplyDelimiter(pi.Name)}=@{pi.Name}";
+                            terms.Add(expression);
+                            anyCriteria = true;
+                        }
                     }
                 }
                 result = result.Replace(token, (anyCriteria) ? $"{whereBuilder[token]} {string.Join(" AND ", terms)}" : string.Empty);

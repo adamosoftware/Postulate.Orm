@@ -18,7 +18,7 @@ namespace ConsoleApp
 
         private static void Main2(string[] args)
         {
-            var newCustomer = new Customer() { LastName = "Higgenbotham", FirstName = "Jupsider", VeryMuchEmail = "whatever" };
+            var newCustomer = new Customer() { LastName = "Higgenbotham", FirstName = "Jupsider", Email = "whatever" };
             _db.Save(newCustomer);
 
             newCustomer.EffectiveDate = new DateTime(1983, 1, 1);

@@ -2,9 +2,8 @@
 using Postulate.Orm.Attributes;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ConsoleApp.Models
+namespace Testing.Models
 {
     public class Customer : Record<int>
     {
@@ -17,8 +16,7 @@ namespace ConsoleApp.Models
         public string FirstName { get; set; }
 
         [MaxLength(50)]
-        [Column("Email")]
-        public string VeryMuchEmail { get; set; }
+        public string Email { get; set; }
 
         [MaxLength(50)]
         public string Phone { get; set; }
@@ -30,7 +28,7 @@ namespace ConsoleApp.Models
 
         public override string ToString()
         {
-            return $"Last Nane = {LastName}, First Name= {FirstName}, Email = {VeryMuchEmail}, Effective Date = {EffectiveDate}, Discount Rate = {DiscountRate}";
+            return $"Last Nane = {LastName}, First Name= {FirstName}, Email = {Email}, Effective Date = {EffectiveDate}, Discount Rate = {DiscountRate}";
         }
     }
 }

@@ -11,14 +11,23 @@ using System.Reflection;
 
 namespace Postulate.Orm.Abstract
 {
+    /// <summary>
+    /// Base class for defining SQL dialect rules that apply to a specific database platform
+    /// </summary>
     public abstract class SqlSyntax
     {
         public abstract string CommentPrefix { get; }
 
         public abstract string CommandSeparator { get; }
 
+        /// <summary>
+        /// Applies the platform-specific delimiter around object names, such as square brackets around SQL Server object names or backticks in MySQL
+        /// </summary>        
         public abstract string ApplyDelimiter(string objectName);
 
+        /// <summary>
+        /// Returns the column name followed by the alias, if specified. Used by <see cref="SqlDb{TKey}.Find{TRecord}(TKey)"/> method to ensure column and property names are mapped 
+        /// </summary>
         public string SelectExpression(PropertyInfo propertyInfo)
         {
             string result = ApplyDelimiter(propertyInfo.SqlColumnName());
@@ -32,6 +41,9 @@ namespace Postulate.Orm.Abstract
             return result;
         }
 
+        /// <summary>
+        /// Returns the database table name for the given model type, applying the schema name, if specified with the [Table] or [Schema] attribute
+        /// </summary>
         public abstract string GetTableName(Type type);      
 
         public abstract string TableExistsQuery { get; }

@@ -1,8 +1,7 @@
-﻿using Postulate.Orm.Interfaces;
-using System.Data;
-using Dapper;
+﻿using Dapper;
 using Postulate.Orm.Exceptions;
-using System;
+using Postulate.Orm.Interfaces;
+using System.Data;
 using static Dapper.SqlMapper;
 
 namespace Postulate.Orm.Abstract
@@ -104,7 +103,7 @@ namespace Postulate.Orm.Abstract
         }
 
         private TRecord ExecuteFind<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>, new()
-        {            
+        {
             string cmd = GetCommand<TRecord>(_findCommands, () => GetFindStatement<TRecord>());
             return ExecuteFindMethod<TRecord>(connection, id, cmd);
         }

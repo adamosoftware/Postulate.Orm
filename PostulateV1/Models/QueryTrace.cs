@@ -1,25 +1,32 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Postulate.Orm.Models
 {
     public class QueryTrace
     {
         public string Sql { get; private set; }
-        public object Parameters { get; private set; }
-        public long Runtime { get; private set; }
+        public IEnumerable<Parameter> Parameters { get; private set; }
+        public long Duration { get; private set; }
+        public string Context { get; private set; }
 
         public string GetParameterValueString()
         {
-            var props = Parameters?.GetType().GetProperties() ?? Enumerable.Empty<PropertyInfo>();
-            return string.Join(", ", props.Select(pi => $"{pi.Name} = {pi.GetValue(Parameters)}"));
+            return string.Join(", ", Parameters.Select(pi => $"{pi.Name} = {pi.Value}"));
         }
 
-        public QueryTrace(string sql, object parameters, long runtime)
+        public QueryTrace(string sql, IEnumerable<Parameter> parameters, long duration, string context)
         {
             Sql = sql;
             Parameters = parameters;
-            Runtime = runtime;
+            Duration = duration;
+            Context = context;
+        }
+
+        public class Parameter
+        {
+            public string Name { get; set; }
+            public object Value { get; set; }
         }
     }
 }

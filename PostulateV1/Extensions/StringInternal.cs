@@ -11,6 +11,12 @@ namespace Postulate.Orm.Extensions
         internal const string AndWhereToken = "{andWhere}";
         internal const string SqlParamRegex = "@([a-zA-Z][a-zA-Z0-9_]*)";
 
+        /// <summary>
+        /// Returns the defined parameter names within a SQL statement
+        /// </summary>
+        /// <param name="sql">SQL statement to analyze</param>
+        /// <param name="cleaned">Set true to omit the leading @ sign</param>
+        /// <returns></returns>
         internal static IEnumerable<string> GetParameterNames(this string sql, bool cleaned = false)
         {
             var matches = Regex.Matches(sql, SqlParamRegex);
