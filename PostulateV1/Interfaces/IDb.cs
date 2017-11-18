@@ -14,5 +14,6 @@ namespace Postulate.Orm.Interfaces
         SqlSyntax Syntax { get; }
 
         string ConnectionName { get; }
+        string UserName { get; }
     }
 }

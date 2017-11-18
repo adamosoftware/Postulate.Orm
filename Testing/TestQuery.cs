@@ -31,9 +31,16 @@ namespace Testing
             Assert.IsTrue(results.Any());
         }
 
+        [TestMethod]
+        public void AllCustomersCase()
+        {
+            var results = new AllCustomers(_db) { HasPhone = false, TraceCallback = ShowQueryInfo }.Execute();
+            Assert.IsTrue(results.All(row => string.IsNullOrEmpty(row.Phone)));
+        }
+
         private void ShowQueryInfo(IDbConnection cn, QueryTrace trace)
         {
-            Debug.WriteLine($"{trace.Sql}\n{trace.GetParameterValueString()}\n{trace.Duration}ms");
+            Debug.WriteLine($"{trace.UserName}\n{trace.Sql}\n{trace.GetParameterValueString()}\n{trace.Duration}ms");
         }
     }
 }

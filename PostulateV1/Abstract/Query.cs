@@ -24,6 +24,9 @@ namespace Postulate.Orm.Abstract
         private readonly IDb _db;
         private string _resolvedSql;
 
+        /// <summary>
+        /// Set this to receive metrics about the last query executed, including the user name, full SQL, parameter info, and duration
+        /// </summary>
         public Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
 
         public Query(string sql, IDb db)
@@ -84,7 +87,7 @@ namespace Postulate.Orm.Abstract
             results = connection.Query<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+            TraceCallback?.Invoke(connection, new QueryTrace(_db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
 
             return results;
         }
@@ -100,7 +103,7 @@ namespace Postulate.Orm.Abstract
             results = await connection.QueryAsync<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(_resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+            TraceCallback?.Invoke(connection, new QueryTrace(_db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
 
             return results;
         }
