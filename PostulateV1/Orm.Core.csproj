@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Abstract\Query.cs" />
+    <Compile Include="Attributes\CaseAttribute.cs" />
     <Compile Include="Attributes\DefaultSqlSyntaxAttribute.cs" />
     <Compile Include="Attributes\WhereAttribute.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />

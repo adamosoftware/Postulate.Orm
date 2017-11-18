@@ -14,6 +14,10 @@ using Postulate.Orm.Extensions;
 
 namespace Postulate.Orm.Abstract
 {
+    /// <summary>
+    /// Provides strong-typed access to inline SQL queries, with dynamic criteria and tracing capability
+    /// </summary>
+    /// <typeparam name="TResult">Type with properties that map to columns returned by the query</typeparam>
     public abstract class Query<TResult>
     {
         private readonly string _sql;      
@@ -131,10 +135,20 @@ namespace Postulate.Orm.Abstract
                         // built-in params are not part of the WHERE clause, so they are excluded from added terms
                         if (!builtInParams.Contains(pi.Name.ToLower()))
                         {
-                            WhereAttribute whereAttr = pi.GetAttribute<WhereAttribute>();
-                            string expression = (whereAttr != null) ? whereAttr.Expression : $"{query._db.Syntax.ApplyDelimiter(pi.Name)}=@{pi.Name}";
-                            terms.Add(expression);
                             anyCriteria = true;
+
+                            var cases = pi.GetCustomAttributes(typeof(CaseAttribute), false).OfType<CaseAttribute>();
+                            var selectedCase = cases?.FirstOrDefault(c => c.Value.Equals(value));
+                            if (selectedCase != null)
+                            {
+                                terms.Add(selectedCase.Expression);
+                            }
+                            else
+                            {
+                                WhereAttribute whereAttr = pi.GetAttribute<WhereAttribute>();
+                                string expression = (whereAttr != null) ? whereAttr.Expression : $"{query._db.Syntax.ApplyDelimiter(pi.Name)}=@{pi.Name}";
+                                terms.Add(expression);                                
+                            }
                         }
                     }
                 }
