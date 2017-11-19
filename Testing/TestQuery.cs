@@ -56,6 +56,21 @@ namespace Testing
             Assert.IsTrue(c != null);
         }
 
+        [TestMethod]
+        public void SingleCustomerAsync()
+        {
+            int id = 0;
+            Customer c = null;
+            do
+            {
+                id++;
+                c = new SingleCustomer(_db) { Id = id, TraceCallback = ShowQueryInfo }.ExecuteSingleAsync().Result;
+            } while (c == null);
+
+            Assert.IsTrue(c != null);
+
+        }
+
         private void ShowQueryInfo(IDbConnection cn, QueryTrace trace)
         {
             Debug.WriteLine($"{trace.QueryClass}\n{trace.UserName}\n{trace.Sql}\n{trace.GetParameterValueString()}\n{trace.Duration}ms");
