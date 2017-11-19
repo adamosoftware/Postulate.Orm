@@ -130,6 +130,5 @@ namespace Postulate.Orm.SqlServer
 
             return results;
         }
-
     }
 }

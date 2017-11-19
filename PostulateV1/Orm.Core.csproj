@@ -119,6 +119,7 @@
     <Compile Include="Attributes\RenameFromAttribute.cs" />
     <Compile Include="Abstract\SqlDb_FindOrCreate.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Util\Query.cs" />
     <Compile Include="Validation\RegexAttribute.cs" />
     <Compile Include="Validation\ValidationAttribute.cs" />
   </ItemGroup>

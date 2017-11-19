@@ -48,6 +48,11 @@ namespace Postulate.Orm.Merge.Actions
                 var drop = new DropTable(this.Syntax, _tableInfo);
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
+            
+            if (!Syntax.SchemaExists(connection, _tableInfo.Schema))
+            {
+                yield return Syntax.CreateSchemaStatement(_tableInfo.Schema);
+            }
 
             yield return Syntax.GetCreateTableStatement(_modelType, AddedColumns, ModifiedColumns, DeletedColumns);
         }

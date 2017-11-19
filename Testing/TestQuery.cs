@@ -7,6 +7,10 @@ using Postulate.Orm.Models;
 using System;
 using System.Data;
 using Testing.Models;
+using Testing.Queries.SqlServer;
+using Postulate.Orm.SqlServer;
+using Postulate.Orm.Abstract;
+using Postulate.Orm.Util;
 
 namespace Testing
 {
@@ -14,6 +18,7 @@ namespace Testing
     public class TestQuery
     {
         private static MySqlDb<int> _db = new MySqlDb<int>("MySql", "system");
+        private static SqlServerDb<int> _sqlDb = new SqlServerDb<int>("SchemaMergeTest", "traceUser");
 
         [TestMethod]
         public void AllCustomersNoParams()
@@ -69,6 +74,17 @@ namespace Testing
 
             Assert.IsTrue(c != null);
 
+        }
+
+        [TestMethod]
+        public void SaveTrace()
+        {            
+            var results = new AllOrgs(_sqlDb) { TraceCallback = TestSaveTrace }.Execute();            
+        }
+
+        private void TestSaveTrace(IDbConnection cn, QueryTrace trace)
+        {
+            Query.SaveTrace(cn, trace, _sqlDb);
         }
 
         private void ShowQueryInfo(IDbConnection cn, QueryTrace trace)

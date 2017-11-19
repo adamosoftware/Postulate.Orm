@@ -170,9 +170,9 @@ namespace Postulate.Orm.Abstract
 
             return
                 $@"UPDATE {GetTableName<TRecord>()} SET
-                    {string.Join(", ", columns.Select(s => $"{_syntax.ApplyDelimiter(s)} = @{s}"))}
+                    {string.Join(", ", columns.Select(s => $"{Syntax.ApplyDelimiter(s)} = @{s}"))}
                 WHERE
-                    {_syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
+                    {Syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
 
         protected virtual string GetDeleteStatement<TRecord>() where TRecord : Record<TKey>

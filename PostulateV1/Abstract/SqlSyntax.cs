@@ -73,6 +73,8 @@ namespace Postulate.Orm.Abstract
             return connection.Exists(TableExistsQuery, TableExistsParameters(t));
         }
 
+        public abstract bool SchemaExists(IDbConnection connection, string schemaName);
+
         public abstract string DropPrimaryKeyStatement(TableInfo affectedTable, string pkName);
 
         public bool ColumnExists(IDbConnection connection, PropertyInfo pi)
@@ -125,6 +127,11 @@ namespace Postulate.Orm.Abstract
 
         public abstract string GetDropTableStatement(TableInfo tableInfo);
 
+        public string GetCreateTableStatement(Type type)
+        {
+            return GetCreateTableStatement(type, null, null, null);
+        }
+
         public abstract string GetCreateTableStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns);
 
         public abstract string[] CreateTableMembers(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns);
@@ -136,6 +143,8 @@ namespace Postulate.Orm.Abstract
         public abstract string GetForeignKeyStatement(PropertyInfo propertyInfo);
 
         public abstract string GetCreateColumnIndexStatement(PropertyInfo propertyInfo);
+
+        public abstract string CreateSchemaStatement(string name);
 
         public abstract TableInfo GetTableInfoFromType(Type type);
     }

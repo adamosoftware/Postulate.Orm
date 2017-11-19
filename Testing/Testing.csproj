@@ -64,6 +64,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\MySql\AllCustomers.cs" />
     <Compile Include="Queries\MySql\SingleCustomer.cs" />
+    <Compile Include="Queries\SqlServer\AllOrgs.cs" />
     <Compile Include="SaveMultiple.cs" />
     <Compile Include="TestChangeTracking.cs" />
     <Compile Include="TestDeleteTracking.cs" />

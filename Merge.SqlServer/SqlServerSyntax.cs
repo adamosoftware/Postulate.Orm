@@ -32,6 +32,11 @@ namespace Postulate.Orm.SqlServer
             @"[sys].[columns] [col] INNER JOIN [sys].[tables] [tbl] ON [col].[object_id]=[tbl].[object_id]
 			WHERE SCHEMA_NAME([tbl].[schema_id])=@schema AND [tbl].[name]=@tableName AND [col].[name]=@columnName";
 
+        public override bool SchemaExists(IDbConnection connection, string schemaName)
+        {
+            return connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = schemaName });
+        }
+
         public override object ColumnExistsParameters(PropertyInfo propertyInfo)
         {
             return ColumnInfo.FromPropertyInfo(propertyInfo, this);
@@ -418,6 +423,11 @@ namespace Postulate.Orm.SqlServer
         public override bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo fromColumn, out string constraintName)
         {
             throw new NotImplementedException();
+        }
+
+        public override string CreateSchemaStatement(string name)
+        {
+            return $"CREATE SCHEMA [{name}]";
         }
     }
 }

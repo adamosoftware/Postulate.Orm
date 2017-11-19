@@ -204,5 +204,15 @@ namespace Postulate.Orm.MySql
         {
             throw new NotImplementedException();
         }
+
+        public override bool SchemaExists(IDbConnection connection, string schemaName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string CreateSchemaStatement(string name)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

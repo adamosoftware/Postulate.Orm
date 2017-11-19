@@ -218,6 +218,6 @@ namespace Postulate.Orm.Abstract
             }
 
             return result;
-        }        
+        }
     }
 }
