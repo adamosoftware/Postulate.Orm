@@ -1,7 +1,7 @@
 ﻿using ConsoleApp.Models;
 using Dapper;
-using Postulate;
 using System;
+using Testing.Models;
 
 namespace ConsoleApp
 {
@@ -10,7 +10,7 @@ namespace ConsoleApp
         private static SampleMySqlDb _db = new SampleMySqlDb();
 
         private static void Main(string[] args)
-        {            
+        {
             Customer c = _db.FindWhere<Customer>("`Email` IS NOT NULL", null);
             Console.WriteLine(c);
             Console.ReadLine();
