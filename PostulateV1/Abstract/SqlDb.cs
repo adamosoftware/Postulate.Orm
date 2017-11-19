@@ -116,8 +116,8 @@ namespace Postulate.Orm.Abstract
         public SqlSyntax Syntax { get { return _syntax; } }
 
         protected virtual string GetTableName<TRecord>() where TRecord : Record<TKey>
-        {            
-            var obj = TableInfo.FromModelType(typeof(TRecord));
+        {
+            var obj = Syntax.GetTableInfoFromType(typeof(TRecord));
             return _syntax.ApplyDelimiter(obj.ToString());
         }
 
