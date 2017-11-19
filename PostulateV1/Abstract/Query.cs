@@ -160,8 +160,13 @@ namespace Postulate.Orm.Abstract
             List<string> terms = new List<string>();
             parameters = new List<QueryTrace.Parameter>();
 
+            // this gets the param names within the query based on words with leading '@'
             var builtInParams = sql.GetParameterNames(true).Select(p => p.ToLower());
+
+            // these are properties of the Query base type that we ignore because they are never part of WHERE clause (things like CommandType and CommandTimeout)
             var baseProps = query.GetType().BaseType.GetProperties().Select(pi => pi.Name);
+
+            // these are the properties of the Query that are explicitly defined and may impact the WHERE clause
             var queryProps = query.GetType().GetProperties().Where(pi => !baseProps.Contains(pi.Name));
 
             Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
