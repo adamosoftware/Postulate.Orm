@@ -62,6 +62,52 @@ namespace Postulate.Orm.Abstract
             return ExecuteInner(connection);
         }
 
+        public TResult ExecuteSingle()
+        {
+            using (var cn = _db.GetConnection())
+            {
+                cn.Open();
+                return ExecuteSingle(cn);
+            }
+        }
+
+        public TResult ExecuteSingle(IDbConnection connection)
+        {
+            List<QueryTrace.Parameter> parameters;
+            _resolvedSql = ResolveQuery(_sql, this, out parameters);
+
+            Stopwatch sw = Stopwatch.StartNew();
+            TResult result = connection.QueryFirstOrDefault<TResult>(_resolvedSql, this);
+            sw.Stop();
+
+            TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+
+            return result;
+        }
+
+        public async Task<TResult> ExecuteSingleAsync()
+        {
+            using (var cn = _db.GetConnection())
+            {
+                cn.Open();
+                return await ExecuteSingleAsync(cn);
+            }
+        }
+
+        public async Task<TResult> ExecuteSingleAsync(IDbConnection connection)
+        {
+            List<QueryTrace.Parameter> parameters;
+            _resolvedSql = ResolveQuery(_sql, this, out parameters);
+
+            Stopwatch sw = Stopwatch.StartNew();
+            TResult result = await connection.QueryFirstOrDefaultAsync<TResult>(_resolvedSql, this);
+            sw.Stop();
+
+            TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+
+            return result;
+        }
+
         public async Task<IEnumerable<TResult>> ExecuteAsync()
         {
             using (var cn = _db.GetConnection())
@@ -87,7 +133,7 @@ namespace Postulate.Orm.Abstract
             results = connection.Query<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(_db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+            TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
 
             return results;
         }
@@ -103,7 +149,7 @@ namespace Postulate.Orm.Abstract
             results = await connection.QueryAsync<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(_db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+            TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
 
             return results;
         }
@@ -114,6 +160,10 @@ namespace Postulate.Orm.Abstract
             List<string> terms = new List<string>();
             parameters = new List<QueryTrace.Parameter>();
 
+            var builtInParams = sql.GetParameterNames(true).Select(p => p.ToLower());
+            var baseProps = query.GetType().BaseType.GetProperties().Select(pi => pi.Name);
+            var queryProps = query.GetType().GetProperties().Where(pi => !baseProps.Contains(pi.Name));
+
             Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
             {
                 { InternalStringExtensions.WhereToken, "WHERE" }, // query has no where clause, so it needs the word WHERE inserted
@@ -122,13 +172,10 @@ namespace Postulate.Orm.Abstract
             string token;
             if (result.ContainsAny(new string[] { InternalStringExtensions.WhereToken, InternalStringExtensions.AndWhereToken }, out token))
             {
-                bool anyCriteria = false;
-                
-                var baseProps = query.GetType().BaseType.GetProperties().Select(pi => pi.Name);
-                var builtInParams = sql.GetParameterNames(true).Select(p => p.ToLower());
-                
+                bool anyCriteria = false;                                
+                               
                 // loop through this query's properties, but ignore base properties (like ResolvedSql and TraceCallback) since they are never part of WHERE clause                
-                foreach (var pi in query.GetType().GetProperties().Where(pi => !baseProps.Contains(pi.Name)))
+                foreach (var pi in queryProps)
                 {
                     object value = pi.GetValue(query);
                     if (value != null)
@@ -157,8 +204,15 @@ namespace Postulate.Orm.Abstract
                 }
                 result = result.Replace(token, (anyCriteria) ? $"{whereBuilder[token]} {string.Join(" AND ", terms)}" : string.Empty);
             }
+            
+            // need to add built in params explicitly to outgoing param list for the benefit of QueryTrace
+            foreach (var parameter in builtInParams)
+            {
+                var paramProperty = queryProps.Single(pi => pi.Name.ToLower().Equals(parameter));
+                parameters.Add(new QueryTrace.Parameter() { Name = parameter, Value = paramProperty.GetValue(query) });
+            }
 
             return result;
-        }
+        }        
     }
 }

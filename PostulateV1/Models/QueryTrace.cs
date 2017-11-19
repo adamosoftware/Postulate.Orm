@@ -5,6 +5,7 @@ namespace Postulate.Orm.Models
 {
     public class QueryTrace
     {
+        public string QueryClass { get; private set; }
         public string UserName { get; private set; }
         public string Sql { get; private set; }
         public IEnumerable<Parameter> Parameters { get; private set; }
@@ -16,8 +17,9 @@ namespace Postulate.Orm.Models
             return string.Join(", ", Parameters.Select(pi => $"{pi.Name} = {pi.Value}"));
         }
 
-        public QueryTrace(string userName, string sql, IEnumerable<Parameter> parameters, long duration, string context)
+        public QueryTrace(string queryClass, string userName, string sql, IEnumerable<Parameter> parameters, long duration, string context)
         {
+            QueryClass = queryClass;
             UserName = userName;
             Sql = sql;
             Parameters = parameters;
