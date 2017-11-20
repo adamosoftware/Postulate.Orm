@@ -4,8 +4,8 @@ Postulate is a lightweight code-first ORM made with [Dapper](https://github.com/
 
 Nuget package status:
 - **Postulate.Orm** version 0.9.220 targets SQL Server. The Schema Merge feature works for SQL Server only. To add MySql support, I started a couple new packages:
-- **Postulate.Orm.SqlServer** version 1.0.3-beta uses a new Schema Merge architecture refactored to support MySql, and a new WinForms merge UI app is in progress that will eventually support both SQL Server and MySql.
-- **Postulate.Orm.MySql** version 1.0.3-alpha supports CRUD operations, and has no schema merge capability yet.
+- **Postulate.Orm.SqlServer** now in **beta** uses a new Schema Merge architecture refactored to support MySql, and a new WinForms merge UI app is in progress that will eventually support both SQL Server and MySql.
+- **Postulate.Orm.MySql** now in **alpha** supports CRUD operations, and has no schema merge capability yet.
 
 I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the schema merge feature works only for SQL Server, currently. A MySql implementation is coming.
 
