@@ -9,7 +9,7 @@ Nuget package status:
 
 I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the schema merge feature works only for SQL Server, currently. A MySql implementation is coming.
 
-Regarding Linq and inline SQL, I respect the genius that is Linq, but I'm still more comfortable with inline SQL so long as it's isolated to some degree from the application. The [Query&lt;TResult&gt;](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Query.cs) class offers strong-typed query and trace capability, and another project [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) that builds upon this.
+Regarding Linq and inline SQL, I respect the genius that is Linq, but I'm still more comfortable with inline SQL so long as it's isolated to some degree from the application. The [Query&lt;TResult&gt;](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Abstract/Query.cs) class offers strong-typed query and trace capability, and another project [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) that builds upon this.
 
 For a video demo, please see this at [Vimeo.com](https://vimeo.com/219400011). Also see the [CodeProject.com article here](https://www.codeproject.com/Articles/1191399/Intro-to-Postulate-ORM).
 
@@ -48,7 +48,7 @@ To get started:
     ```
 7. Create one or more model classes that share the same namespace as your `MyDb` class. In the example above, the namespace is `Models`, so all of your model classes that you create subsequently need to be in that namespace. See [this topic](https://github.com/adamosoftware/Postulate.Orm/wiki/Designing-Model-Classes) on creating model classes for Postulate.
 
-Whenever you build or rebuild your models project, the Schema Merge app will run, and you should see a window like this. Click the **Execute** button in the upper right to apply changes in your model classes to your database. Postulate can detect a range of changes, and generate correct SQL to implement them. Postulate will never drop tables that contain data. (To learn about the schema merge implementation, see [SchemaMerge.Compare method](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Merge/SchemaMerge.cs#L83).
+Whenever you build or rebuild your models project, the Schema Merge app will run, and you should see a window like this. Click the **Execute** button in the upper right to apply changes in your model classes to your database. Postulate can detect a range of changes, and generate correct SQL to implement them. Postulate will never drop tables that contain data. (To learn about the schema merge implementation, see [SchemaMerge.Compare method](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Merge/SchemaMerge.cs#L83).
 
 ![img](https://adamosoftware.blob.core.windows.net:443/images/schema_merge_app.png)
 
@@ -105,7 +105,7 @@ I recommend having a `SqlServerDb<TKey>` instance variable in your controllers.
 
     private _db = new MyDb();
     
-Override the controller Initialize event to set the `_db.UserName` property. This enables `Record<TKey>` overrides such as [BeforeSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L143) and [AllowSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/Abstract/Record.cs#L134) to have access to the current user name without depending on any particular Identity provider.
+Override the controller Initialize event to set the `_db.UserName` property. This enables `Record<TKey>` overrides such as [BeforeSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Abstract/Record.cs#L143) and [AllowSave](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Abstract/Record.cs#L134) to have access to the current user name without depending on any particular Identity provider.
 
     protected override void Initialize(RequestContext requestContext)
     {            
@@ -129,7 +129,7 @@ A very simple Save action (for both inserts and updates):
         return RedirectToAction("Edit", new { id = customer.Id });
     }
     
-If you need to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/PostulateV1/SqlServerDb.cs#L41) method:
+If you need to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/SqlServerDb.cs#L41) method:
 
     using (var cn = _db.GetConnection())
     {
