@@ -115,15 +115,15 @@
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Merge.MySql\Orm.MySql.csproj">
+    <ProjectReference Include="..\Orm.MySql\Orm.MySql.csproj">
       <Project>{f8ac8db0-dfe0-4fce-a7b5-11c5316c7a62}</Project>
       <Name>Orm.MySql</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Merge.SqlServer\Orm.SqlServer.csproj">
+    <ProjectReference Include="..\Orm.SqlServer\Orm.SqlServer.csproj">
       <Project>{6160bbde-24a4-4964-961f-39a4a5d036d4}</Project>
       <Name>Orm.SqlServer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PostulateV1\Orm.Core.csproj">
+    <ProjectReference Include="..\Core\Orm.Core.csproj">
       <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
       <Name>Orm.Core</Name>
     </ProjectReference>

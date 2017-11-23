@@ -49,7 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PostulateV1\Orm.Core.csproj">
+    <ProjectReference Include="..\Core\Orm.Core.csproj">
       <Project>{74D32DED-6B61-4C06-99B7-4BF11A7325E0}</Project>
       <Name>Orm.Core</Name>
     </ProjectReference>

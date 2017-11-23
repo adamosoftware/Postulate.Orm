@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orm.Core", "PostulateV1\Orm.Core.csproj", "{74D32DED-6B61-4C06-99B7-4BF11A7325E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orm.Core", "Core\Orm.Core.csproj", "{74D32DED-6B61-4C06-99B7-4BF11A7325E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{E2FFFA51-D436-42E3-B35F-544145ACCBFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orm.SqlServer", "Merge.SqlServer\Orm.SqlServer.csproj", "{6160BBDE-24A4-4964-961F-39A4A5D036D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orm.SqlServer", "Orm.SqlServer\Orm.SqlServer.csproj", "{6160BBDE-24A4-4964-961F-39A4A5D036D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orm.MySql", "Merge.MySql\Orm.MySql.csproj", "{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orm.MySql", "Orm.MySql\Orm.MySql.csproj", "{F8AC8DB0-DFE0-4FCE-A7B5-11C5316C7A62}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MergeUI", "MergeUI\MergeUI.csproj", "{AD8D1EA1-7B84-42A5-8249-4CC32204CEF4}"
 EndProject

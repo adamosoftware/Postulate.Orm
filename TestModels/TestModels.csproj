@@ -52,11 +52,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Merge.SqlServer\Orm.SqlServer.csproj">
+    <ProjectReference Include="..\Orm.SqlServer\Orm.SqlServer.csproj">
       <Project>{6160BBDE-24A4-4964-961F-39A4A5D036D4}</Project>
       <Name>Orm.SqlServer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PostulateV1\Orm.Core.csproj">
+    <ProjectReference Include="..\Core\Orm.Core.csproj">
       <Project>{74d32ded-6b61-4c06-99b7-4bf11a7325e0}</Project>
       <Name>Orm.Core</Name>
     </ProjectReference>
