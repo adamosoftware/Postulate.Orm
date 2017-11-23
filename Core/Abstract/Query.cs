@@ -35,6 +35,8 @@ namespace Postulate.Orm.Abstract
             _db = db;
         }
 
+        protected IDb Db { get { return _db; } }
+
         public string Sql { get { return _sql; } }
 
         public string ResolvedSql { get { return _resolvedSql; } }
