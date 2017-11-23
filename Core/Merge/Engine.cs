@@ -26,7 +26,7 @@ namespace Postulate.Orm.Merge
 
         private Stopwatch _stopwatch = null;
 
-        public Engine(Type[] modelTypes, IProgress<MergeProgress> progress)
+        public Engine(Type[] modelTypes, IProgress<MergeProgress> progress = null)
         {
             if (modelTypes.Any(t => !t.IsDerivedFromGeneric(typeof(Record<>))))
             {
@@ -38,7 +38,7 @@ namespace Postulate.Orm.Merge
             _syntax = new TSyntax();
         }
 
-        public Engine(Assembly assembly, IProgress<MergeProgress> progress) : this(GetModelTypes(assembly), progress)
+        public Engine(Assembly assembly, IProgress<MergeProgress> progress = null) : this(GetModelTypes(assembly), progress)
         {
         }
 
