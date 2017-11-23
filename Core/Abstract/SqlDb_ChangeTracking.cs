@@ -73,6 +73,15 @@ namespace Postulate.Orm.Abstract
 
         public abstract IEnumerable<ChangeHistory<TKey>> QueryChangeHistory<TRecord>(IDbConnection connection, TKey id, int timeZoneOffset = 0) where TRecord : Record<TKey>;
 
+        public IEnumerable<ChangeHistory<TKey>> QueryChangeHistory<TRecord>(TKey id, int timeZoneOffset = 0) where TRecord : Record<TKey>
+        {
+            using (var cn = GetConnection())
+            {
+                cn.Open();
+                return QueryChangeHistory<TRecord>(cn, id, timeZoneOffset);
+            }
+        }
+
         private bool TrackChanges<TRecord>(out string ignoreProperties) where TRecord : Record<TKey>
         {
             TrackChangesAttribute attr;

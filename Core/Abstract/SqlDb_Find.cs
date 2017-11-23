@@ -91,7 +91,7 @@ namespace Postulate.Orm.Abstract
             if (row == null) return null;
 
             string message;
-            if (row.AllowView(connection, this, UserName, out message))
+            if (row.AllowView(connection, this, out message))
             {
                 row.BeforeView(connection, this);
                 return row;

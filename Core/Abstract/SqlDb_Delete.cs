@@ -42,7 +42,7 @@ namespace Postulate.Orm.Abstract
         public void DeleteOne<TRecord>(IDbConnection connection, TRecord record) where TRecord : Record<TKey>
         {
             string message;
-            if (record.AllowDelete(connection, this, UserName, out message))
+            if (record.AllowDelete(connection, this, out message))
             {
                 if (TrackDeletions<TRecord>())
                 {

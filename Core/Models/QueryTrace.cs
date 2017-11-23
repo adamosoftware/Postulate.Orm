@@ -46,7 +46,7 @@ namespace Postulate.Orm.Models
             return string.Join(", ", Parameters.Select(pi => $"{pi.Name} = {pi.Value}"));
         }
 
-        public override void BeforeSave(IDbConnection connection, SqlDb<int> db, string userName, SaveAction action)
+        public override void BeforeSave(IDbConnection connection, SqlDb<int> db, SaveAction action)
         {
             if (Parameters != null) ParameterValues = GetParameterValueString();
         }
