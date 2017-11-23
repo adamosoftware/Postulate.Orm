@@ -7,7 +7,8 @@ namespace Postulate.Orm.Abstract
     public abstract class SeedData<TRecord, TKey> where TRecord : Record<TKey>, new()
     {
         /// <summary>
-        /// FROM and WHERE clause used to determine whether a seed row exists or not
+        /// FROM and WHERE clause (without the word "FROM") used to determine whether a seed row exists or not.
+        /// WHERE clause should include parameters
         /// </summary>
         public abstract string ExistsCriteria { get; }
 
