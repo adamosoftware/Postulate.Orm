@@ -80,9 +80,14 @@ namespace Postulate.Orm.Abstract
             TResult result = connection.QueryFirstOrDefault<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+            InvokeTraceCallback(connection, parameters, sw);
 
             return result;
+        }
+
+        private void InvokeTraceCallback(IDbConnection connection, List<QueryTrace.Parameter> parameters, Stopwatch sw)
+        {
+            TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
         }
 
         public async Task<TResult> ExecuteSingleAsync()
@@ -103,7 +108,7 @@ namespace Postulate.Orm.Abstract
             TResult result = await connection.QueryFirstOrDefaultAsync<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+            InvokeTraceCallback(connection, parameters, sw);
 
             return result;
         }
@@ -133,7 +138,7 @@ namespace Postulate.Orm.Abstract
             results = connection.Query<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+            InvokeTraceCallback(connection, parameters, sw);
 
             return results;
         }
@@ -149,7 +154,7 @@ namespace Postulate.Orm.Abstract
             results = await connection.QueryAsync<TResult>(_resolvedSql, this);
             sw.Stop();
 
-            TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+            InvokeTraceCallback(connection, parameters, sw);
 
             return results;
         }
