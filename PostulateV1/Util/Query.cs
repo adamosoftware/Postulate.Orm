@@ -9,7 +9,7 @@ namespace Postulate.Orm.Util
     public static class Query
     {
         /// <summary>
-        /// Provides a general-purpose way to save QueryTraces. Use this in Query<>.TraceCallback handler
+        /// Provides a general-purpose way to save QueryTraces. Use this in <see cref="Query{TResult}.TraceCallback"/> handler
         /// </summary>        
         public static void SaveTrace(IDbConnection connection, QueryTrace trace, SqlDb<int> db)
         {
