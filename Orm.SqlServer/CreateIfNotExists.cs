@@ -14,8 +14,9 @@ namespace Postulate.Orm.SqlServer
 {
     public partial class SqlServerDb<TKey> : SqlDb<TKey>, IDb
     {        
-        public override void CreateIfNotExists(Action<IDbConnection> seedAction = null)
+        public override void CreateIfNotExists(Action<IDbConnection, bool> seedAction = null)
         {
+            bool created = false;
             try
             {
                 using (var cn = GetConnection())
@@ -24,14 +25,15 @@ namespace Postulate.Orm.SqlServer
                 }
             }
             catch
-            {
+            {                
                 TryCreateDb(ConnectionName);
+                created = true;
             }
 
             using (var cn = GetConnection())
             {
                 cn.Open();
-                seedAction?.Invoke(cn);
+                seedAction?.Invoke(cn, created);
             }
         }
 

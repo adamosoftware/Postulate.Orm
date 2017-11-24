@@ -80,7 +80,11 @@ namespace Postulate.Orm.Abstract
             }
         }      
 
-        public abstract void CreateIfNotExists(Action<IDbConnection> seedAction = null);
+        /// <summary>
+        /// Attempts to open the connection, and then attempts to create the database if it's not opened successfully
+        /// </summary>
+        /// <param name="seedAction">Use this to seed the database with objects and data</param>
+        public abstract void CreateIfNotExists(Action<IDbConnection, bool> seedAction = null);
 
         private string FindConnectionString(string location, string connection)
         {
