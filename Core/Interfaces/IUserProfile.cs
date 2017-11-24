@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 
 namespace Postulate.Orm.Interfaces
 {
@@ -7,6 +6,6 @@ namespace Postulate.Orm.Interfaces
     {
         string UserName { get; set; }
 
-        DateTime GetLocalTime(IDbConnection connection);
+        DateTime GetLocalTime();
     }
 }
