@@ -119,6 +119,8 @@ namespace Postulate.Orm.Abstract
 
         public SqlSyntax Syntax { get { return _syntax; } }
 
+        public Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
+
         protected virtual string GetTableName<TRecord>() where TRecord : Record<TKey>
         {
             var obj = Syntax.GetTableInfoFromType(typeof(TRecord));

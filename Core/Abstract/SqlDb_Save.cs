@@ -2,8 +2,13 @@
 using Postulate.Orm.Enums;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Interfaces;
+using Postulate.Orm.Models;
+using Postulate.Orm.Util;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Postulate.Orm.Abstract
@@ -80,16 +85,23 @@ namespace Postulate.Orm.Abstract
         }
 
         private TKey ExecuteInsert<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction = null) where TRecord : Record<TKey>
-        {
+        {            
+            TKey result = default(TKey);
+
             string cmd = GetCommand<TRecord>(_insertCommands, () => GetInsertStatement<TRecord>());
             try
             {
-                return ExecuteInsertMethod(connection, record, transaction, cmd);
+                Stopwatch sw = Stopwatch.StartNew();
+                result = ExecuteInsertMethod(connection, record, transaction, cmd);
+                sw.Stop();
+                InvokeTraceCallback(connection, "Save.Insert", cmd, record, sw);
             }
             catch (Exception exc)
             {
                 throw new SaveException(exc.Message, cmd, record);
             }
+
+            return result;
         }
 
         protected virtual TKey ExecuteInsertMethod<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction, string cmd) where TRecord : Record<TKey>
@@ -102,7 +114,10 @@ namespace Postulate.Orm.Abstract
             string cmd = GetCommand<TRecord>(_updateCommands, () => GetUpdateStatement<TRecord>());
             try
             {
+                Stopwatch sw = Stopwatch.StartNew();
                 ExecuteUpdateMethod(connection, record, transaction, cmd);
+                sw.Stop();
+                InvokeTraceCallback(connection, "Save.Update", cmd, record, sw);
             }
             catch (Exception exc)
             {
@@ -184,6 +199,12 @@ namespace Postulate.Orm.Abstract
             {
                 throw new SaveException(exc.Message, cmd, record);
             }
+        }
+
+        private void InvokeTraceCallback<TRecord>(IDbConnection connection, string queryClass, string cmd, TRecord record, Stopwatch sw) where TRecord : Record<TKey>
+        {
+            IEnumerable<QueryTrace.Parameter> parameters = typeof(TRecord).GetProperties().Select(pi => new QueryTrace.Parameter(pi, record));
+            TraceCallback?.Invoke(connection, new QueryTrace(queryClass, UserName, cmd, parameters, sw.ElapsedMilliseconds, null));
         }
     }
 }

@@ -5,6 +5,7 @@ using Postulate.Orm.Enums;
 using System.Data;
 using Postulate.Orm.Attributes;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace Postulate.Orm.Models
 {
@@ -53,6 +54,16 @@ namespace Postulate.Orm.Models
 
         public class Parameter
         {
+            public Parameter()
+            {
+            }
+
+            public Parameter(PropertyInfo propertyInfo, object @object)
+            {
+                Name = propertyInfo.Name;
+                Value = propertyInfo.GetValue(@object) ?? "<null>"; 
+            }
+
             public string Name { get; set; }
             public object Value { get; set; }
         }
