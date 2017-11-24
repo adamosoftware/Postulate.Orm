@@ -6,6 +6,7 @@ using System.Data;
 using Postulate.Orm.Attributes;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System;
 
 namespace Postulate.Orm.Models
 {
@@ -27,6 +28,8 @@ namespace Postulate.Orm.Models
             Duration = duration;
             Context = context;
         }
+
+        public DateTime DateTime { get; set; } = DateTime.UtcNow;
 
         [MaxLength(100)]
         public string QueryClass { get; set; }
