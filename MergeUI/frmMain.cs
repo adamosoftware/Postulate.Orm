@@ -1,5 +1,7 @@
 ﻿using AdamOneilSoftware;
 using FastColoredTextBoxNS;
+using Newtonsoft.Json;
+using Postulate.MergeUI.Models;
 using Postulate.MergeUI.ViewModels;
 using Postulate.Orm.Merge;
 using System;
@@ -65,9 +67,35 @@ namespace Postulate.MergeUI
         {
             try
             {
-                if (!string.IsNullOrEmpty(StartupFile) && File.Exists(StartupFile))
+                if (!string.IsNullOrEmpty(StartupFile))
                 {
-                    await SelectAssemblyInner(StartupFile);                    
+                    string loadFile = null;
+
+                    if (Directory.Exists(StartupFile))
+                    {
+                        loadFile = FindModelAssembly(StartupFile, (path) => path);
+                    }
+                    else if (File.Exists(StartupFile))
+                    {
+                        string ext = Path.GetExtension(StartupFile);
+                        
+                        switch (ext)
+                        {
+                            case ".dll":
+                                loadFile = StartupFile;
+                                break;
+
+                            case ".sln":
+                            case ".csproj":
+                                loadFile = FindModelAssembly(StartupFile, (path) => Path.GetDirectoryName(path));
+                                break;
+
+                            default:
+                                throw new ArgumentException($"The extension {ext} is not supported.");
+                        }
+                    }
+
+                    await SelectAssemblyInner(loadFile);
                 }
                 else
                 {
@@ -77,6 +105,67 @@ namespace Postulate.MergeUI
             catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);
+            }
+        }
+
+        /// <summary>
+        /// Finds a .json settings file in the given path that indicates the model assembly to use for schema merge. Prompts
+        /// the user with File Open dialog if settings file isn't found, and saves results in new settings file
+        /// </summary>
+        /// <param name="path">Filename or directory where the json settings file might be</param>
+        /// <param name="convertToFolder">Transform to apply to the path argument, such as stripping file name from the path</param>
+        /// <returns>Full path of model assembly</returns>
+        private string FindModelAssembly(string path, Func<string, string> convertToFolder)
+        {
+            string folder = convertToFolder.Invoke(path);
+            string settingsFile = Path.Combine(folder, "Postulate.MergeUI.Settings.json");
+            SolutionSettings settings = null;
+
+            if (File.Exists(settingsFile))
+            {
+                settings = ReadJsonFile<SolutionSettings>(settingsFile);
+                if (File.Exists(settings.ModelAssembly)) return settings.ModelAssembly;
+            }
+
+            settings = new SolutionSettings();
+            settings.ModelAssembly = DialogSelectModelAssembly(folder);
+            WriteJsonFile(settingsFile, settings);
+
+            return settings.ModelAssembly;
+        }
+
+        private string DialogSelectModelAssembly(string folder)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Title = "Select Model Assembly";
+            dlg.Filter = "Assembly Files|*.dll,*.exe";
+            dlg.InitialDirectory = Path.GetDirectoryName(folder);
+            if (dlg.ShowDialog() == DialogResult.OK) return dlg.FileName;
+
+            throw new Exception("User canceled model assembly selection.");
+        }
+
+        private void WriteJsonFile<T>(string fileName, T @object) where T : new()
+        {
+            string folder = Path.GetDirectoryName(fileName);
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+            using (var stream = File.CreateText(fileName))
+            {
+                string json = JsonConvert.SerializeObject(@object);
+                stream.Write(json);
+            }
+        }
+
+        private T ReadJsonFile<T>(string fileName) where T : new()
+        {           
+            using (var stream = File.OpenRead(fileName))
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    string json = reader.ReadToEnd();
+                    return JsonConvert.DeserializeObject<T>(json);
+                }
             }
         }
 

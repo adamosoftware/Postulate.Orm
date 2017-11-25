@@ -40,6 +40,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.pbMain = new System.Windows.Forms.ToolStripProgressBar();
             this.tslStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tslAbout = new System.Windows.Forms.ToolStripStatusLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splcActions = new System.Windows.Forms.SplitContainer();
             this.tvwActions = new System.Windows.Forms.TreeView();
@@ -47,7 +48,7 @@
             this.lblErrors = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tbScript = new FastColoredTextBoxNS.FastColoredTextBox();
-            this.tslAbout = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tslSelectAssembly = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -135,6 +136,7 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.pbMain,
             this.tslStatus,
+            this.tslSelectAssembly,
             this.tslAbout});
             this.statusStrip1.Location = new System.Drawing.Point(0, 323);
             this.statusStrip1.Name = "statusStrip1";
@@ -153,6 +155,16 @@
             this.tslStatus.Name = "tslStatus";
             this.tslStatus.Size = new System.Drawing.Size(39, 17);
             this.tslStatus.Text = "Ready";
+            // 
+            // tslAbout
+            // 
+            this.tslAbout.IsLink = true;
+            this.tslAbout.Name = "tslAbout";
+            this.tslAbout.Size = new System.Drawing.Size(301, 17);
+            this.tslAbout.Spring = true;
+            this.tslAbout.Text = "About";
+            this.tslAbout.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.tslAbout.Click += new System.EventHandler(this.tslAbout_Click);
             // 
             // splitContainer1
             // 
@@ -275,15 +287,12 @@
             this.tbScript.TabIndex = 0;
             this.tbScript.Zoom = 100;
             // 
-            // tslAbout
+            // tslSelectAssembly
             // 
-            this.tslAbout.IsLink = true;
-            this.tslAbout.Name = "tslAbout";
-            this.tslAbout.Size = new System.Drawing.Size(459, 17);
-            this.tslAbout.Spring = true;
-            this.tslAbout.Text = "About";
-            this.tslAbout.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.tslAbout.Click += new System.EventHandler(this.tslAbout_Click);
+            this.tslSelectAssembly.IsLink = true;
+            this.tslSelectAssembly.Name = "tslSelectAssembly";
+            this.tslSelectAssembly.Size = new System.Drawing.Size(158, 17);
+            this.tslSelectAssembly.Text = "Select assembly in solution...";
             // 
             // frmMain
             // 
@@ -338,6 +347,7 @@
         private System.Windows.Forms.Label lblErrors;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.ToolStripStatusLabel tslAbout;
+        private System.Windows.Forms.ToolStripStatusLabel tslSelectAssembly;
     }
 }
 
