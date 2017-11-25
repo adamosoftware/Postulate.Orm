@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Postulate.Orm.Merge.Actions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,18 +36,26 @@ namespace Testing
         public void TrackTableBChanges()
         {
             var db = new PostulateDb();
-            db.DeleteOneWhere<TableB>("[Description]='Whatever'", null);
 
             int[] orgIds = null;
             using (var cn = db.GetConnection())
             {
                 cn.Open();
+                
+                if (!db.Syntax.TableExists(cn, typeof(TableB)))
+                {
+                    CreateTable ct = new CreateTable(db.Syntax, db.Syntax.GetTableInfoFromType(typeof(TableB)));
+                    foreach (var cmd in ct.SqlCommands(cn)) cn.Execute(cmd);
+                }
+
                 orgIds = cn.Query<int>("SELECT [Id] FROM [Organization]").ToArray();
             }
-                
+
+            db.DeleteOneWhere<TableB>("[Description]='Whatever'", null);
+
             string oldName = db.Find<Organization>(orgIds[0]).Name;
             string newName = db.Find<Organization>(orgIds[1]).Name;
-
+            
             TableB b = new TableB() { OrganizationId = 1, Description = "Whatever" };
             db.Save(b);
 

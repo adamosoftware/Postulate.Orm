@@ -87,40 +87,17 @@ namespace Postulate.Orm.SqlServer
             }
         }
 
-        private static string ChangeTrackingTableName<TRecord>()
+        private string ChangeTrackingTableName<TRecord>()
         {
-            TableInfo obj = TableInfo.FromModelType(typeof(TRecord), "dbo");
+            TableInfo obj = Syntax.GetTableInfoFromType(typeof(TRecord));
             return $"{obj.Schema}_{obj.Name}";
         }
 
         protected override void OnCaptureChanges<TRecord>(IDbConnection connection, TKey id, IEnumerable<PropertyChange> changes)
-        {
-            if (!connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = _changesSchema })) connection.Execute($"CREATE SCHEMA [{_changesSchema}]");
-
+        {            
             string tableName = ChangeTrackingTableName<TRecord>();
 
-            if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _changesSchema, name = $"{tableName}_Versions" }))
-            {
-                connection.Execute($@"CREATE TABLE [{_changesSchema}].[{tableName}_Versions] (
-					[RecordId] {Syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
-					[NextVersion] int NOT NULL DEFAULT (1),
-					CONSTRAINT [PK_{_changesSchema}_{tableName}_Versions] PRIMARY KEY ([RecordId])
-				)");
-            }
-
-            if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _changesSchema, name = tableName }))
-            {
-                connection.Execute($@"CREATE TABLE [{_changesSchema}].[{tableName}] (
-					[RecordId] {Syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
-					[Version] int NOT NULL,
-					[ColumnName] nvarchar(100) NOT NULL,
-                    [UserName] nvarchar(256) NOT NULL,
-					[OldValue] nvarchar(max) NULL,
-					[NewValue] nvarchar(max) NULL,
-					[DateTime] datetime NOT NULL DEFAULT (getutcdate()),
-					CONSTRAINT [PK_{tableName}] PRIMARY KEY ([RecordId], [Version], [ColumnName])
-				)");
-            }
+            CreateChangeTrackingTables(connection, tableName);
 
             string indexName = $"IX_{_changesSchema}_{tableName}_RecordId";
             if (!connection.Exists("[sys].[indexes] WHERE [name]=@name", new { name = indexName }))
@@ -153,6 +130,34 @@ namespace Postulate.Orm.SqlServer
             }
         }
 
+        private void CreateChangeTrackingTables(IDbConnection connection, string tableName)
+        {
+            if (!connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = _changesSchema })) connection.Execute($"CREATE SCHEMA [{_changesSchema}]");
+
+            if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _changesSchema, name = $"{tableName}_Versions" }))
+            {
+                connection.Execute($@"CREATE TABLE [{_changesSchema}].[{tableName}_Versions] (
+					[RecordId] {Syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
+					[NextVersion] int NOT NULL DEFAULT (1),
+					CONSTRAINT [PK_{_changesSchema}_{tableName}_Versions] PRIMARY KEY ([RecordId])
+				)");
+            }
+
+            if (!connection.Exists("[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = _changesSchema, name = tableName }))
+            {
+                connection.Execute($@"CREATE TABLE [{_changesSchema}].[{tableName}] (
+					[RecordId] {Syntax.KeyTypeMap(false)[typeof(TKey)]} NOT NULL,
+					[Version] int NOT NULL,
+					[ColumnName] nvarchar(100) NOT NULL,
+                    [UserName] nvarchar(256) NOT NULL,
+					[OldValue] nvarchar(max) NULL,
+					[NewValue] nvarchar(max) NULL,
+					[DateTime] datetime NOT NULL DEFAULT (getutcdate()),
+					CONSTRAINT [PK_{tableName}] PRIMARY KEY ([RecordId], [Version], [ColumnName])
+				)");
+            }
+        }
+
         protected override void OnCaptureDeletion<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction)
         {
             if (!connection.Exists("[sys].[schemas] WHERE [name]=@name", new { name = _deletedSchema }, transaction)) connection.Execute($"CREATE SCHEMA [{_deletedSchema}]", null, transaction);
@@ -180,7 +185,7 @@ namespace Postulate.Orm.SqlServer
 
         protected override TRecord BeginRestore<TRecord>(IDbConnection connection, TKey id)
         {
-            TableInfo obj = TableInfo.FromModelType(typeof(TRecord));
+            TableInfo obj = Syntax.GetTableInfoFromType(typeof(TRecord));
             var xmlString = connection.QuerySingleOrDefault<string>($"SELECT [Data] FROM [deleted].[{obj.Schema}_{obj.Name}] WHERE [RecordId]=@id", new { id = id });
             if (string.IsNullOrEmpty(xmlString)) throw new Exception($"{obj.Schema}.{obj.Name} with record id {id} was not found to restore.");
             return FromXml<TRecord>(xmlString);
@@ -188,7 +193,7 @@ namespace Postulate.Orm.SqlServer
 
         protected override void CompleteRestore<TRecord>(IDbConnection connection, TKey id, IDbTransaction transaction)
         {
-            TableInfo obj = TableInfo.FromModelType(typeof(TRecord));
+            TableInfo obj = Syntax.GetTableInfoFromType(typeof(TRecord));
             connection.Execute($"DELETE [deleted].[{obj.Schema}_{obj.Name}] WHERE [RecordId]=@id", new { id = id }, transaction);
         }
 
@@ -223,19 +228,12 @@ namespace Postulate.Orm.SqlServer
             return value;
         }
 
-        public IEnumerable<ChangeHistory<TKey>> QueryChangeHistory<TRecord>(TKey id, int timeZoneOffset = 0) where TRecord : Record<TKey>
-        {
-            using (IDbConnection cn = GetConnection())
-            {
-                cn.Open();
-                return QueryChangeHistory<TRecord>(cn, id, timeZoneOffset);
-            }
-        }
-
         public override IEnumerable<ChangeHistory<TKey>> QueryChangeHistory<TRecord>(IDbConnection connection, TKey id, int timeZoneOffset = 0)
         {
-            TableInfo obj = TableInfo.FromModelType(typeof(TRecord));
+            TableInfo obj = Syntax.GetTableInfoFromType(typeof(TRecord));
             string tableName = $"{obj.Schema}_{obj.Name}";
+
+            CreateChangeTrackingTables(connection, tableName);
 
             var results = connection.Query<ChangeHistoryRecord<TKey>>(
                 $@"SELECT * FROM [{_changesSchema}].[{tableName}] WHERE [RecordId]=@id ORDER BY [DateTime] DESC", new { id = id });
