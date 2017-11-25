@@ -293,6 +293,7 @@
             this.tslSelectAssembly.Name = "tslSelectAssembly";
             this.tslSelectAssembly.Size = new System.Drawing.Size(158, 17);
             this.tslSelectAssembly.Text = "Select assembly in solution...";
+            this.tslSelectAssembly.Click += new System.EventHandler(this.tslSelectAssembly_Click);
             // 
             // frmMain
             // 

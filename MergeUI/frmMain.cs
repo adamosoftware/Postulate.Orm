@@ -67,35 +67,11 @@ namespace Postulate.MergeUI
         {
             try
             {
+                tslSelectAssembly.Visible = false;
+
                 if (!string.IsNullOrEmpty(StartupFile))
                 {
-                    string loadFile = null;
-
-                    if (Directory.Exists(StartupFile))
-                    {
-                        loadFile = FindModelAssembly(StartupFile, (path) => path);
-                    }
-                    else if (File.Exists(StartupFile))
-                    {
-                        string ext = Path.GetExtension(StartupFile);
-                        
-                        switch (ext)
-                        {
-                            case ".dll":
-                                loadFile = StartupFile;
-                                break;
-
-                            case ".sln":
-                            case ".csproj":
-                                loadFile = FindModelAssembly(StartupFile, (path) => Path.GetDirectoryName(path));
-                                break;
-
-                            default:
-                                throw new ArgumentException($"The extension {ext} is not supported.");
-                        }
-                    }
-
-                    await SelectAssemblyInner(loadFile);
+                    await PromptAndLoadAssemblyAsync();
                 }
                 else
                 {
@@ -108,6 +84,39 @@ namespace Postulate.MergeUI
             }
         }
 
+        private async Task PromptAndLoadAssemblyAsync()
+        {
+            string loadFile = null;
+
+            if (Directory.Exists(StartupFile))
+            {
+                tslSelectAssembly.Visible = true;
+                loadFile = FindModelAssembly(StartupFile, (path) => path);
+            }
+            else if (File.Exists(StartupFile))
+            {
+                string ext = Path.GetExtension(StartupFile);
+                if (ext.Equals(".sln")) tslSelectAssembly.Visible = true;
+
+                switch (ext)
+                {
+                    case ".dll":
+                        loadFile = StartupFile;
+                        break;
+
+                    case ".sln":
+                    case ".csproj":
+                        loadFile = FindModelAssembly(StartupFile, (path) => Path.GetDirectoryName(path));
+                        break;
+
+                    default:
+                        throw new ArgumentException($"The extension {ext} is not supported.");
+                }
+            }
+
+            await SelectAssemblyInner(loadFile);
+        }
+
         /// <summary>
         /// Finds a .json settings file in the given path that indicates the model assembly to use for schema merge. Prompts
         /// the user with File Open dialog if settings file isn't found, and saves results in new settings file
@@ -118,7 +127,7 @@ namespace Postulate.MergeUI
         private string FindModelAssembly(string path, Func<string, string> convertToFolder)
         {
             string folder = convertToFolder.Invoke(path);
-            string settingsFile = Path.Combine(folder, "Postulate.MergeUI.Settings.json");
+            string settingsFile = SolutionSettingsFile(folder);
             SolutionSettings settings = null;
 
             if (File.Exists(settingsFile))
@@ -130,15 +139,22 @@ namespace Postulate.MergeUI
             settings = new SolutionSettings();
             settings.ModelAssembly = DialogSelectModelAssembly(folder);
             WriteJsonFile(settingsFile, settings);
+            
+            tslSelectAssembly.Text = $"Assembly in solution {Path.GetFileName(settings.ModelAssembly)}";
 
             return settings.ModelAssembly;
         }
+
+        private static string SolutionSettingsFile(string folder)
+        {
+            return Path.Combine(folder, "Postulate.MergeUI.Settings.json");
+        }        
 
         private string DialogSelectModelAssembly(string folder)
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Title = "Select Model Assembly";
-            dlg.Filter = "Assembly Files|*.dll,*.exe";
+            dlg.Filter = "Assemblies|*.exe;*.dll|All Files|*.*";
             dlg.InitialDirectory = Path.GetDirectoryName(folder);
             if (dlg.ShowDialog() == DialogResult.OK) return dlg.FileName;
 
@@ -315,6 +331,21 @@ namespace Postulate.MergeUI
         {
             frmAbout dlg = new frmAbout();
             dlg.ShowDialog();
+        }
+
+        private async void tslSelectAssembly_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string folder = Path.GetDirectoryName(StartupFile);
+                string settingsFile = SolutionSettingsFile(folder);
+                if (File.Exists(settingsFile)) File.Delete(settingsFile);
+                await PromptAndLoadAssemblyAsync();
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
         }
     }
 }

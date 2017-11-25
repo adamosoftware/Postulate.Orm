@@ -1,4 +1,5 @@
-﻿using Postulate.Orm.Abstract;
+﻿using MySql.Data.MySqlClient;
+using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Merge;
 using Postulate.Orm.MySql;
@@ -7,6 +8,8 @@ using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -52,7 +55,8 @@ namespace Postulate.MergeUI
             {
                 if (!IsLocalConfigElement(connectionStr, result.Configuration.FilePath)) continue;
 
-                if (ConnectionProviders[currentSyntax].ProviderNames.Contains(connectionStr.ProviderName))
+                if (ConnectionProviders[currentSyntax].ProviderNames.Contains(connectionStr.ProviderName) ||
+                    OpensSuccessfully(currentSyntax, connectionStr.ConnectionString))
                 {
                     connectionNames.Add(connectionStr.Name);
                 }
@@ -60,6 +64,36 @@ namespace Postulate.MergeUI
             result.ConnectionNames = connectionNames.ToArray();
 
             return result;
+        }
+
+        private static bool OpensSuccessfully(SupportedSyntax currentSyntax, string connectionString)
+        {
+            switch (currentSyntax)
+            {
+                case SupportedSyntax.MySql:
+                    return TryConnection(() => new MySqlConnection(connectionString));
+
+                case SupportedSyntax.SqlServer:
+                    return TryConnection(() => new SqlConnection(connectionString));
+            }
+
+            return false;
+        }
+
+        private static bool TryConnection(Func<IDbConnection> connector)
+        {
+            try
+            {
+                using (var cn = connector.Invoke())
+                {
+                    cn.Open();
+                    return true;
+                }                
+            }
+            catch 
+            {
+                return false;
+            }
         }
 
         private static bool IsLocalConfigElement(ConnectionStringSettings connectionStr, string fileName)
