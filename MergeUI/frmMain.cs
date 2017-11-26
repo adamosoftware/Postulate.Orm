@@ -92,12 +92,12 @@ namespace Postulate.MergeUI
             if (Directory.Exists(StartupFile))
             {
                 tslSelectAssembly.Visible = true;
-                loadFile = FindModelAssembly(StartupFile, (path) => path);
+                loadFile = FindModelAssembly(StartupFile);
             }
             else if (File.Exists(StartupFile))
             {
                 string ext = Path.GetExtension(StartupFile);
-                if (ext.Equals(".sln")) tslSelectAssembly.Visible = true;
+                tslSelectAssembly.Visible = (ext.Equals(".sln"));
 
                 switch (ext)
                 {
@@ -107,7 +107,8 @@ namespace Postulate.MergeUI
 
                     case ".sln":
                     case ".csproj":
-                        loadFile = FindModelAssembly(StartupFile, (path) => Path.GetDirectoryName(path));
+                        loadFile = FindModelAssembly(Path.GetDirectoryName(StartupFile));
+                        tslSelectAssembly.Text = $"Assembly in solution {Path.GetFileName(loadFile)}";
                         break;
 
                     default:
@@ -121,15 +122,13 @@ namespace Postulate.MergeUI
         /// <summary>
         /// Finds a .json settings file in the given path that indicates the model assembly to use for schema merge. Prompts
         /// the user with File Open dialog if settings file isn't found, and saves results in new settings file
-        /// </summary>
-        /// <param name="path">Filename or directory where the json settings file might be</param>
-        /// <param name="convertToFolder">Transform to apply to the path argument, such as stripping file name from the path</param>
+        /// </summary>        
+        /// <param name="solutionFolder">Directory where solution is</param>
         /// <returns>Full path of model assembly</returns>
-        private string FindModelAssembly(string path, Func<string, string> convertToFolder)
-        {
-            string folder = convertToFolder.Invoke(path);
-            string settingsFile = SolutionSettingsFile(folder);
-            SolutionSettings settings = null;
+        private string FindModelAssembly(string solutionFolder)
+        {        
+            string settingsFile = SolutionSettingsFile(solutionFolder);
+            SolutionSettings settings = null;            
 
             if (File.Exists(settingsFile))
             {
@@ -138,10 +137,8 @@ namespace Postulate.MergeUI
             }
 
             settings = new SolutionSettings();
-            settings.ModelAssembly = DialogSelectModelAssembly(folder);
-            WriteJsonFile(settingsFile, settings);
-            
-            tslSelectAssembly.Text = $"Assembly in solution {Path.GetFileName(settings.ModelAssembly)}";
+            settings.ModelAssembly = DialogSelectModelAssembly(solutionFolder);
+            WriteJsonFile(settingsFile, settings);                        
 
             return settings.ModelAssembly;
         }
