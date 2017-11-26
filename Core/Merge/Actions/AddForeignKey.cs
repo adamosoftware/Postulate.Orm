@@ -19,12 +19,12 @@ namespace Postulate.Orm.Merge.Actions
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
-            yield return Syntax.GetForeignKeyStatement(_propertyInfo);
+            yield return Syntax.ForeignKeyAddStatement(_propertyInfo);
 
             ForeignKeyAttribute fk = _propertyInfo.GetForeignKeyAttribute();
             if (fk.CreateIndex && !Syntax.IndexExists(connection, _propertyInfo.IndexName(Syntax)))
             {
-                yield return Syntax.GetCreateColumnIndexStatement(_propertyInfo);
+                yield return Syntax.CreateColumnIndexStatement(_propertyInfo);
             }
         }
     }

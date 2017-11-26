@@ -13,7 +13,7 @@ namespace Postulate.Orm.SqlServer
 {
     public partial class SqlServerSyntax : SqlSyntax
     {
-        public override string GetCreateTableStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
+        public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
         {
             return $"CREATE TABLE {GetTableName(type)} (\r\n\t" +
                 string.Join(",\r\n\t", CreateTableMembers(type, addedColumns, modifiedColumns, deletedColumns)) +
@@ -93,18 +93,6 @@ namespace Postulate.Orm.SqlServer
         private string CreateTablePrimaryKey(Type type, ClusterAttribute clusterAttribute)
         {
             return $"CONSTRAINT [PK_{GetConstraintBaseName(type)}] PRIMARY KEY {clusterAttribute.Syntax(ClusterOption.PrimaryKey)}({string.Join(", ", PrimaryKeyColumns(type).Select(col => $"[{col}]"))})";
-        }
-
-        private static IEnumerable<PropertyInfo> PrimaryKeyProperties(Type type, bool markedOnly = false)
-        {
-            var pkProperties = type.GetProperties().Where(pi => pi.HasAttribute<PrimaryKeyAttribute>());
-            if (pkProperties.Any() || markedOnly) return pkProperties;
-            return new PropertyInfo[] { type.GetProperty(type.IdentityColumnName()) };
-        }
-
-        private static IEnumerable<string> PrimaryKeyColumns(Type type, bool markedOnly = false)
-        {
-            return PrimaryKeyProperties(type, markedOnly).Select(pi => pi.SqlColumnName());
         }
 
         private IEnumerable<string> CreateTableUniqueConstraints(Type type, ClusterAttribute clusterAttribute)

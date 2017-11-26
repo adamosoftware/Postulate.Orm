@@ -54,10 +54,6 @@ namespace Postulate.Orm.SqlServer
 
         public override IEnumerable<ForeignKeyInfo> GetDependentForeignKeys(IDbConnection connection, TableInfo tableInfo)
         {
-            if (tableInfo.ObjectId == 0) throw new Exception(
-                $@"Dependent foreign key info could not be found for {tableInfo} because the ObjectId was not set.
-                Use the IDbConnection argument when creating a TableInfo object to make sure the ObjectId is set.");
-
             return connection.Query<ForeignKeyData>(
                 @"SELECT
                     [fk].[name] AS [ConstraintName],
@@ -66,7 +62,8 @@ namespace Postulate.Orm.SqlServer
                     [refdcol].[name] AS [ReferencedColumn],
                     SCHEMA_NAME([child].[schema_id]) AS [ReferencingSchema],
                     [child].[name] AS [ReferencingTable],
-                    [rfincol].[name] AS [ReferencingColumn]
+                    [rfincol].[name] AS [ReferencingColumn],
+					CONVERT(bit, CASE [fk].[delete_referential_action] WHEN 1 THEN 1 ELSE 0 END) AS [CascadeDelete]
                 FROM
                     [sys].[foreign_keys] [fk] INNER JOIN [sys].[tables] [child] ON [fk].[parent_object_id]=[child].[object_id]
                     INNER JOIN [sys].[tables] [parent] ON [fk].[referenced_object_id]=[parent].[object_id]
@@ -80,12 +77,13 @@ namespace Postulate.Orm.SqlServer
                         [fkcol].[parent_column_id]=[rfincol].[column_id] AND
                         [fkcol].[parent_object_id]=[rfincol].[object_id]
 				WHERE
-                    [fk].[referenced_object_id]=@objID", new { objID = tableInfo.ObjectId })
+                    [fk].[referenced_object_id]=OBJECT_ID(@schema+'.' + @table)", new { schema = tableInfo.Schema, table = tableInfo.Name })
                 .Select(fk => new ForeignKeyInfo()
                 {
                     ConstraintName = fk.ConstraintName,
                     Child = new ColumnInfo() { Schema = fk.ReferencingSchema, TableName = fk.ReferencingTable, ColumnName = fk.ReferencingColumn },
-                    Parent = new ColumnInfo() { Schema = fk.ReferencedSchema, TableName = fk.ReferencedTable, ColumnName = fk.ReferencedColumn }
+                    Parent = new ColumnInfo() { Schema = fk.ReferencedSchema, TableName = fk.ReferencedTable, ColumnName = fk.ReferencedColumn },
+                    CascadeDelete = fk.CascadeDelete
                 });
         }
 
@@ -306,12 +304,12 @@ namespace Postulate.Orm.SqlServer
             return (obj.Schema.ToLower().Equals("dbo")) ? obj.Name : TitleCase(obj.Schema) + obj.Name;
         }
 
-        public override string GetDropForeignKeyStatement(ForeignKeyInfo foreignKeyInfo)
+        public override string ForeignKeyDropStatement(ForeignKeyInfo foreignKeyInfo)
         {
             return $"ALTER TABLE [{foreignKeyInfo.Child.Schema}].[{foreignKeyInfo.Child.TableName}] DROP CONSTRAINT [{foreignKeyInfo.ConstraintName}]";
         }
 
-        public override string GetDropTableStatement(TableInfo tableInfo)
+        public override string TableDropStatement(TableInfo tableInfo)
         {
             return $"DROP TABLE [{tableInfo.Schema}].[{tableInfo.Name}]";
         }
@@ -367,7 +365,7 @@ namespace Postulate.Orm.SqlServer
                     {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
 
-        public override string GetForeignKeyStatement(PropertyInfo propertyInfo)
+        public override string ForeignKeyAddStatement(PropertyInfo propertyInfo)
         {
             Attributes.ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
             string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
@@ -379,7 +377,19 @@ namespace Postulate.Orm.SqlServer
                 ")" + cascadeDelete;
         }
 
-        public override string GetCreateColumnIndexStatement(PropertyInfo propertyInfo)
+        public override string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo)
+        {
+            string cascadeDelete = (foreignKeyInfo.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
+            return
+                $"ALTER TABLE [{foreignKeyInfo.Child.Schema}].[{foreignKeyInfo.Child.TableName}] ADD CONSTRAINT [{foreignKeyInfo.ConstraintName}] FOREIGN KEY (\r\n" +
+                    $"\t[{foreignKeyInfo.Child.ColumnName}]\r\n" +
+                $") REFERENCES [{foreignKeyInfo.Parent.Schema}].[{foreignKeyInfo.Parent.TableName}] (\r\n" +
+                    $"\t[{foreignKeyInfo.Parent.ColumnName}]\r\n" +
+                $")" + cascadeDelete;
+        }
+
+
+        public override string CreateColumnIndexStatement(PropertyInfo propertyInfo)
         {
             var obj = TableInfo.FromModelType(propertyInfo.DeclaringType);
             return $"CREATE INDEX [{propertyInfo.IndexName(this)}] ON {GetTableName(obj.ModelType)} ([{propertyInfo.SqlColumnName()}])";
@@ -420,10 +430,35 @@ namespace Postulate.Orm.SqlServer
             throw new NotImplementedException();
         }
 
-        public override bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo fromColumn, out string constraintName)
+        public override bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo columnInfo, out bool clustered, out string constraintName)
         {
-            throw new NotImplementedException();
+            constraintName = null;
+            clustered = false;
+
+            var result = connection.QueryFirstOrDefault(
+                @"SELECT
+					[ndx].[name] AS [ConstraintName], CONVERT(bit, CASE [ndx].[type_desc] WHEN 'CLUSTERED' THEN 1 ELSE 0 END) AS [IsClustered]
+				FROM
+					[sys].[indexes] [ndx] INNER JOIN [sys].[index_columns] [ndxcol] ON [ndx].[object_id]=[ndxcol].[object_id]
+					INNER JOIN [sys].[columns] [col] ON
+						[ndxcol].[column_id]=[col].[column_id] AND
+						[ndxcol].[object_id]=[col].[object_id]
+					INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
+				WHERE
+					[is_primary_key]=1 AND
+					SCHEMA_NAME([t].[schema_id])=@schema AND
+					[t].[name]=@tableName AND
+					[col].[name]=@columnName", new { schema = columnInfo.Schema, tableName = columnInfo.TableName, columnName = columnInfo.ColumnName });
+            if (result != null)
+            {
+                constraintName = result.ConstraintName;
+                clustered = result.IsClustered;
+                return true;
+            }
+
+            return false;
         }
+
 
         public override string CreateSchemaStatement(string name)
         {

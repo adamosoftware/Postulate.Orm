@@ -54,7 +54,7 @@ namespace Postulate.Orm.Merge.Actions
                 yield return Syntax.CreateSchemaStatement(_tableInfo.Schema);
             }
 
-            yield return Syntax.GetCreateTableStatement(_modelType, AddedColumns, ModifiedColumns, DeletedColumns);
+            yield return Syntax.TableCreateStatement(_modelType, AddedColumns, ModifiedColumns, DeletedColumns);
         }
 
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)

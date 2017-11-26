@@ -67,6 +67,7 @@ namespace Postulate.MergeUI
         {
             try
             {
+                splcActions.Panel2Collapsed = true;
                 tslSelectAssembly.Visible = false;
 
                 if (!string.IsNullOrEmpty(StartupFile))

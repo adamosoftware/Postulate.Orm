@@ -38,7 +38,7 @@ namespace Postulate.Orm.Merge.Actions
                 foreach (var fk in Syntax.GetDependentForeignKeys(connection, _affectedTable))
                 {
                     rebuildFKs.Add(new AddForeignKey(Syntax, _toColumn));
-                    yield return Syntax.GetDropForeignKeyStatement(fk);
+                    yield return Syntax.ForeignKeyDropStatement(fk);
                 }
 
                 yield return Syntax.DropPrimaryKeyStatement(_affectedTable, pkName);

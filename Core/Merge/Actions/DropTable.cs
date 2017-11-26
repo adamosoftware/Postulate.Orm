@@ -23,9 +23,9 @@ namespace Postulate.Orm.Merge.Actions
         {
             if (_tableInfo.ObjectId == 0) throw new InvalidOperationException($"Can't drop dependent foreign keys on table {_tableInfo} because the ObjectId property is not set.");
 
-            foreach (var fk in Syntax.GetDependentForeignKeys(connection, _tableInfo)) yield return Syntax.GetDropForeignKeyStatement(fk);
+            foreach (var fk in Syntax.GetDependentForeignKeys(connection, _tableInfo)) yield return Syntax.ForeignKeyDropStatement(fk);
 
-            yield return Syntax.GetDropTableStatement(_tableInfo);
+            yield return Syntax.TableDropStatement(_tableInfo);
         }
     }
 }

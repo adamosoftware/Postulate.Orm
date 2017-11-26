@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
 using ReflectionHelper;
@@ -60,7 +61,7 @@ namespace Postulate.Orm.Abstract
 
         public abstract object SchemaColumnParameters(Type type);
 
-        public abstract bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo fromColumn, out string constraintName);
+        public abstract bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo fromColumn, out bool clustered, out string constraintName);
 
         public abstract bool FindObjectId(IDbConnection connection, TableInfo tableInfo);
 
@@ -123,16 +124,16 @@ namespace Postulate.Orm.Abstract
 
         public abstract string GetConstraintBaseName(Type type);
 
-        public abstract string GetDropForeignKeyStatement(ForeignKeyInfo foreignKeyInfo);
+        public abstract string ForeignKeyDropStatement(ForeignKeyInfo foreignKeyInfo);
 
-        public abstract string GetDropTableStatement(TableInfo tableInfo);
+        public abstract string TableDropStatement(TableInfo tableInfo);
 
-        public string GetCreateTableStatement(Type type)
+        public string TableCreateStatement(Type type)
         {
-            return GetCreateTableStatement(type, null, null, null);
+            return TableCreateStatement(type, null, null, null);
         }
 
-        public abstract string GetCreateTableStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns);
+        public abstract string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns);
 
         public abstract string[] CreateTableMembers(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns);
 
@@ -140,12 +141,26 @@ namespace Postulate.Orm.Abstract
 
         public abstract string GetCopyStatement<TRecord, TKey>(IEnumerable<string> paramColumns, IEnumerable<string> columns) where TRecord : Record<TKey>;
 
-        public abstract string GetForeignKeyStatement(PropertyInfo propertyInfo);
+        public abstract string ForeignKeyAddStatement(PropertyInfo propertyInfo);
 
-        public abstract string GetCreateColumnIndexStatement(PropertyInfo propertyInfo);
+        public abstract string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo);
+
+        public abstract string CreateColumnIndexStatement(PropertyInfo propertyInfo);
 
         public abstract string CreateSchemaStatement(string name);
 
         public abstract TableInfo GetTableInfoFromType(Type type);
+
+        public static IEnumerable<PropertyInfo> PrimaryKeyProperties(Type type, bool markedOnly = false)
+        {
+            var pkProperties = type.GetProperties().Where(pi => pi.HasAttribute<PrimaryKeyAttribute>());
+            if (pkProperties.Any() || markedOnly) return pkProperties;
+            return new PropertyInfo[] { type.GetProperty(type.IdentityColumnName()) };
+        }
+
+        public static IEnumerable<string> PrimaryKeyColumns(Type type, bool markedOnly = false)
+        {
+            return PrimaryKeyProperties(type, markedOnly).Select(pi => pi.SqlColumnName());
+        }
     }
 }

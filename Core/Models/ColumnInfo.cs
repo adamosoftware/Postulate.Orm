@@ -4,6 +4,8 @@ using Postulate.Orm.Extensions;
 using ReflectionHelper;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System;
+using System.Data;
 
 namespace Postulate.Orm.Models
 {
@@ -41,6 +43,11 @@ namespace Postulate.Orm.Models
             }
 
             return result;
+        }
+
+        public TableInfo GetTableInfo()
+        {
+            return new TableInfo(this.TableName, this.Schema) { ObjectId = this.ObjectId };
         }
 
         public string Schema { get; set; }
@@ -147,6 +154,11 @@ namespace Postulate.Orm.Models
                 // note -- don't compare the ByteLength property because it's not reported by PropertyInfo
             }
             return false;
+        }
+
+        public bool InPrimaryKey
+        {
+            get { return PropertyInfo.HasAttribute<PrimaryKeyAttribute>(); }
         }
     }
 }

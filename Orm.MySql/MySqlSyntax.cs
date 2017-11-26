@@ -125,12 +125,12 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override string GetDropForeignKeyStatement(ForeignKeyInfo foreignKeyInfo)
+        public override string ForeignKeyDropStatement(ForeignKeyInfo foreignKeyInfo)
         {
             throw new NotImplementedException();
         }
 
-        public override string GetDropTableStatement(TableInfo tableInfo)
+        public override string TableDropStatement(TableInfo tableInfo)
         {
             throw new NotImplementedException();
         }
@@ -145,7 +145,7 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override string GetCreateTableStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
+        public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
         {
             throw new NotImplementedException();
         }
@@ -155,12 +155,12 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override string GetForeignKeyStatement(PropertyInfo propertyInfo)
+        public override string ForeignKeyAddStatement(PropertyInfo propertyInfo)
         {
             throw new NotImplementedException();
         }
 
-        public override string GetCreateColumnIndexStatement(PropertyInfo propertyInfo)
+        public override string CreateColumnIndexStatement(PropertyInfo propertyInfo)
         {
             throw new NotImplementedException();
         }
@@ -190,7 +190,7 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo fromColumn, out string constraintName)
+        public override bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo fromColumn, out bool clustered, out string constraintName)
         {
             throw new NotImplementedException();
         }
@@ -211,6 +211,11 @@ namespace Postulate.Orm.MySql
         }
 
         public override string CreateSchemaStatement(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo)
         {
             throw new NotImplementedException();
         }

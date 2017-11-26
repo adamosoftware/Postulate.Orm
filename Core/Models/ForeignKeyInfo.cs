@@ -5,6 +5,7 @@
         public ColumnInfo Parent { get; set; }
         public ColumnInfo Child { get; set; }
         public string ConstraintName { get; set; }
+        public bool CascadeDelete { get; set; }
     }
 
     public class ForeignKeyData
@@ -16,5 +17,6 @@
         public string ReferencingSchema { get; set; }
         public string ReferencingTable { get; set; }
         public string ReferencingColumn { get; set; }
+        public bool CascadeDelete { get; set; }
     }
 }
