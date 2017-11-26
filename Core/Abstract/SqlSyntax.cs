@@ -74,9 +74,7 @@ namespace Postulate.Orm.Abstract
             return connection.Exists(TableExistsQuery, TableExistsParameters(t));
         }
 
-        public abstract bool SchemaExists(IDbConnection connection, string schemaName);
-
-        public abstract string DropPrimaryKeyStatement(TableInfo affectedTable, string pkName);
+        public abstract bool SchemaExists(IDbConnection connection, string schemaName);        
 
         public bool ColumnExists(IDbConnection connection, PropertyInfo pi)
         {
@@ -88,11 +86,15 @@ namespace Postulate.Orm.Abstract
             return connection.Exists(IndexExistsQuery, new { name = name });
         }
 
-        public abstract string AddColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false);
+        public abstract string ColumnAddStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false);
 
-        public abstract string AddPrimaryKeyStatement(TableInfo affectedTable);
+        public abstract string ColumnDropStatement(ColumnInfo columnInfo);
 
-        public abstract string AlterColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo);
+        public abstract string PrimaryKeyAddStatement(TableInfo affectedTable);
+
+        public abstract string PrimaryKeyDropStatement(TableInfo affectedTable, string pkName);
+
+        public abstract string ColumnAlterStatement(TableInfo tableInfo, PropertyInfo propertyInfo);
 
         public abstract string UpdateColumnWithExpressionStatement(TableInfo tableInfo, PropertyInfo propertyInfo, string expression);
 

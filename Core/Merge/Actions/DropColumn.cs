@@ -25,14 +25,14 @@ namespace Postulate.Orm.Merge.Actions
             {                
                 foreach (var fk in foreignKeys) yield return Syntax.ForeignKeyDropStatement(fk);
 
-                yield return $"ALTER TABLE [{_columnInfo.Schema}].[{_columnInfo.TableName}] DROP CONSTRAINT [{constrainName}]";
+                yield return Syntax.PrimaryKeyDropStatement(_columnInfo.GetTableInfo(), constrainName);
             }
 
-            yield return $"ALTER TABLE [{_columnInfo.Schema}].[{_columnInfo.TableName}] DROP COLUMN [{_columnInfo.TableName}]";
+            yield return Syntax.ColumnDropStatement(_columnInfo);            
 
             if (inPK)
             {
-                yield return $"ALTER TABLE [{_columnInfo.Schema}].[{_columnInfo.TableName}] ADD CONSTRAINT [{constrainName}] PRIMARY KEY ({string.Join(", ", SqlSyntax.PrimaryKeyColumns(_columnInfo.PropertyInfo.ReflectedType))})";
+                yield return Syntax.PrimaryKeyAddStatement(_columnInfo.GetTableInfo());
 
                 foreach (var fk in foreignKeys) yield return Syntax.ForeignKeyAddStatement(fk);
             }

@@ -400,12 +400,12 @@ namespace Postulate.Orm.SqlServer
             return TableInfo.FromModelType(type, "dbo");
         }
 
-        public override string AddColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false)
+        public override string ColumnAddStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false)
         {
             return ColumnStatementInner("ADD", tableInfo, propertyInfo, forceNull);
         }
 
-        public override string AlterColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo)
+        public override string ColumnAlterStatement(TableInfo tableInfo, PropertyInfo propertyInfo)
         {
             return ColumnStatementInner("ALTER COLUMN", tableInfo, propertyInfo, false);
         }
@@ -415,17 +415,22 @@ namespace Postulate.Orm.SqlServer
             return $"ALTER TABLE [{tableInfo.Schema}].[{tableInfo.Name}] {action} {GetColumnSyntax(propertyInfo, forceNull)}";
         }
 
+        public override string ColumnDropStatement(ColumnInfo columnInfo)
+        {
+            return $"ALTER TABLE [{columnInfo.Schema}].[{columnInfo.TableName}] DROP COLUMN [{columnInfo.ColumnName}]";
+        }
+
         public override string UpdateColumnWithExpressionStatement(TableInfo tableInfo, PropertyInfo propertyInfo, string expression)
         {
             return $"UPDATE [{tableInfo.Schema}].[{tableInfo.Name}] SET [{propertyInfo.SqlColumnName()}]={expression}";
         }
 
-        public override string AddPrimaryKeyStatement(TableInfo affectedTable)
+        public override string PrimaryKeyAddStatement(TableInfo affectedTable)
         {
             throw new NotImplementedException();
         }
 
-        public override string DropPrimaryKeyStatement(TableInfo affectedTable, string pkName)
+        public override string PrimaryKeyDropStatement(TableInfo affectedTable, string pkName)
         {
             throw new NotImplementedException();
         }

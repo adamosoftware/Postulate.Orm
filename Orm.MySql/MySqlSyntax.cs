@@ -175,12 +175,12 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override string AddColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false)
+        public override string ColumnAddStatement(TableInfo tableInfo, PropertyInfo propertyInfo, bool forceNull = false)
         {
             throw new NotImplementedException();
         }
 
-        public override string AlterColumnStatement(TableInfo tableInfo, PropertyInfo propertyInfo)
+        public override string ColumnAlterStatement(TableInfo tableInfo, PropertyInfo propertyInfo)
         {
             throw new NotImplementedException();
         }
@@ -195,12 +195,12 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override string AddPrimaryKeyStatement(TableInfo affectedTable)
+        public override string PrimaryKeyAddStatement(TableInfo affectedTable)
         {
             throw new NotImplementedException();
         }
 
-        public override string DropPrimaryKeyStatement(TableInfo affectedTable, string pkName)
+        public override string PrimaryKeyDropStatement(TableInfo affectedTable, string pkName)
         {
             throw new NotImplementedException();
         }

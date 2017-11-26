@@ -31,8 +31,9 @@ namespace Postulate.Orm.Merge.Actions
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
             string pkName;
+            bool clustered;
             List<AddForeignKey> rebuildFKs = new List<AddForeignKey>();
-            bool rebuildPK = Syntax.IsColumnInPrimaryKey(connection, _fromColumn, out pkName);
+            bool rebuildPK = Syntax.IsColumnInPrimaryKey(connection, _fromColumn, out clustered, out pkName);
             if (rebuildPK)
             {
                 foreach (var fk in Syntax.GetDependentForeignKeys(connection, _affectedTable))
@@ -41,10 +42,10 @@ namespace Postulate.Orm.Merge.Actions
                     yield return Syntax.ForeignKeyDropStatement(fk);
                 }
 
-                yield return Syntax.DropPrimaryKeyStatement(_affectedTable, pkName);
+                yield return Syntax.PrimaryKeyDropStatement(_affectedTable, pkName);
             }
 
-            yield return Syntax.AlterColumnStatement(_affectedTable, _toColumn);
+            yield return Syntax.ColumnAlterStatement(_affectedTable, _toColumn);
 
             if (rebuildPK)
             {
@@ -53,7 +54,7 @@ namespace Postulate.Orm.Merge.Actions
                     foreach (var cmd in fk.SqlCommands(connection)) yield return cmd;
                 }
 
-                yield return Syntax.AddPrimaryKeyStatement(_affectedTable);
+                yield return Syntax.PrimaryKeyAddStatement(_affectedTable);
             }
         }
     }

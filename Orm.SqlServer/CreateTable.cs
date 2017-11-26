@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
+using Postulate.Orm.Models;
 
 namespace Postulate.Orm.SqlServer
 {
@@ -117,6 +118,11 @@ namespace Postulate.Orm.SqlServer
             }));
 
             return results;
+        }
+
+        public override string ColumnDropStatement(TableInfo tableInfo, PropertyInfo propertyInfo)
+        {
+            throw new NotImplementedException();
         }
     }
 }

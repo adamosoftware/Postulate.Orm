@@ -42,13 +42,13 @@ namespace Postulate.Orm.Merge.Actions
             DefaultExpressionAttribute def = _propertyInfo.GetAttribute<DefaultExpressionAttribute>();
             if (def?.IsConstant ?? true)
             {
-                yield return Syntax.AddColumnStatement(_tableInfo, _propertyInfo);                
+                yield return Syntax.ColumnAddStatement(_tableInfo, _propertyInfo);                
             }
             else
             {
-                yield return Syntax.AddColumnStatement(_tableInfo, _propertyInfo, forceNull: true);
+                yield return Syntax.ColumnAddStatement(_tableInfo, _propertyInfo, forceNull: true);
                 yield return Syntax.UpdateColumnWithExpressionStatement(_tableInfo, _propertyInfo, def.Expression);
-                yield return Syntax.AlterColumnStatement(_tableInfo, _propertyInfo);
+                yield return Syntax.ColumnAlterStatement(_tableInfo, _propertyInfo);
             }
         }
     }
