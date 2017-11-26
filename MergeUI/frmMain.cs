@@ -102,12 +102,14 @@ namespace Postulate.MergeUI
                 switch (ext)
                 {
                     case ".dll":
+                        tslSelectAssembly.Visible = false;
                         loadFile = StartupFile;
                         break;
 
                     case ".sln":
                     case ".csproj":
                         loadFile = FindModelAssembly(Path.GetDirectoryName(StartupFile));
+                        tslSelectAssembly.Visible = true;
                         tslSelectAssembly.Text = $"Assembly in solution {Path.GetFileName(loadFile)}";
                         break;
 
