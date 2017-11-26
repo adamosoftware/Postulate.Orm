@@ -464,10 +464,18 @@ namespace Postulate.Orm.SqlServer
             return false;
         }
 
-
         public override string CreateSchemaStatement(string name)
         {
             return $"CREATE SCHEMA [{name}]";
+        }
+
+        public override string ApplyPaging(string sql, int pageNumber, int rowsPerPage)
+        {
+            string result = sql;
+
+            result += $"\r\nOFFSET {rowsPerPage * (pageNumber - 1)} ROWS\r\nFETCH NEXT {rowsPerPage} ROWS ONLY";
+
+            return result;
         }
     }
 }

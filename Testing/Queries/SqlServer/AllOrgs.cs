@@ -1,4 +1,5 @@
-﻿using Postulate.Orm.Abstract;
+﻿using Postulate.Orm;
+using Postulate.Orm.Abstract;
 using Testing.Models;
 
 namespace Testing.Queries.SqlServer

@@ -164,5 +164,7 @@ namespace Postulate.Orm.Abstract
         {
             return PrimaryKeyProperties(type, markedOnly).Select(pi => pi.SqlColumnName());
         }
+
+        public abstract string ApplyPaging(string sql, int pageNumber, int rowsPerPage);
     }
 }

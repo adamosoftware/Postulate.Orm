@@ -88,7 +88,8 @@ namespace Testing
                 typeof(TableA),
                 typeof(TableB),
                 typeof(TableC),
-                typeof(Organization)
+                typeof(Organization),
+                typeof(Customer)
             };
         }
 

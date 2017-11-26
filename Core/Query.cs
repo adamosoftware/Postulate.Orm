@@ -11,14 +11,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Postulate.Orm.Extensions;
 
-
-namespace Postulate.Orm.Abstract
+namespace Postulate.Orm
 {
     /// <summary>
     /// Provides strong-typed access to inline SQL queries, with dynamic criteria and tracing capability
     /// </summary>
     /// <typeparam name="TResult">Type with properties that map to columns returned by the query</typeparam>
-    public abstract class Query<TResult>
+    public class Query<TResult>
     {
         private readonly string _sql;      
         private readonly IDb _db;
@@ -37,6 +36,8 @@ namespace Postulate.Orm.Abstract
 
         protected IDb Db { get { return _db; } }
 
+        public int RowsPerPage { get; set; } = 50;
+
         public string Sql { get { return _sql; } }
 
         public string ResolvedSql { get { return _resolvedSql; } }
@@ -50,18 +51,18 @@ namespace Postulate.Orm.Abstract
         /// </summary>
         public string TraceContext { get; set; }
 
-        public IEnumerable<TResult> Execute()
+        public IEnumerable<TResult> Execute(int pageNumber = 0)
         {
             using (var cn = _db.GetConnection())
             {
                 cn.Open();
-                return ExecuteInner(cn);
+                return ExecuteInner(cn, pageNumber);
             }
         }
 
-        public IEnumerable<TResult> Execute(IDbConnection connection)
+        public IEnumerable<TResult> Execute(IDbConnection connection, int pageNumber = 0)
         {
-            return ExecuteInner(connection);
+            return ExecuteInner(connection, pageNumber);
         }
 
         public TResult ExecuteSingle()
@@ -76,7 +77,7 @@ namespace Postulate.Orm.Abstract
         public TResult ExecuteSingle(IDbConnection connection)
         {
             List<QueryTrace.Parameter> parameters;
-            _resolvedSql = ResolveQuery(_sql, this, out parameters);
+            _resolvedSql = ResolveQuery(_sql, this, 0, out parameters);
 
             Stopwatch sw = Stopwatch.StartNew();
             TResult result = connection.QueryFirstOrDefault<TResult>(_resolvedSql, this);
@@ -104,7 +105,7 @@ namespace Postulate.Orm.Abstract
         public async Task<TResult> ExecuteSingleAsync(IDbConnection connection)
         {
             List<QueryTrace.Parameter> parameters;
-            _resolvedSql = ResolveQuery(_sql, this, out parameters);
+            _resolvedSql = ResolveQuery(_sql, this, -1, out parameters);
 
             Stopwatch sw = Stopwatch.StartNew();
             TResult result = await connection.QueryFirstOrDefaultAsync<TResult>(_resolvedSql, this);
@@ -115,26 +116,26 @@ namespace Postulate.Orm.Abstract
             return result;
         }
 
-        public async Task<IEnumerable<TResult>> ExecuteAsync()
+        public async Task<IEnumerable<TResult>> ExecuteAsync(int page = 0)
         {
             using (var cn = _db.GetConnection())
             {
                 cn.Open();
-                return await ExecuteInnerAsync(cn);
+                return await ExecuteInnerAsync(cn, page);
             }
         }
 
-        public async Task<IEnumerable<TResult>> ExecuteAsync(IDbConnection connection)
+        public async Task<IEnumerable<TResult>> ExecuteAsync(IDbConnection connection, int pageNumber = 0)
         {
-            return await ExecuteInnerAsync(connection);
+            return await ExecuteInnerAsync(connection, pageNumber);
         }
 
-        private IEnumerable<TResult> ExecuteInner(IDbConnection connection)
+        private IEnumerable<TResult> ExecuteInner(IDbConnection connection, int pageNumber = 0)
         {
             IEnumerable<TResult> results = null;
 
             List<QueryTrace.Parameter> parameters;
-            _resolvedSql = ResolveQuery(_sql, this, out parameters);
+            _resolvedSql = ResolveQuery(_sql, this, pageNumber, out parameters);
 
             Stopwatch sw = Stopwatch.StartNew();
             results = connection.Query<TResult>(_resolvedSql, this);
@@ -145,12 +146,12 @@ namespace Postulate.Orm.Abstract
             return results;
         }
 
-        private async Task<IEnumerable<TResult>> ExecuteInnerAsync(IDbConnection connection)
+        private async Task<IEnumerable<TResult>> ExecuteInnerAsync(IDbConnection connection, int pageNumber = 0)
         {
             IEnumerable<TResult> results = null;
 
             List<QueryTrace.Parameter> parameters;
-            _resolvedSql = ResolveQuery(_sql, this, out parameters);
+            _resolvedSql = ResolveQuery(_sql, this, pageNumber, out parameters);
 
             Stopwatch sw = Stopwatch.StartNew();
             results = await connection.QueryAsync<TResult>(_resolvedSql, this);
@@ -161,7 +162,7 @@ namespace Postulate.Orm.Abstract
             return results;
         }
 
-        private static string ResolveQuery(string sql, Query<TResult> query, out List<QueryTrace.Parameter> parameters)
+        private static string ResolveQuery(string sql, Query<TResult> query, int pageNumber, out List<QueryTrace.Parameter> parameters)
         {
             string result = sql;
             List<string> terms = new List<string>();
@@ -222,6 +223,11 @@ namespace Postulate.Orm.Abstract
             {
                 var paramProperty = queryProps.Single(pi => pi.Name.ToLower().Equals(parameter));
                 parameters.Add(new QueryTrace.Parameter() { Name = parameter, Value = paramProperty.GetValue(query) });
+            }
+
+            if (pageNumber > 0)
+            {
+                result = query.Db.Syntax.ApplyPaging(result, pageNumber, query.RowsPerPage);
             }
 
             return result;

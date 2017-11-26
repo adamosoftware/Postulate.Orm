@@ -1,4 +1,5 @@
-﻿using Postulate.Orm.Abstract;
+﻿using Dapper;
+using Postulate.Orm.Abstract;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -60,6 +61,11 @@ namespace Postulate.Orm.Merge
         public override string ToString()
         {
             return Description;
+        }
+
+        public void Execute(IDbConnection connection)
+        {
+            foreach (var cmd in SqlCommands(connection)) connection.Execute(cmd);
         }
     }
 }

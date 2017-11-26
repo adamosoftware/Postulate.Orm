@@ -11,6 +11,10 @@ using Testing.Queries.SqlServer;
 using Postulate.Orm.SqlServer;
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Util;
+using AdamOneilSoftware;
+using Dapper;
+using Postulate.Orm.Merge.Actions;
+using Postulate.Orm;
 
 namespace Testing
 {
@@ -80,6 +84,42 @@ namespace Testing
         public void SaveTrace()
         {            
             var results = new AllOrgs(_sqlDb) { TraceCallback = TestSaveTrace }.Execute();            
+        }
+
+        [TestMethod]
+        public void PagedQuery()
+        {
+            var tdg = new TestDataGenerator();
+
+            using (var cn = _sqlDb.GetConnection())
+            {
+                cn.Open();
+
+                if (!_sqlDb.Syntax.TableExists(cn, typeof(Customer)))
+                {
+                    new CreateTable(_sqlDb.Syntax, _sqlDb.Syntax.GetTableInfoFromType(typeof(Customer))).Execute(cn);                    
+                }
+
+                tdg.GenerateUpTo<Customer>(cn, 10000,
+                    (c) => c.QuerySingle<int>("SELECT COUNT(1) FROM [dbo].[Customer]"),
+                    (c) =>
+                    {
+                        c.FirstName = tdg.Random(Source.FirstName);
+                        c.LastName = tdg.Random(Source.LastName);
+                        c.Phone = tdg.Random(Source.USPhoneNumber);
+                    }, (records) =>
+                    {
+                        _sqlDb.SaveMultiple(records);
+                    });
+
+                var qry = new Query<Customer>("SELECT * FROM [Customer] ORDER BY [LastName]", _sqlDb);
+
+                for (int page = 1; page < 10; page++)
+                {
+                    var results = qry.Execute(page);
+                    Assert.IsTrue(results.Count() == qry.RowsPerPage);
+                }                
+            }         
         }
 
         private void TestSaveTrace(IDbConnection cn, QueryTrace trace)

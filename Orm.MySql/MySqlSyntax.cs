@@ -224,5 +224,10 @@ namespace Postulate.Orm.MySql
         {
             throw new NotImplementedException();
         }
+
+        public override string ApplyPaging(string sql, int pageNumber, int rowsPerPage)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
