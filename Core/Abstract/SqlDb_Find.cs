@@ -58,7 +58,8 @@ namespace Postulate.Orm.Abstract
 
         public TRecord FindUserProfile<TRecord>(IDbConnection connection, string userName = null) where TRecord : Record<TKey>, IUserProfile, new()
         {
-            return ExecuteFindWhere<TRecord>(connection, "[UserName]=@name", new { name = userName ?? UserName });
+            TRecord row = ExecuteFindWhere<TRecord>(connection, "[UserName]=@name", new { name = userName ?? UserName });
+            return FindInner(connection, row);
         }
 
         public TRecord FindWhere<TRecord>(string criteria, object parameters) where TRecord : Record<TKey>, new()
