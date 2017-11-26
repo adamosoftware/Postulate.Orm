@@ -219,5 +219,10 @@ namespace Postulate.Orm.MySql
         {
             throw new NotImplementedException();
         }
+
+        public override string ColumnDropStatement(ColumnInfo columnInfo)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

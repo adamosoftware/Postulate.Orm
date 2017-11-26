@@ -118,11 +118,6 @@ namespace Postulate.Orm.SqlServer
             }));
 
             return results;
-        }
-
-        public override string ColumnDropStatement(TableInfo tableInfo, PropertyInfo propertyInfo)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 }

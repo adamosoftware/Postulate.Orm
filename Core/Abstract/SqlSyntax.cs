@@ -61,7 +61,7 @@ namespace Postulate.Orm.Abstract
 
         public abstract object SchemaColumnParameters(Type type);
 
-        public abstract bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo fromColumn, out bool clustered, out string constraintName);
+        public abstract bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo columnInfo, out bool clustered, out string constraintName);
 
         public abstract bool FindObjectId(IDbConnection connection, TableInfo tableInfo);
 
