@@ -4,9 +4,9 @@ using System.Data;
 namespace Postulate.Orm.Interfaces
 {
     /// <summary>
-    /// Enables SchemaMerge to work without SqlDb&lt;Key&gt;
+    /// Enables SchemaMerge to work without <see cref="SqlDb{TKey}"/>
     /// </summary>
-    public interface IDb
+    public interface ISqlDb
     {
         int Version { get; }
 

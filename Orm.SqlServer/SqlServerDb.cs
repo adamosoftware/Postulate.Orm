@@ -18,7 +18,7 @@ using System.Xml.Serialization;
 
 namespace Postulate.Orm.SqlServer
 {
-    public partial class SqlServerDb<TKey> : SqlDb<TKey>, IDb
+    public partial class SqlServerDb<TKey> : SqlDb<TKey>, ISqlDb
     {
         private const string _changesSchema = "changes";
         private const string _deletedSchema = "deleted";

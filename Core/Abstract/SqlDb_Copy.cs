@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Postulate.Orm.Abstract
 {
-    public abstract partial class SqlDb<TKey> : IDb
+    public abstract partial class SqlDb<TKey> : ISqlDb
     {
         public TRecord Copy<TRecord>(TKey sourceId, object setProperties, params string[] omitColumns) where TRecord : Record<TKey>, new()
         {

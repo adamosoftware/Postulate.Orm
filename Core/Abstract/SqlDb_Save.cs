@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Orm.Abstract
 {
-    public abstract partial class SqlDb<TKey> : IDb
+    public abstract partial class SqlDb<TKey> : ISqlDb
     {
         public void Save<TRecord>(TRecord record, out SaveAction action) where TRecord : Record<TKey>, new()
         {

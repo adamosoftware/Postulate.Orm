@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Postulate.Orm.Abstract
 {
-    public abstract partial class SqlDb<TKey> : IDb
+    public abstract partial class SqlDb<TKey> : ISqlDb
     {
         /// <summary>
         /// Inserts or updates the given records from an open connection. Does not set the record Id property unless the batchSize argument is 1 or less.

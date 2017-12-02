@@ -7,7 +7,7 @@ using System.Data;
 
 namespace Postulate.Orm.Abstract
 {
-    public abstract partial class SqlDb<TKey> : IDb
+    public abstract partial class SqlDb<TKey> : ISqlDb
     {
         protected abstract void OnCaptureDeletion<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transasction) where TRecord : Record<TKey>;
 

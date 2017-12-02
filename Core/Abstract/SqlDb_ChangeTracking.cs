@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace Postulate.Orm.Abstract
 {
-    public abstract partial class SqlDb<TKey> : IDb
+    public abstract partial class SqlDb<TKey> : ISqlDb
     {
         public IEnumerable<PropertyChange> GetChanges<TRecord>(IDbConnection connection, TRecord record, string ignoreProps = null) where TRecord : Record<TKey>, new()
         {

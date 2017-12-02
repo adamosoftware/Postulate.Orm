@@ -6,7 +6,7 @@ using static Dapper.SqlMapper;
 
 namespace Postulate.Orm.Abstract
 {
-    public abstract partial class SqlDb<TKey> : IDb
+    public abstract partial class SqlDb<TKey> : ISqlDb
     {
         public TRecord Find<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>, new()
         {

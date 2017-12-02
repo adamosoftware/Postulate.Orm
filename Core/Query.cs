@@ -20,7 +20,7 @@ namespace Postulate.Orm
     public class Query<TResult>
     {
         private readonly string _sql;      
-        private readonly IDb _db;
+        private readonly ISqlDb _db;
         private string _resolvedSql;
 
         /// <summary>
@@ -28,13 +28,13 @@ namespace Postulate.Orm
         /// </summary>
         public Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
 
-        public Query(string sql, IDb db)
+        public Query(string sql, ISqlDb db)
         {
             _sql = sql;
             _db = db;
         }
 
-        protected IDb Db { get { return _db; } }
+        protected ISqlDb Db { get { return _db; } }
 
         public int RowsPerPage { get; set; } = 50;
 

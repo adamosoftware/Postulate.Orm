@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Postulate.Orm.SqlServer
 {
-    public partial class SqlServerDb<TKey> : SqlDb<TKey>, IDb
+    public partial class SqlServerDb<TKey> : SqlDb<TKey>, ISqlDb
     {        
         public override void CreateIfNotExists(Action<IDbConnection, bool> seedAction = null)
         {

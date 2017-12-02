@@ -78,7 +78,7 @@
     <Compile Include="Attributes\TrackDeletionsAttribute.cs" />
     <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="Extensions\ConnectionExtensions.cs" />
-    <Compile Include="Interfaces\IDb.cs" />
+    <Compile Include="Interfaces\ISqlDb.cs" />
     <Compile Include="Interfaces\IUserProfile.cs" />
     <Compile Include="Abstract\SqlDb.cs" />
     <Compile Include="Abstract\Record.cs" />

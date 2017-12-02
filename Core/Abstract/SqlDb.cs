@@ -24,7 +24,7 @@ namespace Postulate.Orm.Abstract
     /// Supports CRUD actions for model classes
     /// </summary>
     /// <typeparam name="TKey">Data type of unique keys used on all model classes for this database</typeparam>
-    public abstract partial class SqlDb<TKey> : IDb
+    public abstract partial class SqlDb<TKey> : ISqlDb
     {
         private readonly SqlSyntax _syntax;
 
