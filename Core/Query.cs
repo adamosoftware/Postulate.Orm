@@ -116,12 +116,12 @@ namespace Postulate.Orm
             return result;
         }
 
-        public async Task<IEnumerable<TResult>> ExecuteAsync(int page = 0)
+        public async Task<IEnumerable<TResult>> ExecuteAsync(int pageNumber = 0)
         {
             using (var cn = _db.GetConnection())
             {
                 cn.Open();
-                return await ExecuteInnerAsync(cn, page);
+                return await ExecuteInnerAsync(cn, pageNumber);
             }
         }
 

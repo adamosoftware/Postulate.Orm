@@ -10,7 +10,7 @@ Nuget package status:
 
 I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the schema merge feature works only for SQL Server, currently. A MySql implementation is coming.
 
-Regarding Linq and inline SQL, I respect the genius that is Linq, but I'm still more comfortable with inline SQL so long as it's isolated to some degree from the application. The [Query&lt;TResult&gt;](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Abstract/Query.cs) class offers strong-typed query and trace capability, and another project [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) that builds upon this.
+Regarding Linq and inline SQL, I respect the genius that is Linq, but I'm still more comfortable with inline SQL so long as it's isolated to some degree from the application. The [Query&lt;TResult&gt;](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Query.cs) class offers strong-typed query and trace capability, and another project [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) that builds upon this.
 
 For a video demo, please see this at [Vimeo.com](https://vimeo.com/219400011). Also see the [CodeProject.com article here](https://www.codeproject.com/Articles/1191399/Intro-to-Postulate-ORM).
 
