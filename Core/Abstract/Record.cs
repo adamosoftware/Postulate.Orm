@@ -181,7 +181,7 @@ namespace Postulate.Orm.Abstract
         /// </summary>
         /// <param name="originalMessage">Message from the original exception</param>
         /// <returns></returns>
-        public virtual string GetErrorMessage(string originalMessage)
+        public virtual string GetErrorMessage(SqlDb<TKey> db, string originalMessage)
         {
             return originalMessage; 
         }
