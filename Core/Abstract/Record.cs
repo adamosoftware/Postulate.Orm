@@ -175,5 +175,15 @@ namespace Postulate.Orm.Abstract
         {
             return null;
         }
+
+        /// <summary>
+        /// Override this and parse the originalMessage to determine a more friendly error message
+        /// </summary>
+        /// <param name="originalMessage">Message from the original exception</param>
+        /// <returns></returns>
+        public virtual string GetErrorMessage(string originalMessage)
+        {
+            return originalMessage; 
+        }
     }
 }
