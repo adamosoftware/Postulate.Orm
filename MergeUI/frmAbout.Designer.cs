@@ -33,17 +33,17 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.lvComponents = new System.Windows.Forms.ListView();
-            this.colFilename = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.btnInstallUpdate = new System.Windows.Forms.Button();
+            this.pbMain = new System.Windows.Forms.ProgressBar();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnOK
             // 
-            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnOK.Location = new System.Drawing.Point(367, 212);
+            this.btnOK.Location = new System.Drawing.Point(367, 86);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 0;
@@ -80,27 +80,35 @@
             this.linkLabel1.Text = "Source on GitHub";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
-            // lvComponents
+            // btnInstallUpdate
             // 
-            this.lvComponents.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colFilename,
-            this.colVersion});
-            this.lvComponents.Location = new System.Drawing.Point(62, 58);
-            this.lvComponents.Name = "lvComponents";
-            this.lvComponents.Size = new System.Drawing.Size(380, 110);
-            this.lvComponents.TabIndex = 4;
-            this.lvComponents.UseCompatibleStateImageBehavior = false;
-            this.lvComponents.View = System.Windows.Forms.View.Details;
+            this.btnInstallUpdate.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnInstallUpdate.Location = new System.Drawing.Point(62, 86);
+            this.btnInstallUpdate.Name = "btnInstallUpdate";
+            this.btnInstallUpdate.Size = new System.Drawing.Size(135, 23);
+            this.btnInstallUpdate.TabIndex = 5;
+            this.btnInstallUpdate.Text = "Install Update";
+            this.btnInstallUpdate.UseVisualStyleBackColor = true;
+            this.btnInstallUpdate.Click += new System.EventHandler(this.btnInstallUpdate_Click);
             // 
-            // colFilename
+            // pbMain
             // 
-            this.colFilename.Text = "Filename";
-            this.colFilename.Width = 170;
+            this.pbMain.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.pbMain.Location = new System.Drawing.Point(203, 86);
+            this.pbMain.Name = "pbMain";
+            this.pbMain.Size = new System.Drawing.Size(158, 23);
+            this.pbMain.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.pbMain.TabIndex = 6;
+            this.pbMain.Visible = false;
             // 
-            // colVersion
+            // label2
             // 
-            this.colVersion.Text = "Version";
-            this.colVersion.Width = 170;
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(59, 50);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(247, 13);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "Adam O\'Neil | adamosoftware@gmail.com";
             // 
             // frmAbout
             // 
@@ -108,8 +116,10 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnOK;
-            this.ClientSize = new System.Drawing.Size(454, 247);
-            this.Controls.Add(this.lvComponents);
+            this.ClientSize = new System.Drawing.Size(454, 121);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.pbMain);
+            this.Controls.Add(this.btnInstallUpdate);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox1);
@@ -121,6 +131,7 @@
             this.Name = "frmAbout";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "About";
+            this.Load += new System.EventHandler(this.frmAbout_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -133,8 +144,8 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.LinkLabel linkLabel1;
-        private System.Windows.Forms.ListView lvComponents;
-        private System.Windows.Forms.ColumnHeader colFilename;
-        private System.Windows.Forms.ColumnHeader colVersion;
+        private System.Windows.Forms.Button btnInstallUpdate;
+        private System.Windows.Forms.ProgressBar pbMain;
+        private System.Windows.Forms.Label label2;
     }
 }
