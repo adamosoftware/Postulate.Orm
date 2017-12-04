@@ -36,6 +36,8 @@
             this.btnInstallUpdate = new System.Windows.Forms.Button();
             this.pbMain = new System.Windows.Forms.ProgressBar();
             this.label2 = new System.Windows.Forms.Label();
+            this.lblCoreVersion = new System.Windows.Forms.Label();
+            this.lblUIVersion = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -43,7 +45,7 @@
             // 
             this.btnOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnOK.Location = new System.Drawing.Point(367, 86);
+            this.btnOK.Location = new System.Drawing.Point(367, 136);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 0;
@@ -83,7 +85,7 @@
             // btnInstallUpdate
             // 
             this.btnInstallUpdate.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.btnInstallUpdate.Location = new System.Drawing.Point(62, 86);
+            this.btnInstallUpdate.Location = new System.Drawing.Point(62, 136);
             this.btnInstallUpdate.Name = "btnInstallUpdate";
             this.btnInstallUpdate.Size = new System.Drawing.Size(135, 23);
             this.btnInstallUpdate.TabIndex = 5;
@@ -94,7 +96,7 @@
             // pbMain
             // 
             this.pbMain.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.pbMain.Location = new System.Drawing.Point(203, 86);
+            this.pbMain.Location = new System.Drawing.Point(203, 136);
             this.pbMain.Name = "pbMain";
             this.pbMain.Size = new System.Drawing.Size(158, 23);
             this.pbMain.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
@@ -110,13 +112,33 @@
             this.label2.TabIndex = 7;
             this.label2.Text = "Adam O\'Neil | adamosoftware@gmail.com";
             // 
+            // lblCoreVersion
+            // 
+            this.lblCoreVersion.AutoSize = true;
+            this.lblCoreVersion.Location = new System.Drawing.Point(59, 73);
+            this.lblCoreVersion.Name = "lblCoreVersion";
+            this.lblCoreVersion.Size = new System.Drawing.Size(191, 13);
+            this.lblCoreVersion.TabIndex = 8;
+            this.lblCoreVersion.Text = "Postulate.Orm.Core version {0}";
+            // 
+            // lblUIVersion
+            // 
+            this.lblUIVersion.AutoSize = true;
+            this.lblUIVersion.Location = new System.Drawing.Point(59, 96);
+            this.lblUIVersion.Name = "lblUIVersion";
+            this.lblUIVersion.Size = new System.Drawing.Size(91, 13);
+            this.lblUIVersion.TabIndex = 9;
+            this.lblUIVersion.Text = "UI version {0}";
+            // 
             // frmAbout
             // 
             this.AcceptButton = this.btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnOK;
-            this.ClientSize = new System.Drawing.Size(454, 121);
+            this.ClientSize = new System.Drawing.Size(454, 171);
+            this.Controls.Add(this.lblUIVersion);
+            this.Controls.Add(this.lblCoreVersion);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.pbMain);
             this.Controls.Add(this.btnInstallUpdate);
@@ -147,5 +169,7 @@
         private System.Windows.Forms.Button btnInstallUpdate;
         private System.Windows.Forms.ProgressBar pbMain;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblCoreVersion;
+        private System.Windows.Forms.Label lblUIVersion;
     }
 }

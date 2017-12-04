@@ -1,6 +1,9 @@
 ﻿using AdamOneilSoftware;
 using AzDeploy.Client;
+using AzDeploy.Common;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
 namespace Postulate.MergeUI
@@ -30,12 +33,21 @@ namespace Postulate.MergeUI
         {
             try
             {
+                lblCoreVersion.Text = $"Postulate.Orm.Core version {GetFileVersion("Postulate.Orm.Core.dll")}";
+                lblUIVersion.Text = $"MergeUI version {GetFileVersion("MergeUI.exe")}";
                 btnInstallUpdate.Visible = await _im.IsNewVersionAvailableAsync();
             }
             catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);
             }
+        }
+
+        private string GetFileVersion(string fileName)
+        {
+            string folder = Path.GetDirectoryName(Application.ExecutablePath);
+            string path = Path.Combine(folder, fileName);
+            return FileVersionInfo.GetVersionInfo(path).FileVersion;
         }
 
         private async void btnInstallUpdate_Click(object sender, EventArgs e)

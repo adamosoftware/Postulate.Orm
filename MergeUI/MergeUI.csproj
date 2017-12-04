@@ -136,4 +136,7 @@
     <Content Include="Schema_Merge.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>"C:\Users\Adam\Source\Repos\AzureDeploy\AoDeliver\bin\Release\AzDeploy.exe" "C:\Users\Adam\Source\Repos\Postulate.Orm\MergeUI\AzDeploy.deploy.xml"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
