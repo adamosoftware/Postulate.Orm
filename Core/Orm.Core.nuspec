@@ -17,4 +17,7 @@
       <frameworkAssembly assemblyName="System.Configuration" targetFramework="net40"/>
     </frameworkAssemblies>
   </metadata>
+  <files>
+    <file src="readme.txt"/>
+  </files>
 </package>
