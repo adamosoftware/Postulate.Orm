@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Postulate.Orm.SqlServer</id>
-    <version>$version$-beta</version>
+    <version>$version$</version>
     <title>$title$</title>
     <authors>Adam O'Neil Software</authors>
     <owners>$author$</owners>

@@ -28,9 +28,8 @@ Thanks for installing Postulate ORM! Next steps:
    - You can use the desktop shortcut to launch the Postulate Scheme Merge app standalone. You are prompted for the model class .dll location on startup.
 
 2. Install either of the platform-specific packages:
-   Postulate.Orm.SqlServer (currently in beta)
-   Postulate.Orm.MySql (currently in alpha)
-   Both packages are in "pre-release" status, so when browsing from Nuget Package Manager, be sure to include pre-release packages.
+   Postulate.Orm.SqlServer
+   Postulate.Orm.MySql   
 
    Both packages have full CRUD support, but at this time only the MySql version works with Schema Merge.
 
