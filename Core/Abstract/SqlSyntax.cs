@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Postulate.Orm.Attributes;
+using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
 using ReflectionHelper;
@@ -166,5 +167,10 @@ namespace Postulate.Orm.Abstract
         }
 
         public abstract string ApplyPaging(string sql, int pageNumber, int rowsPerPage);
+
+		/// <summary>
+		/// Reproduces the script from a failed statement execution so you can troubleshoot in your SQL tool of choice
+		/// </summary>
+		public abstract string GetScriptFromSaveException(SaveException exception);
     }
 }
