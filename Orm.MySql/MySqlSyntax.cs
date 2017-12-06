@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using Postulate.Orm.Exceptions;
+using System.Text;
 
 namespace Postulate.Orm.MySql
 {
@@ -229,5 +231,10 @@ namespace Postulate.Orm.MySql
         {
             throw new NotImplementedException();
         }
-    }
+
+		public override string GetScriptFromSaveException(SaveException exception)
+		{
+			throw new NotImplementedException();			
+		}
+	}
 }

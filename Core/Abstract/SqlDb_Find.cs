@@ -2,6 +2,7 @@
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Interfaces;
 using System.Data;
+using System.Diagnostics;
 using static Dapper.SqlMapper;
 
 namespace Postulate.Orm.Abstract
@@ -83,7 +84,11 @@ namespace Postulate.Orm.Abstract
         public bool ExistsWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>
         {
             string cmd = $"SELECT 1 FROM {GetTableName<TRecord>()} WHERE {criteria}";
+
+			Stopwatch sw = Stopwatch.StartNew();
             int result = connection.QueryFirstOrDefault<int?>(cmd, parameters) ?? 0;
+			sw.Stop();
+			InvokeTraceCallback(connection, "ExistsWhere", cmd, parameters, sw);
             return (result == 1);
         }
 
@@ -109,20 +114,28 @@ namespace Postulate.Orm.Abstract
             return ExecuteFindMethod<TRecord>(connection, id, cmd);
         }
 
-        protected virtual TRecord ExecuteFindMethod<TRecord>(IDbConnection connection, TKey id, string cmd) where TRecord : Record<TKey>
-        {
-            return connection.QueryFirstOrDefault<TRecord>(cmd, new { id = id });
-        }
+		protected virtual TRecord ExecuteFindMethod<TRecord>(IDbConnection connection, TKey id, string cmd) where TRecord : Record<TKey>
+		{
+			Stopwatch sw = Stopwatch.StartNew();
+			TRecord result = connection.QueryFirstOrDefault<TRecord>(cmd, new { id = id });
+			sw.Stop();
+			InvokeTraceCallback(connection, "Find", cmd, result, sw);
+			return result;
+		}
 
-        private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>, new()
+		private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>, new()
         {
             string cmd = GetFindStatementBase<TRecord>() + $" WHERE {criteria}";
             return ExecuteFindWhereMethod<TRecord>(connection, parameters, cmd);
         }
 
-        protected virtual TRecord ExecuteFindWhereMethod<TRecord>(IDbConnection connection, object parameters, string cmd) where TRecord : Record<TKey>
-        {
-            return connection.QueryFirstOrDefault<TRecord>(cmd, parameters);
-        }
-    }
+		protected virtual TRecord ExecuteFindWhereMethod<TRecord>(IDbConnection connection, object parameters, string cmd) where TRecord : Record<TKey>
+		{
+			Stopwatch sw = Stopwatch.StartNew();
+			TRecord result = connection.QueryFirstOrDefault<TRecord>(cmd, parameters);
+			sw.Stop();
+			InvokeTraceCallback(connection, "FindWhere", cmd, result, sw);
+			return result;
+		}
+	}
 }

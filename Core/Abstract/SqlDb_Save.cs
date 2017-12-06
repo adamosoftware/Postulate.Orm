@@ -201,9 +201,9 @@ namespace Postulate.Orm.Abstract
             }
         }
 
-        private void InvokeTraceCallback<TRecord>(IDbConnection connection, string queryClass, string cmd, TRecord record, Stopwatch sw) where TRecord : Record<TKey>
+        private void InvokeTraceCallback(IDbConnection connection, string queryClass, string cmd, object record, Stopwatch sw)
         {
-            IEnumerable<QueryTrace.Parameter> parameters = typeof(TRecord).GetProperties().Select(pi => new QueryTrace.Parameter(pi, record));
+            IEnumerable<QueryTrace.Parameter> parameters = record?.GetType().GetProperties().Select(pi => new QueryTrace.Parameter(pi, record));
             TraceCallback?.Invoke(connection, new QueryTrace(queryClass, UserName, cmd, parameters, sw.ElapsedMilliseconds, null));
         }
     }

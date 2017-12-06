@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using Postulate.Orm.Exceptions;
 
 namespace Postulate.Orm.SqlServer
 {
@@ -477,5 +478,10 @@ namespace Postulate.Orm.SqlServer
 
             return result;
         }
-    }
+
+		public override string GetScriptFromSaveException(SaveException exception)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
