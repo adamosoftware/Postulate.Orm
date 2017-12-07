@@ -232,7 +232,11 @@ namespace Postulate.Orm.Abstract
 
 		private void InvokeTraceCallback(IDbConnection connection, string queryClass, string cmd, object parameters, Stopwatch sw)
 		{
-			IEnumerable<QueryTrace.Parameter> traceParams = parameters?.GetType().GetProperties().Select(pi => new QueryTrace.Parameter(pi, parameters));
+			IEnumerable<QueryTrace.Parameter> traceParams = parameters?.GetType()
+				.GetProperties()
+				.Where(pi => ((pi.GetIndexParameters()?.Length ?? 0) == 0)) // exclude indexer properties
+				.Select(pi => new QueryTrace.Parameter(pi, parameters));
+
 			TraceCallback?.Invoke(connection, new QueryTrace(queryClass, UserName, cmd, traceParams, sw.ElapsedMilliseconds, null));
 		}
 	}
