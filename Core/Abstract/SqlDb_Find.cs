@@ -119,7 +119,7 @@ namespace Postulate.Orm.Abstract
 			Stopwatch sw = Stopwatch.StartNew();
 			TRecord result = connection.QueryFirstOrDefault<TRecord>(cmd, new { id = id });
 			sw.Stop();
-			InvokeTraceCallback(connection, "Find", cmd, result, sw);
+			InvokeTraceCallback(connection, "Find", cmd, new { id = id }, sw);
 			return result;
 		}
 
@@ -134,7 +134,7 @@ namespace Postulate.Orm.Abstract
 			Stopwatch sw = Stopwatch.StartNew();
 			TRecord result = connection.QueryFirstOrDefault<TRecord>(cmd, parameters);
 			sw.Stop();
-			InvokeTraceCallback(connection, "FindWhere", cmd, result, sw);
+			InvokeTraceCallback(connection, "FindWhere", cmd, parameters, sw);
 			return result;
 		}
 	}

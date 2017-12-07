@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -228,5 +229,11 @@ namespace Postulate.Orm.Abstract
             public string ColumnName { get; set; }
             public string PropertyName { get; set; }
         }
-    }
+
+		private void InvokeTraceCallback(IDbConnection connection, string queryClass, string cmd, object parameters, Stopwatch sw)
+		{
+			IEnumerable<QueryTrace.Parameter> traceParams = parameters?.GetType().GetProperties().Select(pi => new QueryTrace.Parameter(pi, parameters));
+			TraceCallback?.Invoke(connection, new QueryTrace(queryClass, UserName, cmd, traceParams, sw.ElapsedMilliseconds, null));
+		}
+	}
 }
