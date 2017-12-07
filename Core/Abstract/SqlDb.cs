@@ -164,9 +164,9 @@ namespace Postulate.Orm.Abstract
 
             return
                 $@"INSERT INTO {GetTableName<TRecord>()} (
-                    {string.Join(", ", columns.Select(s => _syntax.ApplyDelimiter(s)))}
+                    {string.Join(", ", columns.Select(col => _syntax.ApplyDelimiter(col.ColumnName)))}
                 ) OUTPUT [inserted].[{typeof(TRecord).IdentityColumnName()}] VALUES (
-                    {string.Join(", ", columns.Select(s => $"@{s}"))}
+                    {string.Join(", ", columns.Select(s => $"@{s.PropertyName}"))}
                 )";
         }
 
@@ -176,7 +176,7 @@ namespace Postulate.Orm.Abstract
 
             return
                 $@"UPDATE {GetTableName<TRecord>()} SET
-                    {string.Join(", ", columns.Select(s => $"{Syntax.ApplyDelimiter(s)} = @{s}"))}
+                    {string.Join(", ", columns.Select(col => $"{Syntax.ApplyDelimiter(col.ColumnName)}=@{col.PropertyName}"))}
                 WHERE
                     {Syntax.ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
@@ -195,14 +195,18 @@ namespace Postulate.Orm.Abstract
                 !pi.HasAttribute<NotMappedAttribute>() &&
                 pi.IsSupportedType(_syntax) &&
                 (predicate?.Invoke(pi) ?? true));
-        }
+        }        
 
-        protected IEnumerable<string> GetColumnNames<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
+        protected IEnumerable<SqlColumn> GetColumnNames<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
         {
             return GetEditableColumns<TRecord>(predicate).Select(pi =>
             {
                 ColumnAttribute colAttr;
-                return (pi.HasAttribute(out colAttr) && !string.IsNullOrEmpty(colAttr.Name)) ? colAttr.Name : pi.Name;
+                return new SqlColumn()
+                {
+                    ColumnName = (pi.HasAttribute(out colAttr, a => !string.IsNullOrEmpty(a.Name)) ? colAttr.Name : pi.Name),
+                    PropertyName = pi.Name
+                };                
             });
         }        
 
@@ -217,6 +221,12 @@ namespace Postulate.Orm.Abstract
         {
             // thanks to https://stackoverflow.com/questions/22912649/lambda-to-sql-translation
             throw new NotImplementedException();
+        }  
+        
+        protected struct SqlColumn
+        {
+            public string ColumnName { get; set; }
+            public string PropertyName { get; set; }
         }
     }
 }

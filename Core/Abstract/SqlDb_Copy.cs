@@ -42,9 +42,9 @@ namespace Postulate.Orm.Abstract
                     !pi.HasAttribute<CalculatedAttribute>()) // can't insert into calculated columns
                 .Where(s =>
                     !s.Equals(typeof(TRecord).IdentityColumnName()) && // can't insert into identity column
-                    (!omitColumns?.Select(omitCol => omitCol.ToLower()).Contains(s.ToLower()) ?? true) &&
-                    !paramColumns.Select(paramCol => paramCol.ToLower()).Contains(s.ToLower())) // don't insert into param columns because we're providing new values
-                .Select(colName => Syntax.ApplyDelimiter(colName));
+                    (!omitColumns?.Select(omitCol => omitCol.ToLower()).Contains(s.ColumnName.ToLower()) ?? true) &&
+                    !paramColumns.Select(paramCol => paramCol.ToLower()).Contains(s.ColumnName.ToLower())) // don't insert into param columns because we're providing new values
+                .Select(colName => Syntax.ApplyDelimiter(colName.ColumnName));
 
             return Syntax.GetCopyStatement<TRecord, TKey>(paramColumns, columns);
         }

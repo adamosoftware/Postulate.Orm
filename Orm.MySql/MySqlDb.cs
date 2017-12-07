@@ -94,9 +94,9 @@ namespace Postulate.Orm.MySql
 
             return
                 $@"INSERT INTO {GetTableName<TRecord>()} (
-                    {string.Join(", ", columns.Select(s => Syntax.ApplyDelimiter(s)))}
+                    {string.Join(", ", columns.Select(col => Syntax.ApplyDelimiter(col.ColumnName)))}
                 ) VALUES (
-                    {string.Join(", ", columns.Select(s => $"@{s}"))}
+                    {string.Join(", ", columns.Select(col => $"@{col.PropertyName}"))}
                 ); SELECT LAST_INSERT_ID()";
         }
 
