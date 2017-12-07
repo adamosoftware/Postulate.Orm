@@ -31,7 +31,7 @@ Thanks for installing Postulate ORM! Next steps:
    Postulate.Orm.SqlServer
    Postulate.Orm.MySql   
 
-   Both packages have full CRUD support, but at this time only the MySql version works with Schema Merge.
+   Both packages have full CRUD support, but at this time only the SqlServer version works with Schema Merge.
 
 3. If you're building an ASP.NET MVC app, install package Postulate.Mvc to get a lot of Postulate productivity features for MVC development.
    Source and more info is here: https://github.com/adamosoftware/Postulate.Mvc
