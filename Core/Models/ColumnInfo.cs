@@ -133,6 +133,11 @@ namespace Postulate.Orm.Models
                     columnInfo.DataType += $"({columnInfo.Precision}, {columnInfo.Scale})";
                 }
 
+                if (columnInfo.Length.Equals("max") && columnInfo.DataType.Equals("nvarchar(0)"))
+                {
+                    columnInfo.DataType = "nvarchar(max)";
+                }
+
                 // then any other property diff is considered an alter
                 if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;                
                 if (IsNullable != columnInfo.IsNullable) return true;
