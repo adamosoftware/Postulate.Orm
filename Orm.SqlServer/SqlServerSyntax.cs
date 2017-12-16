@@ -153,16 +153,28 @@ namespace Postulate.Orm.SqlServer
             string excludeSchemas = GetExcludeSchemas(connection);
 
             return connection.Query<ColumnInfo>(
-                $@"SELECT SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [c].[Name] AS [ColumnName],
-					[t].[object_id] AS [ObjectID], TYPE_NAME([c].[system_type_id]) AS [DataType],
-					[c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
-					[c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation], [c].[is_computed] AS [IsCalculated]
-				FROM
-					[sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
-                WHERE
-                    SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted'{excludeSchemas}) AND
-                    [t].[name] NOT LIKE 'AspNet%' AND
-                    [t].[name] NOT LIKE '__MigrationHistory'").ToLookup(item => item.ObjectId);
+                $@"SELECT
+	                SCHEMA_NAME([t].[schema_id]) AS [Schema], [t].[name] AS [TableName], [c].[Name] AS [ColumnName],
+	                [t].[object_id] AS [ObjectID], TYPE_NAME([c].[system_type_id]) AS [DataType],
+	                [c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
+	                [c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation], [c].[is_computed] AS [IsCalculated],
+	                SCHEMA_NAME([parentTbl].[schema_id]) AS [ReferencedSchema], [parentTbl].[name] AS [ReferencedTable], [parentCol].[name] AS [ReferencedColumn],
+	                [fk].[name] AS [ForeignKeyConstraint]                    
+                FROM
+	                [sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
+	                LEFT JOIN [sys].[foreign_key_columns] [fkcol] ON 
+		                [c].[object_id]=[fkcol].[parent_object_id] AND
+		                [c].[column_id]=[fkcol].[parent_column_id]
+                    LEFT JOIN [sys].[foreign_keys] [fk] ON [fkcol].[constraint_object_id]=[fk].[object_id]
+	                LEFT JOIN [sys].[columns] [parentCol] ON
+		                [fkcol].[referenced_object_id]=[parentCol].[object_id] AND
+		                [fkcol].[referenced_column_id]=[parentCol].[column_id]
+	                LEFT JOIN [sys].[tables] [parentTbl] ON
+		                [parentCol].[object_id]=[parentTbl].[object_id]
+                    WHERE
+                        SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted'{excludeSchemas}) AND
+                        [t].[name] NOT LIKE 'AspNet%' AND
+                        [t].[name] NOT LIKE '__MigrationHistory'").ToLookup(item => item.ObjectId);
         }
 
         public override Dictionary<Type, string> SupportedTypes(string length = null, byte precision = 0, byte scale = 0)

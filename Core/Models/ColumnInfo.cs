@@ -2,22 +2,20 @@
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using ReflectionHelper;
-using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System;
-using System.Data;
 
 namespace Postulate.Orm.Models
 {
     public class ColumnInfo
-    {        
+    {
         public ColumnInfo()
         {
         }
 
         public static ColumnInfo FromPropertyInfo(PropertyInfo propertyInfo, SqlSyntax syntax)
         {
-            var tbl = syntax.GetTableInfoFromType(propertyInfo.ReflectedType);            
+            var tbl = syntax.GetTableInfoFromType(propertyInfo.ReflectedType);
             ColumnInfo result = new ColumnInfo()
             {
                 Schema = tbl.Schema,
@@ -45,6 +43,16 @@ namespace Postulate.Orm.Models
             return result;
         }
 
+        public ForeignKeyInfo ToForeignKeyInfo()
+        {
+            return new ForeignKeyInfo()
+            {
+                ConstraintName = this.ForeignKeyConstraint,
+                Parent = new ColumnInfo() { Schema = this.ReferencedSchema, TableName = this.ReferencedTable, ColumnName = this.ReferencedColumn },
+                Child = new ColumnInfo() { Schema = this.Schema, TableName = this.TableName, ColumnName = this.ColumnName }
+            };
+        }
+
         public TableInfo GetTableInfo()
         {
             return new TableInfo(this.TableName, this.Schema) { ObjectId = this.ObjectId };
@@ -62,6 +70,15 @@ namespace Postulate.Orm.Models
         public int Scale { get; set; }
         public bool IsNullable { get; set; }
         public bool IsCalculated { get; set; }
+        public string ReferencedSchema { get; set; }
+        public string ReferencedTable { get; set; }
+        public string ReferencedColumn { get; set; }
+        public string ForeignKeyConstraint { get; set; }
+
+        public bool IsForeignKey
+        {
+            get { return !string.IsNullOrEmpty(ForeignKeyConstraint); }
+        }
 
         public PropertyInfo PropertyInfo { get; private set; }
 
@@ -139,7 +156,7 @@ namespace Postulate.Orm.Models
                 }
 
                 // then any other property diff is considered an alter
-                if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;                
+                if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;
                 if (IsNullable != columnInfo.IsNullable) return true;
                 if (IsCalculated != columnInfo.IsCalculated) return true;
 
@@ -154,7 +171,7 @@ namespace Postulate.Orm.Models
                 if (PropertyInfo?.HasAttribute(out collation) ?? false)
                 {
                     if (!collation.Collation?.Equals(columnInfo.Collation) ?? true) return true;
-                }                
+                }
 
                 // note -- don't compare the ByteLength property because it's not reported by PropertyInfo
             }

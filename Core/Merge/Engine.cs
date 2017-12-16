@@ -246,13 +246,34 @@ namespace Postulate.Orm.Merge
                         }
                     }
 
-                    // todo: AnyForeignKeysChanged()
+                    IEnumerable<PropertyInfo> addedForeignKeys;
+                    IEnumerable<ColumnInfo> deletedForeignKeys;
+                    if (AnyForeignKeysChanged(modelColInfo, schemaColInfo, out addedForeignKeys, out deletedForeignKeys))
+                    {
+                        foreignKeys.AddRange(addedForeignKeys);
+                        results.AddRange(deletedForeignKeys.Select(colInfo => new DropForeignKey(Syntax, colInfo)));
+                    }
 
                     // todo: AnyKeysChanged()
                 }
             }
 
             results.AddRange(foreignKeys.Select(fk => new AddForeignKey(_syntax, fk)));
+        }
+
+        private bool AnyForeignKeysChanged(IEnumerable<PropertyInfo> modelColInfo, IEnumerable<ColumnInfo> schemaColInfo, out IEnumerable<PropertyInfo> addedForeignKeys, out IEnumerable<ColumnInfo> deletedForeignKeys)
+        {
+            addedForeignKeys = from mc in modelColInfo
+                               join sc in schemaColInfo on mc.SqlColumnName() equals sc.ColumnName
+                               where mc.IsForeignKey() && !sc.IsForeignKey
+                               select mc;
+
+            deletedForeignKeys = from sc in schemaColInfo
+                                 join mc in modelColInfo on sc.ColumnName equals mc.SqlColumnName()
+                                 where sc.IsForeignKey && !mc.IsForeignKey()
+                                 select sc;
+
+            return (addedForeignKeys.Any() || deletedForeignKeys.Any());
         }
 
         private bool AnyColumnsChanged(
