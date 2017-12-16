@@ -17,8 +17,19 @@ namespace Postulate.Orm.Abstract
         /// </summary>
         public abstract IEnumerable<TRecord> Records { get; }
 
+        /// <summary>
+        /// Expression used with the <see cref="FindId{TLookup}(string)"/> method. Must use parameter called @name, but the column name is up to you
+        /// </summary>
+        protected virtual string FindIdExpression { get { return "[Name]=@name"; } }
+
+        private IDbConnection _connection;
+        private SqlDb<TKey> _db;
+
         public void Generate(IDbConnection connection, SqlDb<TKey> db)
         {
+            _connection = connection;
+            _db = db;
+
             foreach (var record in Records)
             {
                 var existingRecord = connection.QuerySingleOrDefault<TRecord>($"SELECT * FROM {ExistsCriteria}", record);
@@ -26,6 +37,14 @@ namespace Postulate.Orm.Abstract
                 if (existingRecord != null) record.Id = existingRecord.Id;
                 db.Save(connection, record);
             }
+        }
+
+        /// <summary>
+        /// Use in your <see cref="Records"/> property to reference generated identity values not known until runtime
+        /// </summary>
+        protected TKey FindId<TLookup>(string name) where TLookup : Record<TKey>, new()
+        {
+            return _db.FindWhere<TLookup>(_connection, FindIdExpression, new { name = name }).Id;
         }
 
         public void Generate(SqlDb<TKey> db)
