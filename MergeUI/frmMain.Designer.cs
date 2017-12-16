@@ -40,6 +40,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.pbMain = new System.Windows.Forms.ToolStripProgressBar();
             this.tslStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tslSelectAssembly = new System.Windows.Forms.ToolStripStatusLabel();
             this.tslAbout = new System.Windows.Forms.ToolStripStatusLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splcActions = new System.Windows.Forms.SplitContainer();
@@ -48,7 +49,6 @@
             this.lblErrors = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tbScript = new FastColoredTextBoxNS.FastColoredTextBox();
-            this.tslSelectAssembly = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -156,11 +156,19 @@
             this.tslStatus.Size = new System.Drawing.Size(39, 17);
             this.tslStatus.Text = "Ready";
             // 
+            // tslSelectAssembly
+            // 
+            this.tslSelectAssembly.IsLink = true;
+            this.tslSelectAssembly.Name = "tslSelectAssembly";
+            this.tslSelectAssembly.Size = new System.Drawing.Size(158, 17);
+            this.tslSelectAssembly.Text = "Select assembly in solution...";
+            this.tslSelectAssembly.Click += new System.EventHandler(this.tslSelectAssembly_Click);
+            // 
             // tslAbout
             // 
             this.tslAbout.IsLink = true;
             this.tslAbout.Name = "tslAbout";
-            this.tslAbout.Size = new System.Drawing.Size(301, 17);
+            this.tslAbout.Size = new System.Drawing.Size(434, 17);
             this.tslAbout.Spring = true;
             this.tslAbout.Text = "About";
             this.tslAbout.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -229,6 +237,7 @@
             this.imageList1.Images.SetKeyName(5, "Database");
             this.imageList1.Images.SetKeyName(6, "ForeignKey");
             this.imageList1.Images.SetKeyName(7, "Key");
+            this.imageList1.Images.SetKeyName(8, "Schema");
             // 
             // lblErrors
             // 
@@ -286,14 +295,6 @@
             this.tbScript.Size = new System.Drawing.Size(476, 298);
             this.tbScript.TabIndex = 0;
             this.tbScript.Zoom = 100;
-            // 
-            // tslSelectAssembly
-            // 
-            this.tslSelectAssembly.IsLink = true;
-            this.tslSelectAssembly.Name = "tslSelectAssembly";
-            this.tslSelectAssembly.Size = new System.Drawing.Size(158, 17);
-            this.tslSelectAssembly.Text = "Select assembly in solution...";
-            this.tslSelectAssembly.Click += new System.EventHandler(this.tslSelectAssembly_Click);
             // 
             // frmMain
             // 

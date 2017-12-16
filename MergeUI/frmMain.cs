@@ -61,6 +61,11 @@ namespace Postulate.MergeUI
                 tvwActions.Nodes.Add(cnNode);
                 await BuildViewAsync(cnNode);
             }
+
+            if (_scriptManager.ConnectionErrors != null)
+            {
+                tbScript.Text = "/*\r\n" + _scriptManager.ConnectionErrors.ToString() + "*/";
+            }
         }
 
         private async void frmMain_Load(object sender, EventArgs e)

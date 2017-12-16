@@ -31,6 +31,8 @@ namespace Postulate.MergeUI
         public ILookup<MergeAction, string> ValidationErrors { get; private set; }        
         public Stopwatch Stopwatch { get; private set; }
 
+        public StringBuilder ConnectionErrors { get; private set; }
+
         private ScriptManager()
         {
             // use FromFile
@@ -55,10 +57,18 @@ namespace Postulate.MergeUI
             {
                 if (!IsLocalConfigElement(connectionStr, result.Configuration.FilePath)) continue;
 
+                string errorMessage = null;
                 if (ConnectionProviders[currentSyntax].ProviderNames.Contains(connectionStr.ProviderName) ||
-                    OpensSuccessfully(currentSyntax, connectionStr.ConnectionString))
+                    OpensSuccessfully(currentSyntax, connectionStr, out errorMessage))
                 {
                     connectionNames.Add(connectionStr.Name);
+                }
+
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    if (result.ConnectionErrors == null) result.ConnectionErrors = new StringBuilder();
+                    result.ConnectionErrors.AppendLine(errorMessage);
+                    result.ConnectionErrors.AppendLine();
                 }
             }
             result.ConnectionNames = connectionNames.ToArray();
@@ -66,32 +76,36 @@ namespace Postulate.MergeUI
             return result;
         }
 
-        private static bool OpensSuccessfully(SupportedSyntax currentSyntax, string connectionString)
+        private static bool OpensSuccessfully(SupportedSyntax currentSyntax, ConnectionStringSettings setting, out string errorMessage)
         {
+            errorMessage = null;
+
             switch (currentSyntax)
             {
                 case SupportedSyntax.MySql:
-                    return TryConnection(() => new MySqlConnection(connectionString));
+                    return TryConnection(setting.Name, () => new MySqlConnection(setting.ConnectionString), out errorMessage);
 
                 case SupportedSyntax.SqlServer:
-                    return TryConnection(() => new SqlConnection(connectionString));
+                    return TryConnection(setting.Name, () => new SqlConnection(setting.ConnectionString), out errorMessage);
             }
 
             return false;
         }
 
-        private static bool TryConnection(Func<IDbConnection> connector)
+        private static bool TryConnection(string connectionName, Func<IDbConnection> connector, out string errorMessage)
         {
+            errorMessage = null;
             try
             {
                 using (var cn = connector.Invoke())
-                {
+                {                    
                     cn.Open();
                     return true;
                 }                
             }
-            catch 
+            catch (Exception exc)
             {
+                errorMessage = $"Error connecting to {connectionName}: {exc.Message}";
                 return false;
             }
         }
