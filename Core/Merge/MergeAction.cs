@@ -17,6 +17,7 @@ namespace Postulate.Orm.Merge
 
     public enum ObjectType
     {
+        Schema,
         Table,
         Column,
         Key,

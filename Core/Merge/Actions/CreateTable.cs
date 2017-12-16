@@ -49,11 +49,6 @@ namespace Postulate.Orm.Merge.Actions
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
             
-            if (!Syntax.SchemaExists(connection, _tableInfo.Schema))
-            {
-                yield return Syntax.CreateSchemaStatement(_tableInfo.Schema);
-            }
-
             yield return Syntax.TableCreateStatement(_modelType, AddedColumns, ModifiedColumns, DeletedColumns);
         }
 

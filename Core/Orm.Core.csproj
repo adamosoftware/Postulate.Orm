@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Merge\Actions\CreateSchema.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Attributes\CaseAttribute.cs" />
     <Compile Include="Attributes\DefaultSqlSyntaxAttribute.cs" />

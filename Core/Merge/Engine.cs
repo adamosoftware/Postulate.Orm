@@ -181,6 +181,21 @@ namespace Postulate.Orm.Merge
 
             TableInfo tableInfo = null;
 
+            _progress?.Report(new MergeProgress()
+            {
+                Description = "Analzying schemas...",
+                PercentComplete = 0
+            });
+            var schemas = _modelTypes.Select(t => Syntax.GetTableInfoFromType(t).Schema).GroupBy(s => s).Select(grp => grp.Key);
+
+            foreach (var schema in schemas)
+            {
+                if (!Syntax.SchemaExists(connection, schema))
+                {
+                    results.Add(new CreateSchema(_syntax, schema));                    
+                }
+            }            
+
             foreach (var type in _modelTypes)
             {
                 counter++;
