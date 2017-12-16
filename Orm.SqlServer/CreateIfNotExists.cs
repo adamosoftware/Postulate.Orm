@@ -26,7 +26,7 @@ namespace Postulate.Orm.SqlServer
             }
             catch
             {                
-                TryCreateDb(ConnectionName);
+                TryCreateDb(ConnectionString);
                 created = true;
             }
 
@@ -37,13 +37,13 @@ namespace Postulate.Orm.SqlServer
             }
         }
 
-        private static IDbConnection TryGetMasterDb(string connectionName, out string dbName)
+        private static IDbConnection TryGetMasterDb(string connectionString, out string dbName)
         {
-            var tokens = ConfigurationManager.ConnectionStrings[connectionName].ConnectionString.ParseTokens();
+            var tokens = connectionString.ParseTokens();
             var dbTokens = new string[] { "Database", "Initial Catalog" };
             dbName = Coalesce(tokens, dbTokens);
-            string connectionString = JoinReplace(tokens, dbTokens, "master");
-            return new SqlConnection(connectionString);
+            string masterConnection = JoinReplace(tokens, dbTokens, "master");
+            return new SqlConnection(masterConnection);
         }
 
         private static string JoinReplace(Dictionary<string, string> tokens, string[] lookForKey, string setValue)
@@ -66,10 +66,10 @@ namespace Postulate.Orm.SqlServer
             return dictionary[key];
         }
 
-        private void TryCreateDb(string connectionName)
+        private void TryCreateDb(string connectionString)
         {
             string dbName;
-            using (var cnMaster = TryGetMasterDb(connectionName, out dbName))
+            using (var cnMaster = TryGetMasterDb(connectionString, out dbName))
             {
                 cnMaster.Open();
                 cnMaster.Execute($"CREATE DATABASE [{dbName}]", commandTimeout: 60);
