@@ -1,9 +1,11 @@
 ﻿using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace Postulate.Orm.Merge.Actions
 {
@@ -19,8 +21,39 @@ namespace Postulate.Orm.Merge.Actions
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
-        {
-            throw new NotImplementedException();
+        {            
+            if (!connection.TableExists(_attribute.Schema, _attribute.TableName))
+            {
+                yield return Syntax.CreateEnumTableStatement(_enumType);
+            }
+
+            var values = Enum.GetValues(_enumType).OfType<int>().ToArray();
+            int index = 0;
+            string tableName = _attribute.FullTableName();
+
+            foreach (var name in Enum.GetNames(_enumType))
+            {
+                bool valueExists = connection.Exists(Syntax.CheckEnumValueExistsStatement(tableName), new { name = name });
+                switch (_attribute.KeyType)
+                {
+                    case EnumTableKeyType.DefinedValues:
+                        if (!valueExists)
+                        {
+                            yield return Syntax.InsertEnumValueStatement(tableName, name, values[index]);
+                        }                        
+                        break;
+
+                    case EnumTableKeyType.GeneratedValues:
+                        if (!valueExists)
+                        {
+                            yield return Syntax.InsertEnumValueStatement(tableName, name);
+                        }                        
+                        break;
+                }
+
+                index++;
+            }
+
         }
     }
 }

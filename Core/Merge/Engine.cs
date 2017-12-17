@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Merge.Actions;
@@ -175,7 +176,7 @@ namespace Postulate.Orm.Merge
             int counter = 0;
             List<PropertyInfo> foreignKeys = new List<PropertyInfo>();
 
-            _progress?.Report(new MergeProgress() { Description = "Getting column info...", PercentComplete = 0 });            
+            _progress?.Report(new MergeProgress() { Description = "Getting column info...", PercentComplete = 0 });
             var columns = _syntax.GetSchemaColumns(connection);
 
             TableInfo tableInfo = null;
@@ -185,15 +186,17 @@ namespace Postulate.Orm.Merge
                 Description = "Analzying schemas...",
                 PercentComplete = 0
             });
-            var schemas = _modelTypes.Select(t => Syntax.GetTableInfoFromType(t).Schema).GroupBy(s => s).Select(grp => grp.Key);
 
-            foreach (var schema in schemas)
-            {
-                if (!Syntax.SchemaExists(connection, schema))
-                {
-                    results.Add(new CreateSchema(_syntax, schema));                    
-                }
-            }            
+            var schemas = _modelTypes.Select(t => Syntax.GetTableInfoFromType(t).Schema).GroupBy(s => s).Select(grp => grp.Key);
+            CreateSchemas(connection, results, schemas);
+
+            var enumTableSchemas = _modelTypes
+                .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi.PropertyType)))
+                .Select(pi => pi.PropertyType)
+                .GroupBy(t => t.GetAttribute<EnumTableAttribute>().Schema)
+                .Select(grp => grp.Key)
+                .Where(s => !string.IsNullOrEmpty(s));
+            CreateSchemas(connection, results, enumTableSchemas);
 
             foreach (var type in _modelTypes)
             {
@@ -203,8 +206,8 @@ namespace Postulate.Orm.Merge
                     Description = $"Analyzing model class '{type.Name}'...",
                     PercentComplete = PercentComplete(counter, _modelTypes.Length)
                 });
-                
-                tableInfo = _syntax.GetTableInfoFromType(type);                
+
+                tableInfo = _syntax.GetTableInfoFromType(type);
 
                 if (!_syntax.TableExists(connection, type))
                 {
@@ -247,14 +250,14 @@ namespace Postulate.Orm.Merge
                         else
                         {
                             // make changes to the table without dropping it
-                            results.AddRange(addedColumns.Select(c => new AddColumn(_syntax, c)));                            
+                            results.AddRange(addedColumns.Select(c => new AddColumn(_syntax, c)));
                             if (AllowTableCreate(type))
                             {
                                 // when we aren't allow to create/drop the table, then I don't allow column alter or dropping either
                                 // this is a hack for interacting with AspNetUsers table
                                 results.AddRange(modifiedColumns);
                                 results.AddRange(deletedColumns.Select(c => new DropColumn(_syntax, c)));
-                            }                            
+                            }
                             foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey() && _modelTypes.Contains(pi.GetForeignKeyParentType())));
                         }
                     }
@@ -267,7 +270,7 @@ namespace Postulate.Orm.Merge
                         if (AllowTableCreate(type))
                         {
                             results.AddRange(deletedForeignKeys.Select(colInfo => new DropForeignKey(Syntax, colInfo)));
-                        }                        
+                        }
                     }
 
                     // todo: AnyKeysChanged()
@@ -275,6 +278,22 @@ namespace Postulate.Orm.Merge
             }
 
             results.AddRange(foreignKeys.Select(fk => new AddForeignKey(_syntax, fk)));
+        }
+
+        private bool IsEnumForeignKey(Type propertyType)
+        {
+            return propertyType.IsEnum && propertyType.HasAttribute<EnumTableAttribute>();
+        }
+
+        private void CreateSchemas(IDbConnection connection, List<MergeAction> results, IEnumerable<string> schemas)
+        {
+            foreach (var schema in schemas)
+            {
+                if (!Syntax.SchemaExists(connection, schema))
+                {
+                    results.Add(new CreateSchema(_syntax, schema));
+                }
+            }
         }
 
         private bool AllowTableCreate(Type modelType)

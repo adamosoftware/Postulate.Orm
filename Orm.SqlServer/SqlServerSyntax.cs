@@ -495,5 +495,30 @@ namespace Postulate.Orm.SqlServer
 		{
 			throw new NotImplementedException();
 		}
-	}
+
+        public override string CreateEnumTableStatement(Type enumType)
+        {
+            EnumTableAttribute attr = enumType.GetAttribute<EnumTableAttribute>() ?? throw new Exception($"Enum type {enumType.Name} is missing an [EnumTable] attribute");
+
+            string valueType = (attr.KeyType == EnumTableKeyType.GeneratedValues) ?
+                " identity (1,1)" : string.Empty;            
+
+            return $"CREATE TABLE {ApplyDelimiter(attr.FullTableName())} (\r\n\t[Name] nvarchar(50) NOT NULL,\r\n\t[Value] int{valueType} NOT NULL PRIMARY KEY\r\n)";
+        }
+
+        public override string InsertEnumValueStatement(string tableName, string name, int value)
+        {
+            return $"INSERT INTO {tableName} ([Name], [Value]) VALUES ('{name}', {value})";
+        }
+
+        public override string InsertEnumValueStatement(string tableName, string name)
+        {
+            return $"INSERT INTO {tableName} ([Name]) VALUES ('{name}')";
+        }
+
+        public override string CheckEnumValueExistsStatement(string tableName)
+        {
+            return $"{tableName} WHERE [Name]=@name";
+        }
+    }
 }

@@ -172,5 +172,13 @@ namespace Postulate.Orm.Abstract
 		/// Reproduces the script from a failed statement execution so you can troubleshoot in your SQL tool of choice
 		/// </summary>
 		public abstract string GetScriptFromSaveException(SaveException exception);
+
+        public abstract string CreateEnumTableStatement(Type enumType);
+
+        public abstract string CheckEnumValueExistsStatement(string tableName);
+
+        public abstract string InsertEnumValueStatement(string tableName, string name, int value);
+
+        public abstract string InsertEnumValueStatement(string tableName, string name);
     }
 }
