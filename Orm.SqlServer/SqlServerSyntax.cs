@@ -173,7 +173,7 @@ namespace Postulate.Orm.SqlServer
 		                [parentCol].[object_id]=[parentTbl].[object_id]
                     WHERE
                         SCHEMA_NAME([t].[schema_id]) NOT IN ('changes', 'meta', 'deleted'{excludeSchemas}) AND
-                        [t].[name] NOT LIKE 'AspNet%' AND
+                        ([t].[name] NOT LIKE 'AspNet%' OR [t].[name] LIKE 'AspNetUsers') AND
                         [t].[name] NOT LIKE '__MigrationHistory'").ToLookup(item => item.ObjectId);
         }
 

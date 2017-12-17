@@ -46,8 +46,7 @@ namespace Postulate.Orm.Merge
         {
             return assembly.GetTypes()
                 .Where(t =>
-                    !t.Name.StartsWith("<>") &&
-                    !t.HasAttribute<NotMappedAttribute>() &&
+                    !t.Name.StartsWith("<>") &&                    
                     !t.IsAbstract &&
                     !t.IsInterface &&
                     t.IsDerivedFromGeneric(typeof(Record<>))).ToArray();
@@ -217,7 +216,16 @@ namespace Postulate.Orm.Merge
                     if (!_syntax.FindObjectId(connection, tableInfo)) throw new Exception($"Couldn't find Object Id for table {tableInfo}.");
 
                     var modelColInfo = type.GetModelPropertyInfo(_syntax);
-                    var schemaColInfo = columns[tableInfo.ObjectId];
+                    var schemaColInfo = columns[tableInfo.ObjectId].ToList();
+
+                    // if this is not a table we're allowed to create or drop (such as typically AspNetUsers)...
+                    if (!AllowTableCreate(type))
+                    {
+                        // ...then it means we have to exclude its columns that don't have model equivalents
+                        // because those "schema-only" are not meant to be synchronized with model class
+                        var schemaOnlyColumns = schemaColInfo.Where(col => !modelColInfo.Any(pi => pi.SqlColumnName().Equals(col.ColumnName))).ToArray();
+                        foreach (ColumnInfo column in schemaOnlyColumns) schemaColInfo.Remove(column);
+                    }
 
                     IEnumerable<PropertyInfo> addedColumns;
                     IEnumerable<AlterColumn> modifiedColumns;
@@ -225,7 +233,7 @@ namespace Postulate.Orm.Merge
 
                     if (AnyColumnsChanged(modelColInfo, schemaColInfo, out addedColumns, out modifiedColumns, out deletedColumns))
                     {
-                        if (_syntax.IsTableEmpty(connection, type))
+                        if (_syntax.IsTableEmpty(connection, type) && AllowTableCreate(type))
                         {
                             // drop and re-create table, indicating affected columns with comments in generated script
                             results.Add(new CreateTable(_syntax, tableInfo, rebuild: true)
@@ -239,9 +247,14 @@ namespace Postulate.Orm.Merge
                         else
                         {
                             // make changes to the table without dropping it
-                            results.AddRange(addedColumns.Select(c => new AddColumn(_syntax, c)));
-                            results.AddRange(modifiedColumns);
-                            results.AddRange(deletedColumns.Select(c => new DropColumn(_syntax, c)));
+                            results.AddRange(addedColumns.Select(c => new AddColumn(_syntax, c)));                            
+                            if (AllowTableCreate(type))
+                            {
+                                // when we aren't allow to create/drop the table, then I don't allow column alter or dropping either
+                                // this is a hack for interacting with AspNetUsers table
+                                results.AddRange(modifiedColumns);
+                                results.AddRange(deletedColumns.Select(c => new DropColumn(_syntax, c)));
+                            }                            
                             foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey() && _modelTypes.Contains(pi.GetForeignKeyParentType())));
                         }
                     }
@@ -251,7 +264,10 @@ namespace Postulate.Orm.Merge
                     if (AnyForeignKeysChanged(modelColInfo, schemaColInfo, out addedForeignKeys, out deletedForeignKeys))
                     {
                         foreignKeys.AddRange(addedForeignKeys);
-                        results.AddRange(deletedForeignKeys.Select(colInfo => new DropForeignKey(Syntax, colInfo)));
+                        if (AllowTableCreate(type))
+                        {
+                            results.AddRange(deletedForeignKeys.Select(colInfo => new DropForeignKey(Syntax, colInfo)));
+                        }                        
                     }
 
                     // todo: AnyKeysChanged()
@@ -259,6 +275,11 @@ namespace Postulate.Orm.Merge
             }
 
             results.AddRange(foreignKeys.Select(fk => new AddForeignKey(_syntax, fk)));
+        }
+
+        private bool AllowTableCreate(Type modelType)
+        {
+            return !modelType.HasAttribute<NotMappedAttribute>();
         }
 
         private bool AnyForeignKeysChanged(IEnumerable<PropertyInfo> modelColInfo, IEnumerable<ColumnInfo> schemaColInfo, out IEnumerable<PropertyInfo> addedForeignKeys, out IEnumerable<ColumnInfo> deletedForeignKeys)
