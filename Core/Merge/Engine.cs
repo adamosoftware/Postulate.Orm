@@ -212,7 +212,7 @@ namespace Postulate.Orm.Merge
                 if (!_syntax.TableExists(connection, type))
                 {
                     results.Add(new CreateTable(_syntax, tableInfo));
-                    foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));
+                    foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));                    
                 }
                 else
                 {
@@ -245,7 +245,7 @@ namespace Postulate.Orm.Merge
                                 ModifiedColumns = modifiedColumns.Select(ac => ac.ColumnName),
                                 DeletedColumns = deletedColumns.Select(sc => sc.ColumnName)
                             });
-                            foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));
+                            foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));                            
                         }
                         else
                         {
@@ -275,6 +275,8 @@ namespace Postulate.Orm.Merge
 
                     // todo: AnyKeysChanged()
                 }
+
+                foreignKeys.AddRange(type.GetProperties().Where(pi => IsEnumForeignKey(pi.PropertyType)));
             }
 
             results.AddRange(foreignKeys.Select(fk => new AddForeignKey(_syntax, fk)));

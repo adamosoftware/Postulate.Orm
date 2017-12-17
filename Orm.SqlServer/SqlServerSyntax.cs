@@ -380,14 +380,29 @@ namespace Postulate.Orm.SqlServer
 
         public override string ForeignKeyAddStatement(PropertyInfo propertyInfo)
         {
-            Attributes.ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
-            string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
-            return
-                $"ALTER TABLE {GetTableName(propertyInfo.DeclaringType)} ADD CONSTRAINT [{propertyInfo.ForeignKeyName(this)}] FOREIGN KEY (\r\n" +
-                    $"\t[{propertyInfo.SqlColumnName()}]\r\n" +
-                $") REFERENCES {GetTableName(fk.PrimaryTableType)} (\r\n" +
-                    $"\t[{fk.PrimaryTableType.IdentityColumnName()}]\r\n" +
-                ")" + cascadeDelete;
+            string firstLine = $"ALTER TABLE {GetTableName(propertyInfo.DeclaringType)} ADD CONSTRAINT [{propertyInfo.ForeignKeyName(this)}] FOREIGN KEY (\r\n";
+
+            if (propertyInfo.PropertyType.IsEnum && propertyInfo.PropertyType.HasAttribute<EnumTableAttribute>())
+            {
+                var attr = propertyInfo.PropertyType.GetAttribute<EnumTableAttribute>();
+                return
+                    firstLine +
+                        $"\t[{propertyInfo.SqlColumnName()}]\r\n" +
+                    $") REFERENCES {ApplyDelimiter(attr.FullTableName())} (\r\n" +
+                        $"\t[Value]\r\n" +
+                    ")";
+            }
+            else
+            {
+                Attributes.ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
+                string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
+                return
+                    firstLine +
+                        $"\t[{propertyInfo.SqlColumnName()}]\r\n" +
+                    $") REFERENCES {GetTableName(fk.PrimaryTableType)} (\r\n" +
+                        $"\t[{fk.PrimaryTableType.IdentityColumnName()}]\r\n" +
+                    ")" + cascadeDelete;
+            }
         }
 
         public override string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo)
