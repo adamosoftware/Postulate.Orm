@@ -10,7 +10,7 @@ using Dapper;
 
 namespace Testing
 {
-    [EnumTable("SampleLookupTable", EnumTableKeyType.GeneratedValues, "enum")]
+    [EnumTable("SampleLookupTable", "enum")]
     public enum SampleEnumFK
     {
         Hello,

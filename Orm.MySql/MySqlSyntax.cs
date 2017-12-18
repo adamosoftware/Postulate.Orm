@@ -251,10 +251,5 @@ namespace Postulate.Orm.MySql
         {
             throw new NotImplementedException();
         }
-
-        public override string InsertEnumValueStatement(string tableName, string name)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

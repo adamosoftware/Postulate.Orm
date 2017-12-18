@@ -38,23 +38,11 @@ namespace Postulate.Orm.Merge.Actions
                 {
                     valueExists = connection.Exists(Syntax.CheckEnumValueExistsStatement(tableName), new { name = name });
                 }
-                
-                switch (_attribute.KeyType)
-                {
-                    case EnumTableKeyType.DefinedValues:
-                        if (!valueExists)
-                        {
-                            yield return Syntax.InsertEnumValueStatement(tableName, name, values[index]);
-                        }                        
-                        break;
 
-                    case EnumTableKeyType.GeneratedValues:
-                        if (!valueExists)
-                        {
-                            yield return Syntax.InsertEnumValueStatement(tableName, name);
-                        }                        
-                        break;
-                }
+				if (!valueExists)
+				{
+					yield return Syntax.InsertEnumValueStatement(tableName, name, values[index]);
+				}				
 
                 index++;
             }

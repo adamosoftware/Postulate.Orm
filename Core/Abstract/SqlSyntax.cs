@@ -177,8 +177,6 @@ namespace Postulate.Orm.Abstract
 
         public abstract string CheckEnumValueExistsStatement(string tableName);
 
-        public abstract string InsertEnumValueStatement(string tableName, string name, int value);
-
-        public abstract string InsertEnumValueStatement(string tableName, string name);
+        public abstract string InsertEnumValueStatement(string tableName, string name, int value);		
     }
 }
