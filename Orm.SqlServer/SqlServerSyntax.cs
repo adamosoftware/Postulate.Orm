@@ -523,17 +523,17 @@ namespace Postulate.Orm.SqlServer
 
         public override string InsertEnumValueStatement(string tableName, string name, int value)
         {
-            return $"INSERT INTO {tableName} ([Name], [Value]) VALUES ('{name}', {value})";
+            return $"INSERT INTO {ApplyDelimiter(tableName)} ([Name], [Value]) VALUES ('{name}', {value})";
         }
 
         public override string InsertEnumValueStatement(string tableName, string name)
         {
-            return $"INSERT INTO {tableName} ([Name]) VALUES ('{name}')";
+            return $"INSERT INTO {ApplyDelimiter(tableName)} ([Name]) VALUES ('{name}')";
         }
 
         public override string CheckEnumValueExistsStatement(string tableName)
         {
-            return $"{tableName} WHERE [Name]=@name";
+            return $"{ApplyDelimiter(tableName)} WHERE [Name]=@name";
         }
     }
 }

@@ -236,5 +236,25 @@ namespace Postulate.Orm.MySql
 		{
 			throw new NotImplementedException();			
 		}
-	}
+
+        public override string CreateEnumTableStatement(Type enumType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string CheckEnumValueExistsStatement(string tableName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string InsertEnumValueStatement(string tableName, string name, int value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string InsertEnumValueStatement(string tableName, string name)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

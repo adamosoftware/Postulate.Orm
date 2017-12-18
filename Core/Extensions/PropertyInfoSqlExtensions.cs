@@ -29,7 +29,9 @@ namespace Postulate.Orm.Extensions
             try
             {
                 var fk = GetForeignKeyAttribute(propertyInfo);
-                return true;
+                if (fk != null) return true;
+                if (propertyInfo.PropertyType.IsEnum && propertyInfo.PropertyType.HasAttribute<EnumTableAttribute>()) return true;
+                return false;
             }
             catch
             {
@@ -44,9 +46,8 @@ namespace Postulate.Orm.Extensions
 
             fk = propertyInfo.DeclaringType.GetCustomAttributes<Attributes.ForeignKeyAttribute>()
                 .SingleOrDefault(attr => attr.ColumnName.Equals(propertyInfo.Name));
-            if (fk != null) return fk;
 
-            throw new ArgumentException($"The property {propertyInfo.Name} does not have a [ForeignKey] attribute.");
+            return (fk != null) ? fk : null;            
         }
 
         public static Type GetForeignKeyParentType(this PropertyInfo propertyInfo)
@@ -56,8 +57,7 @@ namespace Postulate.Orm.Extensions
         }
 
         public static string ForeignKeyName(this PropertyInfo propertyInfo, SqlSyntax syntax)
-        {
-            var fk = GetForeignKeyAttribute(propertyInfo);
+        {            
             return $"FK_{syntax.GetConstraintBaseName(propertyInfo.ReflectedType)}_{propertyInfo.SqlColumnName()}";
         }
 

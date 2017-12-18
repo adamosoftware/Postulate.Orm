@@ -9,12 +9,12 @@ using System.Linq;
 
 namespace Postulate.Orm.Merge.Actions
 {
-    public class EnumTable : MergeAction
+    public class CreateEnumTable : MergeAction
     {
         private readonly Type _enumType;
         private readonly EnumTableAttribute _attribute;
 
-        public EnumTable(SqlSyntax syntax, Type enumType) : base(syntax, ObjectType.Table, ActionType.Create, $"Enum table {enumType.Name}")
+        public CreateEnumTable(SqlSyntax syntax, Type enumType) : base(syntax, ObjectType.Table, ActionType.Create, $"Enum table {enumType.Name}")
         {
             _enumType = enumType;
             _attribute = enumType.GetAttribute<EnumTableAttribute>() ?? throw new Exception($"Enum type {enumType.Name} is missing an [EnumTable] attribute");
@@ -33,7 +33,12 @@ namespace Postulate.Orm.Merge.Actions
 
             foreach (var name in Enum.GetNames(_enumType))
             {
-                bool valueExists = connection.Exists(Syntax.CheckEnumValueExistsStatement(tableName), new { name = name });
+                bool valueExists = false;
+                if (connection.TableExists(_attribute.Schema, _attribute.TableName))
+                {
+                    valueExists = connection.Exists(Syntax.CheckEnumValueExistsStatement(tableName), new { name = name });
+                }
+                
                 switch (_attribute.KeyType)
                 {
                     case EnumTableKeyType.DefinedValues:

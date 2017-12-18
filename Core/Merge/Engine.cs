@@ -190,6 +190,12 @@ namespace Postulate.Orm.Merge
             var schemas = _modelTypes.Select(t => Syntax.GetTableInfoFromType(t).Schema).GroupBy(s => s).Select(grp => grp.Key);
             CreateSchemas(connection, results, schemas);
 
+            _progress?.Report(new MergeProgress()
+            {
+                Description = "Analzying enum foreign keys...",
+                PercentComplete = 0
+            });
+
             var enumTableSchemas = _modelTypes
                 .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi.PropertyType)))
                 .Select(pi => pi.PropertyType)
@@ -197,6 +203,13 @@ namespace Postulate.Orm.Merge
                 .Select(grp => grp.Key)
                 .Where(s => !string.IsNullOrEmpty(s));
             CreateSchemas(connection, results, enumTableSchemas);
+
+            var enumTables = _modelTypes
+                .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi.PropertyType)))
+                .Select(pi => pi.PropertyType)
+                .GroupBy(t => t.GetAttribute<EnumTableAttribute>().FullTableName())
+                .Select(grp => grp.First());
+            results.AddRange(enumTables.Select(enumType => new CreateEnumTable(Syntax, enumType)));
 
             foreach (var type in _modelTypes)
             {
