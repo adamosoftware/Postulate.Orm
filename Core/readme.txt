@@ -36,7 +36,7 @@ Thanks for installing Postulate ORM! Next steps:
 3. If you're building an ASP.NET MVC app, install package Postulate.Mvc to get a lot of Postulate productivity features for MVC development.
    Source and more info is here: https://github.com/adamosoftware/Postulate.Mvc
 
-Don't hesitate to reach to me if you have questions.
+Don't hesitate to reach out to me if you have questions.
 
 Adam O'Neil
 adamosoftware@gmail.com
