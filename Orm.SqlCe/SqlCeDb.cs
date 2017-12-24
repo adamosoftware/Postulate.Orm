@@ -11,7 +11,7 @@ namespace Postulate.Orm.SqlCe
     {
         public SqlCeDb(string connectionString) : base(connectionString, new SqlCeSyntax(), connectionSource: ConnectionSource.Literal)
         {
-        }        
+        }
 
         public override void CreateIfNotExists(Action<IDbConnection, bool> seedAction = null)
         {

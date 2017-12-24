@@ -16,14 +16,16 @@ namespace Postulate.Orm.Merge.Actions
         private readonly TableInfo _tableInfo;
         private readonly Type _modelType;
         private readonly bool _rebuild;
+        private readonly bool _withForeignKeys;
 
-        public CreateTable(SqlSyntax syntax, TableInfo tableInfo, bool rebuild = false) : base(syntax, ObjectType.Table, ActionType.Create, $"{tableInfo}")
+        public CreateTable(SqlSyntax syntax, TableInfo tableInfo, bool rebuild = false, bool withForeignKeys = false) : base(syntax, ObjectType.Table, ActionType.Create, $"{tableInfo}")
         {
             if (tableInfo.ModelType == null) throw new ArgumentException("CreateTable requires a TableInfo that has its ModelType property set.");
 
             _tableInfo = tableInfo;
             _modelType = tableInfo.ModelType;
             _rebuild = rebuild;
+            _withForeignKeys = withForeignKeys;
         }
 
         /// <summary>
@@ -49,7 +51,7 @@ namespace Postulate.Orm.Merge.Actions
                 foreach (var cmd in drop.SqlCommands(connection)) yield return cmd;
             }
             
-            yield return Syntax.TableCreateStatement(_modelType, AddedColumns, ModifiedColumns, DeletedColumns);
+            yield return Syntax.TableCreateStatement(_modelType, AddedColumns, ModifiedColumns, DeletedColumns, _withForeignKeys);
         }
 
         public override IEnumerable<string> ValidationErrors(IDbConnection connection)

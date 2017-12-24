@@ -5,23 +5,21 @@ using Postulate.Orm.Extensions;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using Postulate.Orm.Models;
 
 namespace Postulate.Orm.SqlServer
 {
     public partial class SqlServerSyntax : SqlSyntax
     {
-        public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
+        public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false)
         {
             return $"CREATE TABLE {GetTableName(type)} (\r\n\t" +
-                string.Join(",\r\n\t", CreateTableMembers(type, addedColumns, modifiedColumns, deletedColumns)) +
+                string.Join(",\r\n\t", CreateTableMembers(type, addedColumns, modifiedColumns, deletedColumns, withForeignKeys)) +
             "\r\n)";
         }
 
-        public override string[] CreateTableMembers(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
+        public override string[] CreateTableMembers(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false)
         {
             List<string> results = new List<string>();
 
@@ -33,13 +31,19 @@ namespace Postulate.Orm.SqlServer
 
             results.AddRange(CreateTableUniqueConstraints(type, clusterAttribute));
 
+            if (withForeignKeys)
+            {
+                var foreignKeys = type.GetForeignKeys();
+                results.AddRange(foreignKeys.Select(pi => ForeignKeyConstraintSyntax(pi).RemoveAll("\r\n", "\t")));
+            }
+
             return results.ToArray();
         }
 
         private ClusterAttribute GetClusterAttribute(Type type)
         {
             return type.GetCustomAttribute<ClusterAttribute>() ?? new ClusterAttribute(ClusterOption.PrimaryKey);
-        }        
+        }
 
         private IEnumerable<string> CreateTableColumns(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
         {
@@ -63,32 +67,6 @@ namespace Postulate.Orm.SqlServer
             if (identityPos == Position.EndOfTable) results.Add(IdentityColumnSql(type));
 
             return results;
-        }
-
-        public IEnumerable<PropertyInfo> ColumnProperties(Type type)
-        {
-            return type.GetProperties()
-                .Where(p =>
-                    p.CanWrite &&
-                    !p.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
-                    IsSupportedType(p.PropertyType) &&                    
-                    !p.HasAttribute<NotMappedAttribute>());
-        }
-
-        private string IdentityColumnSql(Type type)
-        {
-            Type keyType = FindKeyType(type);
-
-            return $"{ApplyDelimiter(type.IdentityColumnName())} {KeyTypeMap()[keyType]}";
-        }
-
-        private Type FindKeyType(Type modelType)
-        {
-            if (!modelType.IsDerivedFromGeneric(typeof(Record<>))) throw new ArgumentException("Model class must derive from Record<TKey>");
-
-            Type checkType = modelType;
-            while (!checkType.IsGenericType) checkType = checkType.BaseType;
-            return checkType.GetGenericArguments()[0];
         }
 
         private string CreateTablePrimaryKey(Type type, ClusterAttribute clusterAttribute)
@@ -118,6 +96,6 @@ namespace Postulate.Orm.SqlServer
             }));
 
             return results;
-        }        
+        }
     }
 }

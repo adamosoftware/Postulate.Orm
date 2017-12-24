@@ -1,17 +1,15 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
+using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using Postulate.Orm.Exceptions;
 
 namespace Postulate.Orm.SqlServer
 {
@@ -159,10 +157,10 @@ namespace Postulate.Orm.SqlServer
 	                [c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
 	                [c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation], [c].[is_computed] AS [IsCalculated],
 	                SCHEMA_NAME([parentTbl].[schema_id]) AS [ReferencedSchema], [parentTbl].[name] AS [ReferencedTable], [parentCol].[name] AS [ReferencedColumn],
-	                [fk].[name] AS [ForeignKeyConstraint]                    
+	                [fk].[name] AS [ForeignKeyConstraint]
                 FROM
 	                [sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
-	                LEFT JOIN [sys].[foreign_key_columns] [fkcol] ON 
+	                LEFT JOIN [sys].[foreign_key_columns] [fkcol] ON
 		                [c].[object_id]=[fkcol].[parent_object_id] AND
 		                [c].[column_id]=[fkcol].[parent_column_id]
                     LEFT JOIN [sys].[foreign_keys] [fk] ON [fkcol].[constraint_object_id]=[fk].[object_id]
@@ -202,43 +200,6 @@ namespace Postulate.Orm.SqlServer
         {
             tableInfo.ObjectId = connection.QueryFirstOrDefault<int>("SELECT [object_id] FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", new { schema = tableInfo.Schema, name = tableInfo.Name });
             return (tableInfo.ObjectId != 0);
-        }
-
-        public override string SqlDataType(PropertyInfo propertyInfo)
-        {
-            string result = null;
-
-            ColumnAttribute colAttr;
-            if (propertyInfo.HasAttribute(out colAttr))
-            {
-                return colAttr.TypeName;
-            }
-            else
-            {
-                string length = "max";
-                var maxLenAttr = propertyInfo.GetCustomAttribute<MaxLengthAttribute>();
-                if (maxLenAttr != null) length = maxLenAttr.Length.ToString();
-
-                byte precision = 5, scale = 2; // some aribtrary defaults
-                var dec = propertyInfo.GetCustomAttribute<DecimalPrecisionAttribute>();
-                if (dec != null)
-                {
-                    precision = dec.Precision;
-                    scale = dec.Scale;
-                }
-
-                var typeMap = SupportedTypes(length, precision, scale);
-
-                Type t = propertyInfo.PropertyType;
-                if (t.IsGenericType) t = t.GenericTypeArguments[0];
-                if (t.IsEnum) t = t.GetEnumUnderlyingType();
-
-                if (!typeMap.ContainsKey(t)) throw new KeyNotFoundException($"Type name {t.Name} not supported.");
-
-                result = typeMap[t];
-            }
-
-            return result;
         }
 
         public override string GetColumnSyntax(PropertyInfo propertyInfo, bool forceNull = false)
@@ -313,7 +274,7 @@ namespace Postulate.Orm.SqlServer
 
         public override string GetConstraintBaseName(Type type)
         {
-            var obj = TableInfo.FromModelType(type);
+            var obj = GetTableInfoFromType(type);
             return (obj.Schema.ToLower().Equals("dbo")) ? obj.Name : TitleCase(obj.Schema) + obj.Name;
         }
 
@@ -380,42 +341,14 @@ namespace Postulate.Orm.SqlServer
 
         public override string ForeignKeyAddStatement(PropertyInfo propertyInfo)
         {
-            string firstLine = $"ALTER TABLE {GetTableName(propertyInfo.DeclaringType)} ADD CONSTRAINT [{propertyInfo.ForeignKeyName(this)}] FOREIGN KEY (\r\n";
-
-            if (propertyInfo.PropertyType.IsEnum && propertyInfo.PropertyType.HasAttribute<EnumTableAttribute>())
-            {
-                var attr = propertyInfo.PropertyType.GetAttribute<EnumTableAttribute>();
-                return
-                    firstLine +
-                        $"\t[{propertyInfo.SqlColumnName()}]\r\n" +
-                    $") REFERENCES {ApplyDelimiter(attr.FullTableName())} (\r\n" +
-                        $"\t[Value]\r\n" +
-                    ")";
-            }
-            else
-            {
-                Attributes.ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
-                string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
-                return
-                    firstLine +
-                        $"\t[{propertyInfo.SqlColumnName()}]\r\n" +
-                    $") REFERENCES {GetTableName(fk.PrimaryTableType)} (\r\n" +
-                        $"\t[{fk.PrimaryTableType.IdentityColumnName()}]\r\n" +
-                    ")" + cascadeDelete;
-            }
+            return $"ALTER TABLE {GetTableName(propertyInfo.DeclaringType)} ADD " + ForeignKeyConstraintSyntax(propertyInfo);
         }
+
 
         public override string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo)
-        {
-            string cascadeDelete = (foreignKeyInfo.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
-            return
-                $"ALTER TABLE [{foreignKeyInfo.Child.Schema}].[{foreignKeyInfo.Child.TableName}] ADD CONSTRAINT [{foreignKeyInfo.ConstraintName}] FOREIGN KEY (\r\n" +
-                    $"\t[{foreignKeyInfo.Child.ColumnName}]\r\n" +
-                $") REFERENCES [{foreignKeyInfo.Parent.Schema}].[{foreignKeyInfo.Parent.TableName}] (\r\n" +
-                    $"\t[{foreignKeyInfo.Parent.ColumnName}]\r\n" +
-                $")" + cascadeDelete;
+        {            
+            return $"ALTER TABLE [{foreignKeyInfo.Child.Schema}].[{foreignKeyInfo.Child.TableName}] " + ForeignKeyConstraintSyntax(foreignKeyInfo);
         }
-
 
         public override string CreateColumnIndexStatement(PropertyInfo propertyInfo)
         {
@@ -506,10 +439,10 @@ namespace Postulate.Orm.SqlServer
             return result;
         }
 
-		public override string GetScriptFromSaveException(SaveException exception)
-		{
-			throw new NotImplementedException();
-		}
+        public override string GetScriptFromSaveException(SaveException exception)
+        {
+            throw new NotImplementedException();
+        }
 
         public override string CreateEnumTableStatement(Type enumType)
         {

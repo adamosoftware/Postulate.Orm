@@ -147,12 +147,12 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
+        public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false)
         {
             throw new NotImplementedException();
         }
 
-        public override string[] CreateTableMembers(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns)
+        public override string[] CreateTableMembers(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false)
         {
             throw new NotImplementedException();
         }

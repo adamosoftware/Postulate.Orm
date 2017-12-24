@@ -6,10 +6,12 @@ using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Postulate.Orm.Abstract
 {
@@ -18,6 +20,24 @@ namespace Postulate.Orm.Abstract
     /// </summary>
     public abstract class SqlSyntax
     {
+        public void CreateTable<TModel>(IDbConnection connection, bool withForeignkeys = false) where TModel : Record<int>
+        {
+            var create = new Merge.Actions.CreateTable(this, this.GetTableInfoFromType(typeof(TModel)), withForeignkeys);
+            foreach (var cmd in create.SqlCommands(connection)) connection.Execute(cmd);
+        }
+
+        public string CreateTableScript<TModel>(IDbConnection connection, bool withForeignKeys = false) where TModel : Record<int>
+        {
+            var create = new Merge.Actions.CreateTable(this, this.GetTableInfoFromType(typeof(TModel)), withForeignKeys);
+            StringBuilder sb = new StringBuilder();
+            foreach (var cmd in create.SqlCommands(connection))
+            {
+                sb.Append(cmd);
+                sb.Append(CommandSeparator);
+            }
+            return sb.ToString();
+        }        
+
         public abstract string CommentPrefix { get; }
 
         public abstract string CommandSeparator { get; }
@@ -66,7 +86,42 @@ namespace Postulate.Orm.Abstract
 
         public abstract bool FindObjectId(IDbConnection connection, TableInfo tableInfo);
 
-        public abstract string SqlDataType(PropertyInfo propertyInfo);
+        public virtual string SqlDataType(PropertyInfo propertyInfo)
+        {
+            string result = null;
+
+            ColumnAttribute colAttr;
+            if (propertyInfo.HasAttribute(out colAttr))
+            {
+                return colAttr.TypeName;
+            }
+            else
+            {
+                string length = "max";
+                var maxLenAttr = propertyInfo.GetCustomAttribute<MaxLengthAttribute>();
+                if (maxLenAttr != null) length = maxLenAttr.Length.ToString();
+
+                byte precision = 5, scale = 2; // some aribtrary defaults
+                var dec = propertyInfo.GetCustomAttribute<DecimalPrecisionAttribute>();
+                if (dec != null)
+                {
+                    precision = dec.Precision;
+                    scale = dec.Scale;
+                }
+
+                var typeMap = SupportedTypes(length, precision, scale);
+
+                Type t = propertyInfo.PropertyType;
+                if (t.IsGenericType) t = t.GenericTypeArguments[0];
+                if (t.IsEnum) t = t.GetEnumUnderlyingType();
+
+                if (!typeMap.ContainsKey(t)) throw new KeyNotFoundException($"Type name {t.Name} not supported.");
+
+                result = typeMap[t];
+            }
+
+            return result;
+        }
 
         public abstract bool IsTableEmpty(IDbConnection connection, Type t);        
 
@@ -131,14 +186,14 @@ namespace Postulate.Orm.Abstract
 
         public abstract string TableDropStatement(TableInfo tableInfo);
 
-        public string TableCreateStatement(Type type)
+        public string TableCreateStatement(Type type, bool withForeignKeys = false)
         {
-            return TableCreateStatement(type, null, null, null);
+            return TableCreateStatement(type, null, null, null, withForeignKeys);
         }
 
-        public abstract string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns);
+        public abstract string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false);
 
-        public abstract string[] CreateTableMembers(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns);
+        public abstract string[] CreateTableMembers(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false);
 
         public abstract IEnumerable<KeyColumnInfo> GetKeyColumns(IDbConnection connection, Func<KeyColumnInfo, bool> filter = null);
 
@@ -147,6 +202,45 @@ namespace Postulate.Orm.Abstract
         public abstract string ForeignKeyAddStatement(PropertyInfo propertyInfo);
 
         public abstract string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo);
+        
+        public virtual string ForeignKeyConstraintSyntax(PropertyInfo propertyInfo)
+        {
+            Attributes.ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
+            string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
+            string firstLine = $"CONSTRAINT {ApplyDelimiter(propertyInfo.ForeignKeyName(this))} FOREIGN KEY (\r\n";
+
+            if (propertyInfo.PropertyType.IsEnum && propertyInfo.PropertyType.HasAttribute<EnumTableAttribute>())
+            {
+                var attr = propertyInfo.PropertyType.GetAttribute<EnumTableAttribute>();
+                return
+                    firstLine +
+                        $"\t{ApplyDelimiter(propertyInfo.SqlColumnName())}\r\n" +
+                    $") REFERENCES {ApplyDelimiter(attr.FullTableName())} (\r\n" +
+                        $"\t{ApplyDelimiter("Value")}\r\n" +
+                    ")";
+            }
+            else
+            {
+                return
+                    firstLine +
+                        $"\t{ApplyDelimiter(propertyInfo.SqlColumnName())}\r\n" +
+                    $") REFERENCES {GetTableName(fk.PrimaryTableType)} (\r\n" +
+                        $"\t{ApplyDelimiter(fk.PrimaryTableType.IdentityColumnName())}\r\n" +
+                    ")" + cascadeDelete;
+            }
+        }
+
+        public virtual string ForeignKeyConstraintSyntax(ForeignKeyInfo foreignKeyInfo)
+        {
+            string cascadeDelete = (foreignKeyInfo.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
+            return
+                $"CONSTRAINT {ApplyDelimiter(foreignKeyInfo.ConstraintName)} FOREIGN KEY(\r\n" +
+                    $"\t{ApplyDelimiter(foreignKeyInfo.Child.ColumnName)}\r\n" +
+                $") REFERENCES {ApplyDelimiter(foreignKeyInfo.Parent.Schema)}.{ApplyDelimiter(foreignKeyInfo.Parent.TableName)} (\r\n" +
+                    $"\t{ApplyDelimiter(foreignKeyInfo.Parent.ColumnName)}\r\n" +
+                $")" + cascadeDelete;
+        }
+
 
         public abstract string CreateColumnIndexStatement(PropertyInfo propertyInfo);
 
@@ -177,6 +271,32 @@ namespace Postulate.Orm.Abstract
 
         public abstract string CheckEnumValueExistsStatement(string tableName);
 
-        public abstract string InsertEnumValueStatement(string tableName, string name, int value);		
+        public abstract string InsertEnumValueStatement(string tableName, string name, int value);
+
+        protected string IdentityColumnSql(Type type)
+        {
+            Type keyType = FindKeyType(type);
+
+            return $"{ApplyDelimiter(type.IdentityColumnName())} {KeyTypeMap()[keyType]}";
+        }
+
+        protected Type FindKeyType(Type modelType)
+        {
+            if (!modelType.IsDerivedFromGeneric(typeof(Record<>))) throw new ArgumentException("Model class must derive from Record<TKey>");
+
+            Type checkType = modelType;
+            while (!checkType.IsGenericType) checkType = checkType.BaseType;
+            return checkType.GetGenericArguments()[0];
+        }
+
+        public IEnumerable<PropertyInfo> ColumnProperties(Type type)
+        {
+            return type.GetProperties()
+                .Where(p =>
+                    p.CanWrite &&
+                    !p.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
+                    IsSupportedType(p.PropertyType) &&
+                    !p.HasAttribute<NotMappedAttribute>());
+        }
     }
 }

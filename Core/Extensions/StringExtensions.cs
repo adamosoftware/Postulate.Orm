@@ -19,5 +19,12 @@ namespace Postulate.Orm.Extensions
                     return new KeyValuePair<string, string>(parts[0].Trim(), parts[1].Trim());
                 }).ToDictionary(item => item.Key, item => item.Value);
         }
+
+        public static string RemoveAll(this string input, params string[] substrings)
+        {
+            string result = input;
+            foreach (string substring in substrings) result = result.Replace(substring, string.Empty);
+            return result;
+        }
     }
 }
