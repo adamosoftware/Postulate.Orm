@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Engine xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <StagingFolder>C:\Users\Adam\Source\Repos\Postulate.Orm\MergeUI\bin\Release</StagingFolder>
-  <ProductName>Postulate ORM Schema Merge</ProductName>
+  <ProductName>Postulate ORM Model Merge</ProductName>
   <ProductVersionFile>MergeUI.exe</ProductVersionFile>
   <Type>DeployMasterProcess</Type>
   <InstallerExecutable>C:\Program Files\Just Great Software\DeployMaster\DeployMaster.exe</InstallerExecutable>
   <InstallerSuccessCode>-1</InstallerSuccessCode>
   <InstallerArguments>C:\Users\Adam\Source\Repos\Postulate.Orm\MergeUI\setup.deploy</InstallerArguments>
-  <InstallerOutput>C:\Users\Adam\Source\Repos\Postulate.Orm\MergeUI\PostulateSchemaMergeSetup.exe</InstallerOutput>
+  <InstallerOutput>C:\Users\Adam\Source\Repos\Postulate.Orm\MergeUI\PostulateModelMerge.exe</InstallerOutput>
   <LocalCredentialSource>C:\Users\Adam\OneDrive\Azure.AoSoftware.install.xml</LocalCredentialSource>
   <ContainerName>install</ContainerName>
 </Engine>

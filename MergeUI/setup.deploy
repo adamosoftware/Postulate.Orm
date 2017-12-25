@@ -2,11 +2,11 @@ DeployMaster Installation Script
 600
 Adam O'Neil Software
 https://github.com/adamosoftware
-Postulate Schema Merge
+Postulate Model Merge
 https://github.com/adamosoftware/Postulate.Orm
 1.1.1.0
 TRUE
-43072
+43094
 C:\Users\Adam\Source\Repos\Postulate.Orm\Schema_Merge.ico
 Copyright © 2017 Adam O'Neil Software
 
@@ -388,7 +388,7 @@ You are attempting to run the installer for %APP% %VERSION%.  This installer exp
 4095
 *.chm;*.png;*.jpg;*.gif;*.mp3;*.avi;*.zip
 
-PostulateSchemaMergeSetup.exe
+PostulateModelMerge.exe
 
 FALSE
 
