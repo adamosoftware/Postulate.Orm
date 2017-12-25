@@ -20,13 +20,13 @@ To get started:
 
 2. Install nuget package **Postulate.Orm.Core** in both projects in your solution.
 
-3. Install the Schema Merge app from [here](https://adamosoftware.blob.core.windows.net/install/PostulateSchemaMergeSetup.exe). Note that Schema Merge capability works only with SQL Server currently. This will create a desktop icon that looks like this:
+3. Install the Model Merge app from [here](https://adamosoftware.blob.core.windows.net/install/PostulateModelMerge.exe). Note that Model Merge capability works only with SQL Server currently. This will create a desktop icon that looks like this:
 
     ![img](https://adamosoftware.blob.core.windows.net/images/schema_merge_icon.png)
 
 4. In the post build event of your **models** project, enter this command line:
 
-`"C:\Users\Adam\AppData\Local\Adam O'Neil Software\Postulate Schema Merge\MergeUI.exe" "$(TargetPath)"`
+`"C:\Users\Adam\AppData\Local\Adam O'Neil Software\Postulate Model Merge\MergeUI.exe" "$(TargetPath)"`
 
 5. In your models project, add a config file with a `ConnectionString` element with a valid SQL Server connection. The database does not have to exist, but the server and credentials must be valid. This example assumes a connection named `DefaultConnection`.
 
