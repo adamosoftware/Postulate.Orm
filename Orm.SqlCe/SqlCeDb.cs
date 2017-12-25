@@ -1,9 +1,13 @@
 ﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlServerCe;
+using System.Linq;
+using Dapper;
 
 namespace Postulate.Orm.SqlCe
 {
@@ -62,6 +66,24 @@ namespace Postulate.Orm.SqlCe
         protected override void OnCaptureDeletion<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transasction)
         {
             throw new NotSupportedException();
+        }
+
+        protected override string GetInsertStatement<TRecord>()
+        {
+            var columns = GetColumnNames<TRecord>(pi => pi.HasColumnAccess(Access.InsertOnly));
+
+            return
+                $@"INSERT INTO {GetTableName<TRecord>()} (
+                    {string.Join(", ", columns.Select(col => Syntax.ApplyDelimiter(col.ColumnName)))}
+                ) VALUES (
+                    {string.Join(", ", columns.Select(s => $"@{s.PropertyName}"))}
+                )";
+        }
+
+        protected override int ExecuteInsertMethod<TRecord>(IDbConnection connection, TRecord record, IDbTransaction transaction, string cmd)
+        {
+            connection.Execute(cmd, record, transaction);
+            return connection.QuerySingle<int>("SELECT @@IDENTITY");
         }
     }
 }

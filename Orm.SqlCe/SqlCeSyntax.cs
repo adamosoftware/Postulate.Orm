@@ -35,7 +35,7 @@ namespace Postulate.Orm.SqlCe
 
         public override string ApplyDelimiter(string objectName)
         {
-            return $"`{objectName}`";
+            return $"[{objectName}]";
         }
 
         public override string ApplyPaging(string sql, int pageNumber, int rowsPerPage)
@@ -108,19 +108,19 @@ namespace Postulate.Orm.SqlCe
 
             if (PrimaryKeyColumns(type, markedOnly: true).Any())
             {
-                results.Add($"CONSTRAINT `U_{GetConstraintBaseName(type)}_Id` UNIQUE (`Id`)");
+                results.Add($"CONSTRAINT [U_{GetConstraintBaseName(type)}_Id] UNIQUE ([Id])");
             }
 
             results.AddRange(type.GetProperties().Where(pi => pi.HasAttribute<UniqueKeyAttribute>()).Select(pi =>
             {
                 UniqueKeyAttribute attr = pi.GetCustomAttribute<UniqueKeyAttribute>();
-                return $"CONSTRAINT `U_{GetConstraintBaseName(type)}_{pi.SqlColumnName()}` UNIQUE (`{pi.SqlColumnName()}`)";
+                return $"CONSTRAINT [U_{GetConstraintBaseName(type)}_{pi.SqlColumnName()}] UNIQUE ([{pi.SqlColumnName()}])";
             }));
 
             results.AddRange(type.GetCustomAttributes<UniqueKeyAttribute>().Select((u, i) =>
             {
                 string constrainName = (string.IsNullOrEmpty(u.ConstraintName)) ? $"U_{GetConstraintBaseName(type)}_{i}" : u.ConstraintName;
-                return $"CONSTRAINT `{constrainName}` UNIQUE {u.GetClusteredSyntax()}({string.Join(", ", u.ColumnNames.Select(col => $"`{col}`"))})";
+                return $"CONSTRAINT [{constrainName}] UNIQUE {u.GetClusteredSyntax()}({string.Join(", ", u.ColumnNames.Select(col => $"[{col}]"))})";
             }));
 
             return results;
@@ -129,7 +129,7 @@ namespace Postulate.Orm.SqlCe
 
         private string CreateTablePrimaryKey(Type type)
         {
-            return $"CONSTRAINT `PK_{GetConstraintBaseName(type)}` PRIMARY KEY ({string.Join(", ", PrimaryKeyColumns(type).Select(col => $"{ApplyDelimiter(col)}"))})";
+            return $"CONSTRAINT [PK_{GetConstraintBaseName(type)}] PRIMARY KEY ({string.Join(", ", PrimaryKeyColumns(type).Select(col => $"{ApplyDelimiter(col)}"))})";
         }
 
         private IEnumerable<string> CreateTableColumns(Type type)
