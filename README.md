@@ -5,11 +5,11 @@ Postulate is a lightweight code-first ORM made with [Dapper](https://github.com/
 Nuget package status:
 - **Postulate.Orm.Core** replaces Postulate.Orm. This package is installed automatically by [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc). Because this package has only abstract classes, you must in addition install either the **SqlServer** or **MySql** package, described below.
 - **Postulate.Orm.SqlServer** uses a new Model Merge architecture refactored to support MySql, and a new WinForms merge UI app is in progress that will eventually support both SQL Server and MySql.
-- **Postulate.Orm.MySql** supports CRUD operations, but has no schema merge capability yet.
+- **Postulate.Orm.MySql** supports CRUD operations, but has no model merge capability yet.
 - **Postulate.Orm.SqlCe** in beta, supports CRUD operations and minimal model merge features.
 - **Postulate.Orm** version 0.9.220 targets SQL Server [deprecated].
 
-I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the schema merge feature works only for SQL Server, currently. A MySql implementation is coming.
+I created Postulate because I don't like Entity Framework migrations, I'm not wild about Linq as a total replacement for SQL, I think EF is overly ambitious in scope, and I don't agree with its conventions regarding inheritance and primary/foreign keys. I prefer a data access layer that is thinner and targeted to SQL Server. Postulate is written for `IDbConnection`, so it may theoretically target a wide range of back-ends, but the model merge feature works only for SQL Server, currently. A MySql implementation is coming.
 
 Regarding Linq and inline SQL, I respect the genius that is Linq, but I'm still more comfortable with inline SQL so long as it's isolated to some degree from the application. The [Query&lt;TResult&gt;](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Query.cs) class offers strong-typed query and trace capability, and another project [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc) builds upon this.
 
@@ -17,7 +17,7 @@ For a video demo, please see this at [Vimeo.com](https://vimeo.com/219400011). A
 
 To get started:
 
-1. Create a solution with two projects. One will be for model classes only, the other is your main application, which can be any type. (Creating a separate project for model classes  is a good design choice to begin with, but it also simply works better for Postulate because the Schema Merge app avoids some reflection errors if the models are in their own project.)
+1. Create a solution with two projects. One will be for model classes only, the other is your main application, which can be any type. (Creating a separate project for model classes  is a good design choice to begin with, but it also simply works better for Postulate because the Model Merge app avoids some reflection errors if the models are in their own project.)
 
 2. Install nuget package **Postulate.Orm.Core** in both projects in your solution.
 
@@ -50,7 +50,7 @@ To get started:
     ```
 7. Create one or more model classes that share the same namespace as your `MyDb` class. In the example above, the namespace is `Models`, so all of your model classes that you create subsequently need to be in that namespace. See [this topic](https://github.com/adamosoftware/Postulate.Orm/wiki/Designing-Model-Classes) on creating model classes for Postulate.
 
-Whenever you build or rebuild your models project, the Schema Merge app will run, and you should see a window like this. Click the **Execute** button in the upper right to apply changes in your model classes to your database. Postulate can detect a range of changes, and generate correct SQL to implement them. Postulate will never drop tables that contain data. (To learn about the schema merge implementation, see [SchemaMerge.CompareAsync method](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Merge/Engine.cs#L60).
+Whenever you build or rebuild your models project, the Model Merge app will run, and you should see a window like this. Click the **Execute** button in the upper right to apply changes in your model classes to your database. Postulate can detect a range of changes, and generate correct SQL to implement them. Postulate will never drop tables that contain data. (To learn about the model merge implementation, see [Merge.Engine.CompareAsync method](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Merge/Engine.cs#L60).
 
 ![img](https://adamosoftware.blob.core.windows.net:443/images/schema_merge_app.png)
 
