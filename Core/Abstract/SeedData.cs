@@ -34,8 +34,8 @@ namespace Postulate.Orm.Abstract
             foreach (var record in Records)
             {
                 var existingRecord = connection.QuerySingleOrDefault<TRecord>($"SELECT * FROM {ExistsCriteria}", record);
-                
-                // this will cause the existing seed record to be updated instead of inserted                
+
+                // this will cause the existing seed record to be updated instead of inserted
                 if (existingRecord != null) record.Id = existingRecord.Id;
 
                 // apply any tenant-specific properties, such as an OrgId

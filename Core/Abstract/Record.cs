@@ -94,7 +94,7 @@ namespace Postulate.Orm.Abstract
         }
 
         private bool RequiredDateNotSet(PropertyInfo prop)
-        {            
+        {
             if (prop.PropertyType.Equals(typeof(DateTime)))
             {
                 DateTime value = (DateTime)prop.GetValue(this);
@@ -105,7 +105,7 @@ namespace Postulate.Orm.Abstract
 
         /// <summary>
         /// Override this to set any properties of a record, and execute foreign key lookups before it's viewed via the Find or FindWhere methods
-        /// </summary>        
+        /// </summary>
         public virtual void BeforeView(IDbConnection connection, SqlDb<TKey> db)
         {
             // do nothing by default
@@ -170,7 +170,7 @@ namespace Postulate.Orm.Abstract
 
         /// <summary>
         /// Override this to set your own Where clause used with the Find method. Don't include the word "WHERE", just use an expression only with single parameter named "@id"
-        /// </summary>        
+        /// </summary>
         public virtual string CustomFindWhereClause()
         {
             return null;
@@ -183,7 +183,7 @@ namespace Postulate.Orm.Abstract
         /// <returns></returns>
         public virtual string GetErrorMessage(SqlDb<TKey> db, string originalMessage)
         {
-            return originalMessage; 
+            return originalMessage;
         }
     }
 }

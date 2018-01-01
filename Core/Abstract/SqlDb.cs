@@ -79,7 +79,7 @@ namespace Postulate.Orm.Abstract
                 string name = _connectionString.Substring(1);
                 _connectionString = ConnectionStringReference.Resolve(name);
             }
-        }      
+        }
 
         /// <summary>
         /// Attempts to open the connection, and then attempts to create the database if it's not opened successfully
@@ -196,7 +196,7 @@ namespace Postulate.Orm.Abstract
                 !pi.HasAttribute<NotMappedAttribute>() &&
                 pi.IsSupportedType(_syntax) &&
                 (predicate?.Invoke(pi) ?? true));
-        }        
+        }
 
         protected IEnumerable<SqlColumn> GetColumnNames<TRecord>(Func<PropertyInfo, bool> predicate = null) where TRecord : Record<TKey>
         {
@@ -207,9 +207,9 @@ namespace Postulate.Orm.Abstract
                 {
                     ColumnName = (pi.HasAttribute(out colAttr, a => !string.IsNullOrEmpty(a.Name)) ? colAttr.Name : pi.Name),
                     PropertyName = pi.Name
-                };                
+                };
             });
-        }        
+        }
 
         private string GetCommand<TRecord>(Dictionary<string, string> dictionary, Func<string> commandBuilder)
         {
@@ -222,22 +222,22 @@ namespace Postulate.Orm.Abstract
         {
             // thanks to https://stackoverflow.com/questions/22912649/lambda-to-sql-translation
             throw new NotImplementedException();
-        }  
-        
+        }
+
         protected struct SqlColumn
         {
             public string ColumnName { get; set; }
             public string PropertyName { get; set; }
         }
 
-		private void InvokeTraceCallback(IDbConnection connection, string queryClass, string cmd, object parameters, Stopwatch sw)
-		{
-			IEnumerable<QueryTrace.Parameter> traceParams = parameters?.GetType()
-				.GetProperties()
-				.Where(pi => ((pi.GetIndexParameters()?.Length ?? 0) == 0)) // exclude indexer properties
-				.Select(pi => new QueryTrace.Parameter(pi, parameters));
+        private void InvokeTraceCallback(IDbConnection connection, string queryClass, string cmd, object parameters, Stopwatch sw)
+        {
+            IEnumerable<QueryTrace.Parameter> traceParams = parameters?.GetType()
+                .GetProperties()
+                .Where(pi => ((pi.GetIndexParameters()?.Length ?? 0) == 0)) // exclude indexer properties
+                .Select(pi => new QueryTrace.Parameter(pi, parameters));
 
-			TraceCallback?.Invoke(connection, new QueryTrace(queryClass, UserName, cmd, traceParams, sw.ElapsedMilliseconds, null));
-		}
-	}
+            TraceCallback?.Invoke(connection, new QueryTrace(queryClass, UserName, cmd, traceParams, sw.ElapsedMilliseconds, null));
+        }
+    }
 }

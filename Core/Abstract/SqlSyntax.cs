@@ -36,7 +36,7 @@ namespace Postulate.Orm.Abstract
                 sb.Append(CommandSeparator);
             }
             return sb.ToString();
-        }        
+        }
 
         public abstract string CommentPrefix { get; }
 
@@ -44,11 +44,11 @@ namespace Postulate.Orm.Abstract
 
         /// <summary>
         /// Applies the platform-specific delimiter around object names, such as square brackets around SQL Server object names or backticks in MySQL
-        /// </summary>        
+        /// </summary>
         public abstract string ApplyDelimiter(string objectName);
 
         /// <summary>
-        /// Returns the column name followed by the alias, if specified. Used by <see cref="SqlDb{TKey}.Find{TRecord}(TKey)"/> method to ensure column and property names are mapped 
+        /// Returns the column name followed by the alias, if specified. Used by <see cref="SqlDb{TKey}.Find{TRecord}(TKey)"/> method to ensure column and property names are mapped
         /// </summary>
         public string SelectExpression(PropertyInfo propertyInfo)
         {
@@ -66,7 +66,7 @@ namespace Postulate.Orm.Abstract
         /// <summary>
         /// Returns the database table name for the given model type, applying the schema name, if specified with the [Table] or [Schema] attribute
         /// </summary>
-        public abstract string GetTableName(Type type);      
+        public abstract string GetTableName(Type type);
 
         public abstract string TableExistsQuery { get; }
 
@@ -123,14 +123,14 @@ namespace Postulate.Orm.Abstract
             return result;
         }
 
-        public abstract bool IsTableEmpty(IDbConnection connection, Type t);        
+        public abstract bool IsTableEmpty(IDbConnection connection, Type t);
 
         public bool TableExists(IDbConnection connection, Type t)
         {
             return connection.Exists(TableExistsQuery, TableExistsParameters(t));
         }
 
-        public abstract bool SchemaExists(IDbConnection connection, string schemaName);        
+        public abstract bool SchemaExists(IDbConnection connection, string schemaName);
 
         public bool ColumnExists(IDbConnection connection, PropertyInfo pi)
         {
@@ -174,7 +174,7 @@ namespace Postulate.Orm.Abstract
                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSupportedType(type.GetGenericArguments()[0]));
         }
 
-        public abstract string GetColumnSyntax(PropertyInfo propertyInfo, bool forceNull = false);        
+        public abstract string GetColumnSyntax(PropertyInfo propertyInfo, bool forceNull = false);
 
         public abstract string GetColumnType(PropertyInfo propertyInfo, bool forceNull = false);
 
@@ -202,7 +202,7 @@ namespace Postulate.Orm.Abstract
         public abstract string ForeignKeyAddStatement(PropertyInfo propertyInfo);
 
         public abstract string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo);
-        
+
         public virtual string ForeignKeyConstraintSyntax(PropertyInfo propertyInfo)
         {
             Attributes.ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
@@ -241,7 +241,6 @@ namespace Postulate.Orm.Abstract
                 $")" + cascadeDelete;
         }
 
-
         public abstract string CreateColumnIndexStatement(PropertyInfo propertyInfo);
 
         public abstract string CreateSchemaStatement(string name);
@@ -262,10 +261,10 @@ namespace Postulate.Orm.Abstract
 
         public abstract string ApplyPaging(string sql, int pageNumber, int rowsPerPage);
 
-		/// <summary>
-		/// Reproduces the script from a failed statement execution so you can troubleshoot in your SQL tool of choice
-		/// </summary>
-		public abstract string GetScriptFromSaveException(SaveException exception);
+        /// <summary>
+        /// Reproduces the script from a failed statement execution so you can troubleshoot in your SQL tool of choice
+        /// </summary>
+        public abstract string GetScriptFromSaveException(SaveException exception);
 
         public abstract string CreateEnumTableStatement(Type enumType);
 

@@ -22,8 +22,8 @@ namespace Postulate.Orm.Abstract
             TRecord savedRecord = Find<TRecord>(connection, record.Id);
             if (savedRecord == null) throw new Exception($"Tried to compare changes with saved record, but couldn't find the saved record for Id {record.Id}.");
 
-            return typeof(TRecord).GetProperties().Where(pi => 
-                pi.HasColumnAccess(Access.UpdateOnly) && 
+            return typeof(TRecord).GetProperties().Where(pi =>
+                pi.HasColumnAccess(Access.UpdateOnly) &&
                 !ignorePropsArray.Contains(pi.Name) &&
                 pi.IsSupportedType(_syntax)).Select(pi =>
             {

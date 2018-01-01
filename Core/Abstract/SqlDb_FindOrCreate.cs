@@ -9,14 +9,14 @@ namespace Postulate.Orm.Abstract
         /// </summary>
         /// <typeparam name="TRecord"></typeparam>
         /// <param name="criteria">Filter expression</param>
-        /// <param name="instance">Instance to return if record doesn't exist</param>        
+        /// <param name="instance">Instance to return if record doesn't exist</param>
         public TRecord FindOrCreate<TRecord>(string criteria, TRecord instance, bool saveNewInstance = false) where TRecord : Record<TKey>, new()
         {
             using (var cn = GetConnection())
             {
                 cn.Open();
                 return FindOrCreate(cn, criteria, instance, saveNewInstance);
-            }                
+            }
         }
 
         public TRecord FindOrCreate<TRecord>(IDbConnection connection, string criteria, TRecord instance, bool saveNewInstance = false) where TRecord : Record<TKey>, new()
@@ -28,7 +28,7 @@ namespace Postulate.Orm.Abstract
                 return instance;
             }
 
-            return result;            
+            return result;
         }
     }
 }
