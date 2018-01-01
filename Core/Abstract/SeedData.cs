@@ -5,61 +5,61 @@ using System.Data;
 
 namespace Postulate.Orm.Abstract
 {
-    public abstract class SeedData<TRecord, TKey> where TRecord : Record<TKey>, new()
-    {
-        /// <summary>
-        /// FROM and WHERE clause (without the word "FROM") used to determine whether a seed row exists or not.
-        /// WHERE clause should include parameters
-        /// </summary>
-        public abstract string ExistsCriteria { get; }
+	public abstract class SeedData<TRecord, TKey> where TRecord : Record<TKey>, new()
+	{
+		/// <summary>
+		/// FROM and WHERE clause (without the word "FROM") used to determine whether a seed row exists or not.
+		/// WHERE clause should include parameters
+		/// </summary>
+		public abstract string ExistsCriteria { get; }
 
-        /// <summary>
-        /// Array of records to generate
-        /// </summary>
-        public abstract IEnumerable<TRecord> Records { get; }
+		/// <summary>
+		/// Array of records to generate
+		/// </summary>
+		public abstract IEnumerable<TRecord> Records { get; }
 
-        /// <summary>
-        /// Expression used with the <see cref="FindId{TLookup}(string)"/> method. Must use parameter called @name, but the column name is up to you
-        /// </summary>
-        protected virtual string FindIdExpression { get { return "[Name]=@name"; } }
+		/// <summary>
+		/// Expression used with the <see cref="FindId{TLookup}(string)"/> method. Must use parameter called @name, but the column name is up to you
+		/// </summary>
+		protected virtual string FindIdExpression { get { return "[Name]=@name"; } }
 
-        private IDbConnection _connection;
-        private SqlDb<TKey> _db;
+		private IDbConnection _connection;
+		private SqlDb<TKey> _db;
 
-        public void Generate(IDbConnection connection, SqlDb<TKey> db, Action<TRecord> setProperties = null)
-        {
-            _connection = connection;
-            _db = db;
+		public void Generate(IDbConnection connection, SqlDb<TKey> db, Action<TRecord> setProperties = null)
+		{
+			_connection = connection;
+			_db = db;
 
-            foreach (var record in Records)
-            {
-                var existingRecord = connection.QuerySingleOrDefault<TRecord>($"SELECT * FROM {ExistsCriteria}", record);
+			foreach (var record in Records)
+			{
+				var existingRecord = connection.QuerySingleOrDefault<TRecord>($"SELECT * FROM {ExistsCriteria}", record);
 
-                // this will cause the existing seed record to be updated instead of inserted
-                if (existingRecord != null) record.Id = existingRecord.Id;
+				// this will cause the existing seed record to be updated instead of inserted
+				if (existingRecord != null) record.Id = existingRecord.Id;
 
-                // apply any tenant-specific properties, such as an OrgId
-                setProperties?.Invoke(record);
+				// apply any tenant-specific properties, such as an OrgId
+				setProperties?.Invoke(record);
 
-                db.Save(connection, record);
-            }
-        }
+				db.Save(connection, record);
+			}
+		}
 
-        /// <summary>
-        /// Use in your <see cref="Records"/> property to reference generated identity values not known until runtime
-        /// </summary>
-        protected TKey FindId<TLookup>(string name) where TLookup : Record<TKey>, new()
-        {
-            return _db.FindWhere<TLookup>(_connection, FindIdExpression, new { name = name }).Id;
-        }
+		/// <summary>
+		/// Use in your <see cref="Records"/> property to reference generated identity values not known until runtime
+		/// </summary>
+		protected TKey FindId<TLookup>(string name) where TLookup : Record<TKey>, new()
+		{
+			return _db.FindWhere<TLookup>(_connection, FindIdExpression, new { name = name }).Id;
+		}
 
-        public void Generate(SqlDb<TKey> db)
-        {
-            using (var cn = db.GetConnection())
-            {
-                cn.Open();
-                Generate(cn, db);
-            }
-        }
-    }
+		public void Generate(SqlDb<TKey> db)
+		{
+			using (var cn = db.GetConnection())
+			{
+				cn.Open();
+				Generate(cn, db);
+			}
+		}
+	}
 }
