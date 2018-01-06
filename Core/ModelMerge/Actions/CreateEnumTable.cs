@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace Postulate.Orm.Merge.Actions
+namespace Postulate.Orm.ModelMerge.Actions
 {
     public class CreateEnumTable : MergeAction
     {

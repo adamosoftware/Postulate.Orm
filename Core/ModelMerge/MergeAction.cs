@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace Postulate.Orm.Merge
+namespace Postulate.Orm.ModelMerge
 {
     public enum ActionType
     {

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge.Actions
+namespace Postulate.Orm.ModelMerge.Actions
 {
     public class AddColumn : MergeAction
     {

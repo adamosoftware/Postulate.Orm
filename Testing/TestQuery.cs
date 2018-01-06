@@ -13,7 +13,7 @@ using Postulate.Orm.Abstract;
 using Postulate.Orm.Util;
 using AdamOneilSoftware;
 using Dapper;
-using Postulate.Orm.Merge.Actions;
+using Postulate.Orm.ModelMerge.Actions;
 using Postulate.Orm;
 
 namespace Testing

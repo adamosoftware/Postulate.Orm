@@ -1,7 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
-using Postulate.Orm.Merge;
+using Postulate.Orm.ModelMerge;
 using Postulate.Orm.MySql;
 using Postulate.Orm.SqlServer;
 using ReflectionHelper;

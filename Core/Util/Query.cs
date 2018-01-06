@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
-using Postulate.Orm.Merge.Actions;
+using Postulate.Orm.ModelMerge.Actions;
 using Postulate.Orm.Models;
 using System.Data;
 

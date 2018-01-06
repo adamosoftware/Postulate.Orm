@@ -9,7 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Postulate.Orm.Merge.Actions
+namespace Postulate.Orm.ModelMerge.Actions
 {
     public class CreateTable : MergeAction
     {

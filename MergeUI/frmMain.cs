@@ -3,7 +3,7 @@ using FastColoredTextBoxNS;
 using Newtonsoft.Json;
 using Postulate.MergeUI.Models;
 using Postulate.MergeUI.ViewModels;
-using Postulate.Orm.Merge;
+using Postulate.Orm.ModelMerge;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -3,7 +3,7 @@ using Postulate.Orm.Models;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Postulate.Orm.Merge.Actions
+namespace Postulate.Orm.ModelMerge.Actions
 {
     public class DropColumn : MergeAction
     {

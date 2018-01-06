@@ -22,13 +22,13 @@ namespace Postulate.Orm.Abstract
 	{
 		public void CreateTable<TModel>(IDbConnection connection, bool withForeignkeys = false) where TModel : Record<int>
 		{
-			var create = new Merge.Actions.CreateTable(this, this.GetTableInfoFromType(typeof(TModel)), false, withForeignkeys);
+			var create = new ModelMerge.Actions.CreateTable(this, this.GetTableInfoFromType(typeof(TModel)), false, withForeignkeys);
 			foreach (var cmd in create.SqlCommands(connection)) connection.Execute(cmd);
 		}
 
 		public string CreateTableScript<TModel>(IDbConnection connection, bool withForeignKeys = false) where TModel : Record<int>
 		{
-			var create = new Merge.Actions.CreateTable(this, this.GetTableInfoFromType(typeof(TModel)), withForeignKeys);
+			var create = new ModelMerge.Actions.CreateTable(this, this.GetTableInfoFromType(typeof(TModel)), withForeignKeys);
 			StringBuilder sb = new StringBuilder();
 			foreach (var cmd in create.SqlCommands(connection))
 			{

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Postulate.Orm.Attributes;
-using Postulate.Orm.Merge;
+using Postulate.Orm.ModelMerge;
 using Postulate.Orm.SqlServer;
 using System.Data.SqlClient;
 using System.Configuration;

@@ -3,7 +3,7 @@ using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
-using Postulate.Orm.Merge.Actions;
+using Postulate.Orm.ModelMerge.Actions;
 using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
@@ -17,7 +17,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Postulate.Orm.Merge
+namespace Postulate.Orm.ModelMerge
 {
     public class Engine<TSyntax> where TSyntax : SqlSyntax, new()
     {
@@ -31,7 +31,7 @@ namespace Postulate.Orm.Merge
         {
             if (modelTypes.Any(t => !t.IsDerivedFromGeneric(typeof(Record<>))))
             {
-                throw new ArgumentException("Model types used with Postulate.Orm.Merge.Engine must all derive from Postulate.Orm.Abstract.Record<>");
+                throw new ArgumentException("Model types used with Postulate.Orm.ModelMerge.Engine must all derive from Postulate.Orm.Abstract.Record<>");
             }            
 
             _modelTypes = modelTypes;

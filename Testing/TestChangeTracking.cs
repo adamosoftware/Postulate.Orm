@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Postulate.Orm.Merge.Actions;
+using Postulate.Orm.ModelMerge.Actions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

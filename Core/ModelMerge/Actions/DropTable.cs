@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Postulate.Orm.Merge.Actions
+namespace Postulate.Orm.ModelMerge.Actions
 {
     public class DropTable : MergeAction
     {

@@ -1,4 +1,4 @@
-﻿using Postulate.Orm.Merge;
+﻿using Postulate.Orm.ModelMerge;
 using System.Windows.Forms;
 
 namespace Postulate.MergeUI.ViewModels

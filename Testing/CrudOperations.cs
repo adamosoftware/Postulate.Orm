@@ -4,7 +4,7 @@ using Testing.Models;
 using System.Data;
 using Dapper;
 using System.Threading.Tasks;
-using Postulate.Orm.Merge;
+using Postulate.Orm.ModelMerge;
 using Postulate.Orm.Enums;
 using System.Linq;
 using Postulate.Orm.Util;

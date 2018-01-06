@@ -53,16 +53,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\EnumTableAttribute.cs" />
-    <Compile Include="Merge\Actions\CreateSchema.cs" />
-    <Compile Include="Merge\Actions\DropForeignKey.cs" />
-    <Compile Include="Merge\Actions\CreateEnumTable.cs" />
+    <Compile Include="ModelMerge\Actions\CreateSchema.cs" />
+    <Compile Include="ModelMerge\Actions\DropForeignKey.cs" />
+    <Compile Include="ModelMerge\Actions\CreateEnumTable.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Attributes\CaseAttribute.cs" />
     <Compile Include="Attributes\DefaultSqlSyntaxAttribute.cs" />
     <Compile Include="Attributes\WhereAttribute.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\StringInternal.cs" />
-    <Compile Include="Merge\MergeAction.cs" />
+    <Compile Include="ModelMerge\MergeAction.cs" />
     <Compile Include="Abstract\SeedData.cs" />
     <Compile Include="Abstract\SqlDb_ChangeTracking.cs" />
     <Compile Include="Abstract\SqlDb_Copy.cs" />
@@ -102,13 +102,13 @@
     <Compile Include="Extensions\PropertyInfoSqlExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Exceptions\PermissionDeniedException.cs" />
-    <Compile Include="Merge\Actions\AddColumn.cs" />
-    <Compile Include="Merge\Actions\AddForeignKey.cs" />
-    <Compile Include="Merge\Actions\AlterColumn.cs" />
-    <Compile Include="Merge\Actions\CreateTable.cs" />
-    <Compile Include="Merge\Actions\DropColumn.cs" />
-    <Compile Include="Merge\Actions\DropTable.cs" />
-    <Compile Include="Merge\Engine.cs" />
+    <Compile Include="ModelMerge\Actions\AddColumn.cs" />
+    <Compile Include="ModelMerge\Actions\AddForeignKey.cs" />
+    <Compile Include="ModelMerge\Actions\AlterColumn.cs" />
+    <Compile Include="ModelMerge\Actions\CreateTable.cs" />
+    <Compile Include="ModelMerge\Actions\DropColumn.cs" />
+    <Compile Include="ModelMerge\Actions\DropTable.cs" />
+    <Compile Include="ModelMerge\Engine.cs" />
     <Compile Include="Models\ChangeHistory.cs" />
     <Compile Include="Models\ChangeHistoryRecord.cs" />
     <Compile Include="Models\ColumnInfo.cs" />

@@ -1,4 +1,4 @@
-﻿namespace Postulate.Orm.Merge
+﻿namespace Postulate.Orm.ModelMerge
 {
     public class LineRange
     {
