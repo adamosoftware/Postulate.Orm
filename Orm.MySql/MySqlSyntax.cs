@@ -270,5 +270,11 @@ namespace Postulate.Orm.MySql
 		{
 			return connection.Query<TableInfo>("SELECT `TABLE_NAME` as `Name`, '' AS `Schema` FROM `information_schema`.`tables` WHERE `TABLE_TYPE`='BASE TABLE'");
 		}
+
+		public override IEnumerable<ColumnInfo> GetColumns(IDbConnection connection)
+		{
+			//return connection.Query<ColumnInfo>()
+			throw new NotImplementedException();
+		}
 	}
 }

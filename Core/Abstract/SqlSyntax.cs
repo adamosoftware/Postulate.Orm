@@ -193,6 +193,8 @@ namespace Postulate.Orm.Abstract
 
 		public abstract IEnumerable<TableInfo> GetTables(IDbConnection connection);
 
+		public abstract IEnumerable<ColumnInfo> GetColumns(IDbConnection connection);
+
 		public abstract string TableDropStatement(TableInfo tableInfo);
 
 		public abstract string TableCreateStatement(IDbConnection connection, TableInfo tableInfo);

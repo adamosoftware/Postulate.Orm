@@ -473,5 +473,10 @@ namespace Postulate.Orm.SqlServer
 		{
 			return connection.Query<TableInfo>("SELECT [Name], SCHEMA_NAME([schema_id]) AS [Schema] FROM sys.tables WHERE [type_desc]='USER_TABLE'");
 		}
+
+		public override IEnumerable<ColumnInfo> GetColumns(IDbConnection connection)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

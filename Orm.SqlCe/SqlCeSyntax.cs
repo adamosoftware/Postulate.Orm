@@ -345,5 +345,10 @@ namespace Postulate.Orm.SqlCe
 		{
 			throw new NotImplementedException();
 		}
+
+		public override IEnumerable<ColumnInfo> GetColumns(IDbConnection connection)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

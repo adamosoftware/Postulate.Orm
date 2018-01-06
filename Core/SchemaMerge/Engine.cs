@@ -64,10 +64,15 @@ namespace Postulate.Orm.SchemaMerge
 					// schemas
 				}
 
-				results.AddRange(CreateTables(fromConnection, toConnection));
+				var fromTables = _syntax.GetTables(fromConnection);
+				var toTables = _syntax.GetTables(toConnection);
 
-				var newTables = results.OfType<CreateTable>().Select(a => a.TableInfo);
-				results.AddRange(CreateColumns(fromConnection, toConnection, newTables));
+				results.AddRange(CreateTables(fromTables, toTables));
+
+				var fromColumns = _syntax.GetColumns(fromConnection);
+				var toColumns = _syntax.GetColumns(toConnection);
+
+				results.AddRange(CreateColumns(fromTables, fromConnection, toTables, toConnection, results));
 
 				// new foreign keys
 
@@ -96,17 +101,24 @@ namespace Postulate.Orm.SchemaMerge
 			return results;
 		}
 
-		private IEnumerable<MergeAction> CreateColumns(IDbConnection fromConnection, IDbConnection toConnection, IEnumerable<TableInfo> newTables)
+		private IEnumerable<MergeAction> CreateColumns(
+			IEnumerable<TableInfo> fromTables, IDbConnection fromConnection,
+			IEnumerable<TableInfo> toTables,  IDbConnection toConnection,
+			IEnumerable<MergeAction> existingActions)
 		{
+			_progress?.Report(new MergeProgress() { Description = "Finding new columns..." });
+
+			var excludeNewTables = existingActions.OfType<CreateTable>().Select(a => a.TableInfo);
+
+			
+
 			throw new NotImplementedException();
 		}
 
-		private IEnumerable<MergeAction> CreateTables(IDbConnection fromConnection, IDbConnection toConnection)
+		private IEnumerable<MergeAction> CreateTables(IEnumerable<TableInfo> fromTables, IEnumerable<TableInfo> toTables)
 		{
 			_progress?.Report(new MergeProgress() { Description = "Finding new tables..." });
 
-			var fromTables = _syntax.GetTables(fromConnection);
-			var toTables = _syntax.GetTables(toConnection);
 			return fromTables.Where(tbl => !toTables.Contains(tbl)).Select(tbl => new CreateTable(_syntax, tbl));
 		}
 	}
