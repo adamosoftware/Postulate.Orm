@@ -7,12 +7,18 @@ using System.Linq;
 using System.Reflection;
 using Postulate.Orm.Exceptions;
 using System.Text;
+using MySql.Data.MySqlClient;
 
 namespace Postulate.Orm.MySql
 {
     public class MySqlSyntax : SqlSyntax
     {
-        public override string CommentPrefix => "# ";
+		public override IDbConnection GetConnection(string connectionString)
+		{
+			return new MySqlConnection(connectionString);
+		}
+
+		public override string CommentPrefix => "# ";
 
         public override string CommandSeparator => ";\r\n\r\n";
 

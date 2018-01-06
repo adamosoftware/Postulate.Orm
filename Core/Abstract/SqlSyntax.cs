@@ -20,6 +20,8 @@ namespace Postulate.Orm.Abstract
 	/// </summary>
 	public abstract class SqlSyntax
 	{
+		public abstract IDbConnection GetConnection(string connectionString);
+
 		public void CreateTable<TModel>(IDbConnection connection, bool withForeignkeys = false) where TModel : Record<int>
 		{
 			var create = new ModelMerge.Actions.CreateTable(this, this.GetTableInfoFromType(typeof(TModel)), false, withForeignkeys);

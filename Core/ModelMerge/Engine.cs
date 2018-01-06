@@ -19,6 +19,10 @@ using System.Threading.Tasks;
 
 namespace Postulate.Orm.ModelMerge
 {
+	/// <summary>
+	/// Enables merging C# model classes to a physical database schema
+	/// </summary>
+	/// <typeparam name="TSyntax">SQL dialect</typeparam>
     public class Engine<TSyntax> where TSyntax : SqlSyntax, new()
     {
         protected readonly Type[] _modelTypes;

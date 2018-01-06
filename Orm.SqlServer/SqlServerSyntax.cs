@@ -8,6 +8,7 @@ using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 
@@ -15,7 +16,12 @@ namespace Postulate.Orm.SqlServer
 {
     public partial class SqlServerSyntax : SqlSyntax
     {
-        public override string CommentPrefix => "-- ";
+		public override IDbConnection GetConnection(string connectionString)
+		{
+			return new SqlConnection(connectionString);
+		}
+
+		public override string CommentPrefix => "-- ";
 
         public override string CommandSeparator => "\r\nGO\r\n";
 

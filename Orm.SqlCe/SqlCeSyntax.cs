@@ -8,6 +8,7 @@ using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlServerCe;
 using System.Linq;
 using System.Reflection;
 
@@ -15,10 +16,15 @@ namespace Postulate.Orm.SqlCe
 {
     public class SqlCeSyntax : SqlSyntax
     {
-        /// <summary>
-        /// See https://technet.microsoft.com/en-us/library/ms174147(v=sql.110).aspx
-        /// </summary>
-        public override string CommentPrefix => "--";
+		public override IDbConnection GetConnection(string connectionString)
+		{
+			return new SqlCeConnection(connectionString);
+		}
+
+		/// <summary>
+		/// See https://technet.microsoft.com/en-us/library/ms174147(v=sql.110).aspx
+		/// </summary>
+		public override string CommentPrefix => "--";
 
         /// <summary>
         /// I don't think SqlCe supports batching, but I have to put something here
