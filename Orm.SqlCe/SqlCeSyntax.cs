@@ -309,7 +309,12 @@ namespace Postulate.Orm.SqlCe
             };
         }
 
-        public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false)
+		public override string TableCreateStatement(IDbConnection connection, TableInfo tableInfo)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false)
         {
             return $"CREATE TABLE {GetTableName(type)} (\r\n\t" +
                 string.Join(",\r\n\t", CreateTableMembers(type, addedColumns, modifiedColumns, deletedColumns, withForeignKeys)) +
@@ -335,5 +340,10 @@ namespace Postulate.Orm.SqlCe
         {
             throw new NotImplementedException();
         }
-    }
+
+		public override IEnumerable<TableInfo> GetTables(IDbConnection connection)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

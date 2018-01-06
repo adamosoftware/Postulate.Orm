@@ -45,5 +45,20 @@ namespace Postulate.Orm.Models
         {
             return (string.IsNullOrEmpty(Schema)) ? Name : $"{Schema}.{Name}";
         }
-    }
+
+		public override int GetHashCode()
+		{
+			return (Schema?.GetHashCode() ?? 0) + Name.GetHashCode();
+		}
+
+		public override bool Equals(object obj)
+		{
+			TableInfo compare = obj as TableInfo;
+			if (compare != null)
+			{
+				return compare.Schema.ToLower().Equals(this.Schema.ToLower()) && compare.Name.Equals(this.Name.ToLower());
+			}
+			return false;
+		}
+	}
 }

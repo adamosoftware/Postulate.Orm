@@ -468,5 +468,10 @@ namespace Postulate.Orm.SqlServer
         {
             return $"{ApplyDelimiter(tableName)} WHERE [Name]=@name";
         }
-    }
+
+		public override IEnumerable<TableInfo> GetTables(IDbConnection connection)
+		{
+			return connection.Query<TableInfo>("SELECT [Name], SCHEMA_NAME([schema_id]) AS [Schema] FROM sys.tables WHERE [type_desc]='USER_TABLE'");
+		}
+	}
 }

@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Postulate.Orm.Models;
+using System.Data;
 
 namespace Postulate.Orm.SqlServer
 {
@@ -97,5 +99,10 @@ namespace Postulate.Orm.SqlServer
 
             return results;
         }
-    }
+
+		public override string TableCreateStatement(IDbConnection connection, TableInfo tableInfo)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

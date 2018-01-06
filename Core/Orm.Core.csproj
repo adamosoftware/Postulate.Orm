@@ -123,6 +123,7 @@
     <Compile Include="Attributes\RenameFromAttribute.cs" />
     <Compile Include="Abstract\SqlDb_FindOrCreate.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="SchemaMerge\Actions\CreateTable.cs" />
     <Compile Include="SchemaMerge\Engine.cs" />
     <Compile Include="Util\Query.cs" />
     <Compile Include="Validation\RegexAttribute.cs" />

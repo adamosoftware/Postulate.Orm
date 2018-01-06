@@ -191,7 +191,11 @@ namespace Postulate.Orm.Abstract
 
 		public abstract string ForeignKeyDropStatement(ForeignKeyInfo foreignKeyInfo);
 
+		public abstract IEnumerable<TableInfo> GetTables(IDbConnection connection);
+
 		public abstract string TableDropStatement(TableInfo tableInfo);
+
+		public abstract string TableCreateStatement(IDbConnection connection, TableInfo tableInfo);
 
 		public string TableCreateStatement(Type type, bool withForeignKeys = false)
 		{

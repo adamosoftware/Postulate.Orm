@@ -8,6 +8,7 @@ using System.Reflection;
 using Postulate.Orm.Exceptions;
 using System.Text;
 using MySql.Data.MySqlClient;
+using Dapper;
 
 namespace Postulate.Orm.MySql
 {
@@ -155,7 +156,12 @@ namespace Postulate.Orm.MySql
             throw new NotImplementedException();
         }
 
-        public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false)
+		public override string TableCreateStatement(IDbConnection connection, TableInfo tableInfo)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override string TableCreateStatement(Type type, IEnumerable<string> addedColumns, IEnumerable<string> modifiedColumns, IEnumerable<string> deletedColumns, bool withForeignKeys = false)
         {
             throw new NotImplementedException();
         }
@@ -259,5 +265,10 @@ namespace Postulate.Orm.MySql
         {
             throw new NotImplementedException();
         }
-    }
+
+		public override IEnumerable<TableInfo> GetTables(IDbConnection connection)
+		{
+			return connection.Query<TableInfo>("SELECT `TABLE_NAME` as `Name`, '' AS `Schema` FROM `information_schema`.`tables` WHERE `TABLE_TYPE`='BASE TABLE'");
+		}
+	}
 }
