@@ -21,6 +21,8 @@ namespace Postulate.Orm.SqlServer
 			return new SqlConnection(connectionString);
 		}
 
+		public override bool SupportsSchemas => true;
+
 		public override string CommentPrefix => "-- ";
 
         public override string CommandSeparator => "\r\nGO\r\n";

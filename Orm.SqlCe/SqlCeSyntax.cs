@@ -21,6 +21,8 @@ namespace Postulate.Orm.SqlCe
 			return new SqlCeConnection(connectionString);
 		}
 
+		public override bool SupportsSchemas => false;
+
 		/// <summary>
 		/// See https://technet.microsoft.com/en-us/library/ms174147(v=sql.110).aspx
 		/// </summary>

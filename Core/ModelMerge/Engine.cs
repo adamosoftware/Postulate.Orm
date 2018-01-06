@@ -185,16 +185,19 @@ namespace Postulate.Orm.ModelMerge
 
             TableInfo tableInfo = null;
 
-            _progress?.Report(new MergeProgress()
-            {
-                Description = "Analzying schemas...",
-                PercentComplete = 0
-            });
+			if (_syntax.SupportsSchemas)
+			{
+				_progress?.Report(new MergeProgress()
+				{
+					Description = "Analzying schemas...",
+					PercentComplete = 0
+				});
 
-            var schemas = _modelTypes.Select(t => Syntax.GetTableInfoFromType(t).Schema).GroupBy(s => s).Select(grp => grp.Key);
-            CreateSchemas(connection, results, schemas);
+				var schemas = _modelTypes.Select(t => Syntax.GetTableInfoFromType(t).Schema).GroupBy(s => s).Select(grp => grp.Key);
+				CreateSchemas(connection, results, schemas);
+			}
 
-            _progress?.Report(new MergeProgress()
+			_progress?.Report(new MergeProgress()
             {
                 Description = "Analzying enum foreign keys...",
                 PercentComplete = 0

@@ -18,6 +18,8 @@ namespace Postulate.Orm.MySql
 			return new MySqlConnection(connectionString);
 		}
 
+		public override bool SupportsSchemas => false;
+
 		public override string CommentPrefix => "# ";
 
         public override string CommandSeparator => ";\r\n\r\n";

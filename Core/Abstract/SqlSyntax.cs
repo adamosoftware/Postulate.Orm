@@ -22,6 +22,11 @@ namespace Postulate.Orm.Abstract
 	{
 		public abstract IDbConnection GetConnection(string connectionString);
 
+		/// <summary>
+		/// Indicates whether schema objects (in the SQL Server sense) are supported
+		/// </summary>
+		public abstract bool SupportsSchemas { get; }
+
 		public void CreateTable<TModel>(IDbConnection connection, bool withForeignkeys = false) where TModel : Record<int>
 		{
 			var create = new ModelMerge.Actions.CreateTable(this, this.GetTableInfoFromType(typeof(TModel)), false, withForeignkeys);
