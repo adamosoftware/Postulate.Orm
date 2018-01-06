@@ -6,11 +6,11 @@ namespace Postulate.MergeUI.ViewModels
 {
     internal class ActionNode : TreeNode
     {
-        private readonly Orm.Merge.MergeAction _action;
+        private readonly Orm.ModelMerge.MergeAction _action;
 
         private string[] _errors = null;
 
-        public ActionNode(Orm.Merge.MergeAction action) : base(action.ToString())
+        public ActionNode(Orm.ModelMerge.MergeAction action) : base(action.ToString())
         {
             _action = action;
             ImageKey = action.ObjectType.ToString();
@@ -20,7 +20,7 @@ namespace Postulate.MergeUI.ViewModels
         public int StartLine { get; set; }
         public int EndLine { get; set; }
 
-        public Orm.Merge.MergeAction Action { get { return _action; } }
+        public Orm.ModelMerge.MergeAction Action { get { return _action; } }
 
         public bool IsValid { get { return !_errors?.Any() ?? false; } }
 

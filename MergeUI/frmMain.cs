@@ -293,7 +293,7 @@ namespace Postulate.MergeUI
                 if (nd == null) nd = e.Node as ConnectionNode;
                 var selectedActions = tvwActions.FindNodes<ActionNode>(true, node => node.Checked);
                 
-                Dictionary<Orm.Merge.MergeAction, LineRange> lineRanges;
+                Dictionary<Orm.ModelMerge.MergeAction, LineRange> lineRanges;
                 tbScript.Text = _scriptManager.ScriptSelectedActions(nd.ConnectionName, selectedActions.Select(node => node.Action), out lineRanges);                    
             }
             catch (Exception exc)
