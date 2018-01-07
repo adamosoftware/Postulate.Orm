@@ -8,6 +8,6 @@
   <InstallerSuccessCode>-1</InstallerSuccessCode>
   <InstallerArguments>C:\Users\Adam\Source\Repos\Postulate.Orm\MergeUI\setup.deploy</InstallerArguments>
   <InstallerOutput>C:\Users\Adam\Source\Repos\Postulate.Orm\MergeUI\PostulateModelMerge.exe</InstallerOutput>
-  <LocalCredentialSource>C:\Users\Adam\OneDrive\Azure.AoSoftware.install.xml</LocalCredentialSource>
+  <LocalCredentialSource>%onedrive%\Azure.AoSoftware.install.xml</LocalCredentialSource>
   <ContainerName>install</ContainerName>
 </Engine>

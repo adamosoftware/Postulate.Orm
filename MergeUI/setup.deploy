@@ -4,9 +4,9 @@ Adam O'Neil Software
 https://github.com/adamosoftware
 Postulate Model Merge
 https://github.com/adamosoftware/Postulate.Orm
-1.1.1.0
+1.1.4.0
 TRUE
-43094
+43107
 C:\Users\Adam\Source\Repos\Postulate.Orm\Schema_Merge.ico
 Copyright © 2017 Adam O'Neil Software
 
@@ -245,7 +245,7 @@ FALSE
 +
 C:\Users\Adam\Source\Repos\Postulate.Orm\MergeUI\bin\Release\MergeUI.exe
 4
-Postulate Schema Merge
+Postulate Model Merge
 
 
 
