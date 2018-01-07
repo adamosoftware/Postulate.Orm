@@ -31,7 +31,7 @@ namespace Postulate.Orm.ModelMerge.Actions
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {            
             if (!connection.TableExists(_attribute.Schema, _attribute.TableName))
-            {
+            {				
                 yield return Syntax.CreateEnumTableStatement(_enumType);
             }
 
@@ -48,13 +48,22 @@ namespace Postulate.Orm.ModelMerge.Actions
                 }
 
 				if (!valueExists)
-				{
+				{		
 					yield return Syntax.InsertEnumValueStatement(tableName, name, (int)values.GetValue(index));
 				}				
 
                 index++;
             }
+        }		
 
-        }
-    }
+		/// <summary>
+		/// Indicates whether there are any statements to run for this enumType.
+		/// Since enum script can be incrementally added, it's possible to script an action with no commands, and we want to prevent that
+		/// </summary>
+		public static bool ShouldRun(IDbConnection connection, SqlSyntax syntax, Type enumType)
+		{
+			var action = new CreateEnumTable(syntax, enumType);
+			return action.SqlCommands(connection).Any();
+		}
+	}
 }

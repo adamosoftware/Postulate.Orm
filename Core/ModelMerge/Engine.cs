@@ -216,8 +216,8 @@ namespace Postulate.Orm.ModelMerge
                 .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi)))
                 .Select(pi => pi.PropertyType)
                 .GroupBy(t => (t.GetAttribute<EnumTableAttribute>() ?? Nullable.GetUnderlyingType(t).GetAttribute<EnumTableAttribute>()).FullTableName())
-                .Select(grp => grp.First());
-            results.AddRange(enumTables.Select(enumType => new CreateEnumTable(Syntax, enumType)));
+                .Select(grp => grp.First());			
+            results.AddRange(enumTables.Where(t => CreateEnumTable.ShouldRun(connection, Syntax, t)).Select(enumType => new CreateEnumTable(Syntax, enumType)));
 
             foreach (var type in _modelTypes)
             {
