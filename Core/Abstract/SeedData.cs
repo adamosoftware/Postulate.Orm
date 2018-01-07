@@ -33,13 +33,13 @@ namespace Postulate.Orm.Abstract
 
 			foreach (var record in Records)
 			{
+				// apply any tenant-specific properties, such as an OrgId
+				setProperties?.Invoke(record);
+
 				var existingRecord = connection.QuerySingleOrDefault<TRecord>($"SELECT * FROM {ExistsCriteria}", record);
 
 				// this will cause the existing seed record to be updated instead of inserted
 				if (existingRecord != null) record.Id = existingRecord.Id;
-
-				// apply any tenant-specific properties, such as an OrgId
-				setProperties?.Invoke(record);
 
 				db.Save(connection, record);
 			}
