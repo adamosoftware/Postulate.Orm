@@ -54,6 +54,7 @@ namespace Postulate.Orm.ModelMerge
                     !t.Name.StartsWith("<>") &&                    
                     !t.IsAbstract &&
                     !t.IsInterface &&
+					!t.HasAttribute<NotMappedAttribute>() &&
                     t.IsDerivedFromGeneric(typeof(Record<>))).ToArray();
         }
 

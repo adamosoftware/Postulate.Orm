@@ -306,8 +306,8 @@ namespace Postulate.Orm.Abstract
 			return type.GetProperties()
 				.Where(p =>
 					p.CanWrite &&
-					!p.Name.ToLower().Equals(nameof(Record<int>.Id).ToLower()) &&
-					IsSupportedType(p.PropertyType) &&
+					!p.Name.ToLower().Equals(type.IdentityColumnName().ToLower()) &&
+					IsSupportedType(p.PropertyType) &&					
 					!p.HasAttribute<NotMappedAttribute>());
 		}
 	}
