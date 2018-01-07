@@ -300,7 +300,7 @@ namespace Postulate.Orm.ModelMerge
                 foreignKeys.AddRange(type.GetProperties().Where(pi => IsEnumForeignKey(pi.PropertyType)));
             }
 
-            results.AddRange(foreignKeys.Select(fk => new AddForeignKey(_syntax, fk)));
+            results.AddRange(foreignKeys.Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())).Select(fk => new AddForeignKey(_syntax, fk)));
         }
 
         private bool IsEnumForeignKey(Type propertyType)
