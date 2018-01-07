@@ -14,10 +14,18 @@ namespace Postulate.Orm.ModelMerge.Actions
         private readonly Type _enumType;
         private readonly EnumTableAttribute _attribute;
 
-        public CreateEnumTable(SqlSyntax syntax, Type enumType) : base(syntax, ObjectType.Table, ActionType.Create, $"Enum table {enumType.Name}")
+		public static string EnumTableName(Type enumType)
+		{
+			return (!enumType.IsNullableEnum()) ? enumType.Name : Nullable.GetUnderlyingType(enumType).Name;
+		}
+
+        public CreateEnumTable(SqlSyntax syntax, Type enumType) : base(syntax, ObjectType.Table, ActionType.Create, $"Enum table {EnumTableName(enumType)}")
         {
-            _enumType = enumType;
-            _attribute = enumType.GetAttribute<EnumTableAttribute>() ?? throw new Exception($"Enum type {enumType.Name} is missing an [EnumTable] attribute");
+            _enumType = (!enumType.IsNullableEnum()) ? enumType : Nullable.GetUnderlyingType(enumType);
+            _attribute = 
+				enumType.GetAttribute<EnumTableAttribute>() ?? 
+				Nullable.GetUnderlyingType(enumType).GetAttribute<EnumTableAttribute>() ??
+				throw new Exception($"Enum type {enumType.Name} is missing an [EnumTable] attribute");
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
@@ -27,7 +35,7 @@ namespace Postulate.Orm.ModelMerge.Actions
                 yield return Syntax.CreateEnumTableStatement(_enumType);
             }
 
-            var values = Enum.GetValues(_enumType).OfType<int>().ToArray();
+            var values = Enum.GetValues(_enumType);
             int index = 0;
             string tableName = _attribute.FullTableName();
 
@@ -41,7 +49,7 @@ namespace Postulate.Orm.ModelMerge.Actions
 
 				if (!valueExists)
 				{
-					yield return Syntax.InsertEnumValueStatement(tableName, name, values[index]);
+					yield return Syntax.InsertEnumValueStatement(tableName, name, (int)values.GetValue(index));
 				}				
 
                 index++;

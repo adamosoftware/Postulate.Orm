@@ -454,7 +454,10 @@ namespace Postulate.Orm.SqlServer
 
         public override string CreateEnumTableStatement(Type enumType)
         {
-            EnumTableAttribute attr = enumType.GetAttribute<EnumTableAttribute>() ?? throw new Exception($"Enum type {enumType.Name} is missing an [EnumTable] attribute");
+            EnumTableAttribute attr = 
+				enumType.GetAttribute<EnumTableAttribute>() ??
+				Nullable.GetUnderlyingType(enumType).GetAttribute<EnumTableAttribute>() ??
+				throw new Exception($"Enum type {enumType.Name} is missing an [EnumTable] attribute");
 
             return $"CREATE TABLE {ApplyDelimiter(attr.FullTableName())} (\r\n\t[Name] nvarchar(50) NOT NULL,\r\n\t[Value] int NOT NULL PRIMARY KEY\r\n)";
         }

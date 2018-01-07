@@ -205,17 +205,17 @@ namespace Postulate.Orm.ModelMerge
             });
 
             var enumTableSchemas = _modelTypes
-                .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi.PropertyType)))
+                .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi)))
                 .Select(pi => pi.PropertyType)
-                .GroupBy(t => t.GetAttribute<EnumTableAttribute>().Schema)
+                .GroupBy(t => (t.GetAttribute<EnumTableAttribute>() ?? Nullable.GetUnderlyingType(t).GetAttribute<EnumTableAttribute>()).Schema)
                 .Select(grp => grp.Key)
                 .Where(s => !string.IsNullOrEmpty(s));
             CreateSchemas(connection, results, enumTableSchemas);
 
             var enumTables = _modelTypes
-                .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi.PropertyType)))
+                .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi)))
                 .Select(pi => pi.PropertyType)
-                .GroupBy(t => t.GetAttribute<EnumTableAttribute>().FullTableName())
+                .GroupBy(t => (t.GetAttribute<EnumTableAttribute>() ?? Nullable.GetUnderlyingType(t).GetAttribute<EnumTableAttribute>()).FullTableName())
                 .Select(grp => grp.First());
             results.AddRange(enumTables.Select(enumType => new CreateEnumTable(Syntax, enumType)));
 
@@ -297,15 +297,17 @@ namespace Postulate.Orm.ModelMerge
                     // todo: AnyKeysChanged()
                 }
 
-                foreignKeys.AddRange(type.GetProperties().Where(pi => IsEnumForeignKey(pi.PropertyType)));
+                foreignKeys.AddRange(type.GetProperties().Where(pi => IsEnumForeignKey(pi)));
             }
 
             results.AddRange(foreignKeys.Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())).Select(fk => new AddForeignKey(_syntax, fk)));
         }
 
-        private bool IsEnumForeignKey(Type propertyType)
+        private bool IsEnumForeignKey(PropertyInfo propertyInfo)
         {
-            return propertyType.IsEnum && propertyType.HasAttribute<EnumTableAttribute>();
+            return 
+				(propertyInfo.PropertyType.IsEnum || propertyInfo.PropertyType.IsNullableEnum()) && 
+				(propertyInfo.PropertyType.HasAttribute<EnumTableAttribute>() || Nullable.GetUnderlyingType(propertyInfo.PropertyType).HasAttribute<EnumTableAttribute>());
         }
 
         private void CreateSchemas(IDbConnection connection, List<MergeAction> results, IEnumerable<string> schemas)

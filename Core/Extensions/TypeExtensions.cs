@@ -44,6 +44,13 @@ namespace Postulate.Orm.Extensions
             return IsNullableGeneric(type) || type.Equals(typeof(string)) || type.Equals(typeof(byte[]));
         }
 
+		public static bool IsNullableEnum(this Type type)
+		{
+			//thanks to https://stackoverflow.com/a/2723100/2023653
+			Type u = Nullable.GetUnderlyingType(type);
+			return (u != null) && u.IsEnum;
+		}
+
         public static bool IsNullableGeneric(this Type type)
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);

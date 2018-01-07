@@ -266,3 +266,4 @@ __pycache__/
 /SchemaMerge.ico
 /MergeUI/PostulateSchemaMergeSetup.exe
 /MergeUI/PostulateModelMerge.exe
+/Postulate.MergeUI.Settings.json
