@@ -219,16 +219,16 @@ namespace Postulate.Orm.Abstract
 		public virtual string ForeignKeyConstraintSyntax(PropertyInfo propertyInfo)
 		{
 			Attributes.ForeignKeyAttribute fk = propertyInfo.GetForeignKeyAttribute();
-			string cascadeDelete = (fk.CascadeDelete) ? " ON DELETE CASCADE" : string.Empty;
+			string cascadeDelete = (fk?.CascadeDelete ?? false) ? " ON DELETE CASCADE" : string.Empty;
 			string firstLine = $"CONSTRAINT {ApplyDelimiter(propertyInfo.ForeignKeyName(this))} FOREIGN KEY (\r\n";
 
-			if (propertyInfo.PropertyType.IsEnum && propertyInfo.PropertyType.HasAttribute<EnumTableAttribute>())
-			{
-				var attr = propertyInfo.PropertyType.GetAttribute<EnumTableAttribute>();
+			EnumTableAttribute enumTable;
+			if (propertyInfo.IsEnumForeignKey(out enumTable))
+			{				
 				return
 					firstLine +
 						$"\t{ApplyDelimiter(propertyInfo.SqlColumnName())}\r\n" +
-					$") REFERENCES {ApplyDelimiter(attr.FullTableName())} (\r\n" +
+					$") REFERENCES {ApplyDelimiter(enumTable.FullTableName())} (\r\n" +
 						$"\t{ApplyDelimiter("Value")}\r\n" +
 					")";
 			}

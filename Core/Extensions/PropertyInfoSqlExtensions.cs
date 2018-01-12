@@ -12,25 +12,46 @@ using System.Reflection;
 
 namespace Postulate.Orm.Extensions
 {
-    public static class PropertyInfoSqlExtensions
-    {
-        public static string SqlColumnName(this PropertyInfo propertyInfo)
-        {
-            string result = propertyInfo.Name;
+	public static class PropertyInfoSqlExtensions
+	{
+		public static string SqlColumnName(this PropertyInfo propertyInfo)
+		{
+			string result = propertyInfo.Name;
 
-            ColumnAttribute attr;
-            if (propertyInfo.HasAttribute(out attr, a => !string.IsNullOrEmpty(a.Name))) result = attr.Name;
+			ColumnAttribute attr;
+			if (propertyInfo.HasAttribute(out attr, a => !string.IsNullOrEmpty(a.Name))) result = attr.Name;
 
-            return result;
-        }
+			return result;
+		}
 
-        public static bool IsForeignKey(this PropertyInfo propertyInfo)
+		public static bool IsEnumForeignKey(this PropertyInfo propertyInfo, out EnumTableAttribute enumTableAttribute)
+		{
+			EnumTableAttribute enumTableAttribute1 = null;
+			EnumTableAttribute enumTableAttribute2 = null;
+
+			bool result =
+				(propertyInfo.PropertyType.IsEnum || propertyInfo.PropertyType.IsNullableEnum()) &&
+				(propertyInfo.PropertyType.HasAttribute(out enumTableAttribute1) || Nullable.GetUnderlyingType(propertyInfo.PropertyType).HasAttribute(out enumTableAttribute2));
+
+			enumTableAttribute = enumTableAttribute1 ?? enumTableAttribute2;
+
+			return result;
+		}
+
+
+		public static bool IsEnumForeignKey(this PropertyInfo propertyInfo)
+		{
+			EnumTableAttribute attr;
+			return IsEnumForeignKey(propertyInfo, out attr);
+		}
+
+		public static bool IsForeignKey(this PropertyInfo propertyInfo)
         {
             try
             {
                 var fk = GetForeignKeyAttribute(propertyInfo);
                 if (fk != null) return true;
-                if (propertyInfo.PropertyType.IsEnum && propertyInfo.PropertyType.HasAttribute<EnumTableAttribute>()) return true;
+				if (IsEnumForeignKey(propertyInfo)) return true;
                 return false;
             }
             catch

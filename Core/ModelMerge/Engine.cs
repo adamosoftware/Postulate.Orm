@@ -205,7 +205,7 @@ namespace Postulate.Orm.ModelMerge
             });
 
             var enumTableSchemas = _modelTypes
-                .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi)))
+                .SelectMany(t => t.GetProperties().Where(pi => pi.IsEnumForeignKey()))
                 .Select(pi => pi.PropertyType)
                 .GroupBy(t => (t.GetAttribute<EnumTableAttribute>() ?? Nullable.GetUnderlyingType(t).GetAttribute<EnumTableAttribute>()).Schema)
                 .Select(grp => grp.Key)
@@ -213,7 +213,7 @@ namespace Postulate.Orm.ModelMerge
             CreateSchemas(connection, results, enumTableSchemas);
 
             var enumTables = _modelTypes
-                .SelectMany(t => t.GetProperties().Where(pi => IsEnumForeignKey(pi)))
+                .SelectMany(t => t.GetProperties().Where(pi => pi.IsEnumForeignKey()))
                 .Select(pi => pi.PropertyType)
                 .GroupBy(t => (t.GetAttribute<EnumTableAttribute>() ?? Nullable.GetUnderlyingType(t).GetAttribute<EnumTableAttribute>()).FullTableName())
                 .Select(grp => grp.First());			
@@ -295,19 +295,11 @@ namespace Postulate.Orm.ModelMerge
                     }
 
                     // todo: AnyKeysChanged()
-                }
-
-                foreignKeys.AddRange(type.GetProperties().Where(pi => IsEnumForeignKey(pi)));
+                }                
             }
 
-            results.AddRange(foreignKeys.Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())).Select(fk => new AddForeignKey(_syntax, fk)));
-        }
-
-        private bool IsEnumForeignKey(PropertyInfo propertyInfo)
-        {
-            return 
-				(propertyInfo.PropertyType.IsEnum || propertyInfo.PropertyType.IsNullableEnum()) && 
-				(propertyInfo.PropertyType.HasAttribute<EnumTableAttribute>() || Nullable.GetUnderlyingType(propertyInfo.PropertyType).HasAttribute<EnumTableAttribute>());
+			results.AddRange(_modelTypes.SelectMany(t => t.GetProperties()).Where(pi => pi.IsEnumForeignKey()).Select(fk => new AddForeignKey(_syntax, fk)));			
+			results.AddRange(foreignKeys.Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())).Select(fk => new AddForeignKey(_syntax, fk)));
         }
 
         private void CreateSchemas(IDbConnection connection, List<MergeAction> results, IEnumerable<string> schemas)
