@@ -298,7 +298,7 @@ namespace Postulate.Orm.ModelMerge
                 }                
             }
 
-			results.AddRange(_modelTypes.SelectMany(t => t.GetProperties()).Where(pi => pi.IsEnumForeignKey()).Select(fk => new AddForeignKey(_syntax, fk)));			
+			results.AddRange(_modelTypes.SelectMany(t => t.GetProperties()).Where(pi => pi.IsEnumForeignKey() && !Syntax.ForeignKeyExists(connection, pi)).Select(fk => new AddForeignKey(_syntax, fk)));			
 			results.AddRange(foreignKeys.Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())).Select(fk => new AddForeignKey(_syntax, fk)));
         }
 

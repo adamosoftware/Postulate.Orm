@@ -276,5 +276,10 @@ namespace Postulate.Orm.MySql
 			//return connection.Query<ColumnInfo>()
 			throw new NotImplementedException();
 		}
+
+		public override bool ForeignKeyExists(IDbConnection connection, PropertyInfo propertyInfo)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

@@ -347,12 +347,6 @@ namespace Postulate.Orm.SqlServer
                     {ApplyDelimiter(typeof(TRecord).IdentityColumnName())}=@id";
         }
 
-        public override string ForeignKeyAddStatement(PropertyInfo propertyInfo)
-        {
-            return $"ALTER TABLE {GetTableName(propertyInfo.DeclaringType)} ADD " + ForeignKeyConstraintSyntax(propertyInfo);
-        }
-
-
         public override string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo)
         {            
             return $"ALTER TABLE [{foreignKeyInfo.Child.Schema}].[{foreignKeyInfo.Child.TableName}] " + ForeignKeyConstraintSyntax(foreignKeyInfo);
@@ -480,6 +474,17 @@ namespace Postulate.Orm.SqlServer
 		public override IEnumerable<ColumnInfo> GetColumns(IDbConnection connection)
 		{
 			throw new NotImplementedException();
+		}
+
+		public override bool ForeignKeyExists(IDbConnection connection, PropertyInfo propertyInfo)
+		{
+			string fkName = propertyInfo.ForeignKeyName(this);
+			return connection.Exists("[sys].[foreign_keys] WHERE [name]=@name", new { name = fkName });
+		}
+
+		public override string ForeignKeyAddStatement(PropertyInfo propertyInfo)
+		{
+			return $"ALTER TABLE {GetTableName(propertyInfo.DeclaringType)} ADD " + ForeignKeyConstraintSyntax(propertyInfo);
 		}
 	}
 }

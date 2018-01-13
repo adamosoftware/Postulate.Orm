@@ -350,5 +350,10 @@ namespace Postulate.Orm.SqlCe
 		{
 			throw new NotImplementedException();
 		}
+
+		public override bool ForeignKeyExists(IDbConnection connection, PropertyInfo propertyInfo)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

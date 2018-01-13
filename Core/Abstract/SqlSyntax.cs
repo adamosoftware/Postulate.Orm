@@ -20,7 +20,7 @@ namespace Postulate.Orm.Abstract
 	/// </summary>
 	public abstract class SqlSyntax
 	{
-		public abstract IDbConnection GetConnection(string connectionString);
+		public abstract IDbConnection GetConnection(string connectionString);		
 
 		/// <summary>
 		/// Indicates whether schema objects (in the SQL Server sense) are supported
@@ -212,9 +212,11 @@ namespace Postulate.Orm.Abstract
 
 		public abstract string GetCopyStatement<TRecord, TKey>(IEnumerable<string> paramColumns, IEnumerable<string> columns) where TRecord : Record<TKey>;
 
-		public abstract string ForeignKeyAddStatement(PropertyInfo propertyInfo);
-
+		public abstract bool ForeignKeyExists(IDbConnection connection, PropertyInfo propertyInfo);
+		
 		public abstract string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo);
+
+		public abstract string ForeignKeyAddStatement(PropertyInfo propertyInfo);
 
 		public virtual string ForeignKeyConstraintSyntax(PropertyInfo propertyInfo)
 		{
