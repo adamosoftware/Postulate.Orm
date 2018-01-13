@@ -26,6 +26,7 @@ namespace Postulate.Orm.ModelMerge
     public class Engine<TSyntax> where TSyntax : SqlSyntax, new()
     {
         protected readonly Type[] _modelTypes;
+		protected readonly Type[] _enumTableTypes;
         protected readonly IProgress<MergeProgress> _progress;
         protected readonly TSyntax _syntax;
 
@@ -45,6 +46,7 @@ namespace Postulate.Orm.ModelMerge
 
         public Engine(Assembly assembly, IProgress<MergeProgress> progress = null) : this(GetModelTypes(assembly), progress)
         {
+			_enumTableTypes = EnumTableTypes(assembly).ToArray();
         }
 
         public static Type[] GetModelTypes(Assembly assembly)
@@ -55,10 +57,16 @@ namespace Postulate.Orm.ModelMerge
                     !t.IsAbstract &&
                     !t.IsInterface &&
 					!t.HasAttribute<NotMappedAttribute>() &&
-                    t.IsDerivedFromGeneric(typeof(Record<>))).ToArray();
+                    t.IsDerivedFromGeneric(typeof(Record<>)))				
+				.ToArray();
         }
 
-        public TSyntax Syntax { get { return _syntax; } }
+		private static IEnumerable<Type> EnumTableTypes(Assembly assembly)
+		{
+			return assembly.GetTypes().Where(t => t.IsEnum && t.HasAttribute<EnumTableAttribute>());
+		}
+
+		public TSyntax Syntax { get { return _syntax; } }
 
         public Stopwatch Stopwatch { get { return _stopwatch; } }
 
@@ -173,10 +181,13 @@ namespace Postulate.Orm.ModelMerge
         {
             _progress?.Report(new MergeProgress() { Description = "Looking for deleted tables..." });
 
-            //throw new NotImplementedException();
-        }
+			var schemaTables = Syntax.GetSchemaTables(connection).ToArray();
+			var modelTables = _modelTypes.Concat(_enumTableTypes ?? Enumerable.Empty<Type>()).Select(t => Syntax.GetTableInfoFromType(t)).ToArray();
+				
+			results.AddRange(schemaTables.Where(schemaTbl => !modelTables.Contains(schemaTbl)).Select(tbl => new DropTable(Syntax, tbl)));
+		}
 
-        private void SyncTablesAndColumns(IDbConnection connection, List<MergeAction> results)
+		private void SyncTablesAndColumns(IDbConnection connection, List<MergeAction> results)
         {
             int counter = 0;
             List<PropertyInfo> foreignKeys = new List<PropertyInfo>();

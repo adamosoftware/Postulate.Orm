@@ -22,6 +22,12 @@ namespace Postulate.Orm.Models
 
         public static TableInfo FromModelType(Type type, string defaultSchema = "")
         {
+			EnumTableAttribute attr;
+			if (type.IsEnum && type.HasAttribute(out attr))
+			{
+				return new TableInfo(attr.TableName, attr.Schema ?? defaultSchema);
+			}
+
             string schema = defaultSchema;
             string name = type.Name;
 
@@ -53,11 +59,12 @@ namespace Postulate.Orm.Models
 
 		public override bool Equals(object obj)
 		{
-			TableInfo compare = obj as TableInfo;
-			if (compare != null)
+			TableInfo tableCompare = obj as TableInfo;
+			if (tableCompare != null)
 			{
-				return compare.Schema.ToLower().Equals(this.Schema.ToLower()) && compare.Name.Equals(this.Name.ToLower());
+				return tableCompare.Schema.ToLower().Equals(this.Schema.ToLower()) && tableCompare.Name.ToLower().Equals(this.Name.ToLower());
 			}
+			
 			return false;
 		}
 	}
