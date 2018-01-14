@@ -31,13 +31,24 @@ namespace Postulate.Orm.ModelMerge.Actions
                 Syntax.TableExists(connection, modelType) &&
                 !Syntax.IsTableEmpty(connection, modelType) &&
                 !_propertyInfo.AllowSqlNull() &&
-                !_propertyInfo.HasAttribute<DefaultExpressionAttribute>())
+                !_propertyInfo.HasAttribute<DefaultExpressionAttribute>() &&
+				!IsIdentityColumn(_propertyInfo))
             {
-                yield return "Adding a non-nullable column to a table with data requires a [DefaultExpression] attribute on the column.";
+                yield return "Adding a non-nullable column to a table with data requires a [DefaultExpression] attribute on the column, or it must be the custom identity column for the table.";
             }
         }
 
-        public override IEnumerable<string> SqlCommands(IDbConnection connection)
+		public static bool IsIdentityColumn(PropertyInfo propertyInfo)
+		{
+			IdentityColumnAttribute attr;
+			if (propertyInfo.DeclaringType.HasAttribute(out attr))
+			{
+				return propertyInfo.Name.Equals(attr.ColumnName);
+			}
+			return false;
+		}
+
+		public override IEnumerable<string> SqlCommands(IDbConnection connection)
         {
             DefaultExpressionAttribute def = _propertyInfo.GetAttribute<DefaultExpressionAttribute>();
             if (def?.IsConstant ?? true)

@@ -3,6 +3,7 @@ using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
+using Postulate.Orm.ModelMerge.Actions;
 using Postulate.Orm.Models;
 using ReflectionHelper;
 using System;
@@ -220,6 +221,10 @@ namespace Postulate.Orm.SqlServer
                 result = $"[{propertyInfo.SqlColumnName()}] AS {calc.Expression}";
                 if (calc.IsPersistent) result += " PERSISTED";
             }
+			else if (AddColumn.IsIdentityColumn(propertyInfo))
+			{
+				result = $"{IdentityColumnSql(propertyInfo.DeclaringType)} NOT NULL";
+			}
             else
             {
                 if (!forceNull)

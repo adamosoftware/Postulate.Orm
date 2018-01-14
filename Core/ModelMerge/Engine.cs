@@ -55,8 +55,7 @@ namespace Postulate.Orm.ModelMerge
                 .Where(t =>
                     !t.Name.StartsWith("<>") &&                    
                     !t.IsAbstract &&
-                    !t.IsInterface &&
-					!t.HasAttribute<NotMappedAttribute>() &&
+                    !t.IsInterface &&					
                     t.IsDerivedFromGeneric(typeof(Record<>)))				
 				.ToArray();
         }
@@ -243,9 +242,12 @@ namespace Postulate.Orm.ModelMerge
 
                 if (!_syntax.TableExists(connection, type))
                 {
-                    results.Add(new CreateTable(_syntax, tableInfo));
-                    foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));                    
-                }
+					if (AllowTableCreate(type))
+					{
+						results.Add(new CreateTable(_syntax, tableInfo));
+						foreignKeys.AddRange(type.GetForeignKeys().Where(fk => _modelTypes.Contains(fk.GetForeignKeyParentType())));
+					}
+				}
                 else
                 {
                     if (!_syntax.FindObjectId(connection, tableInfo)) throw new Exception($"Couldn't find Object Id for table {tableInfo}.");
