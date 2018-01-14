@@ -70,6 +70,8 @@ namespace Postulate.Orm.Abstract
 			return result;
 		}
 
+		public abstract string UniqueKeyStatement(PropertyInfo propertyInfo);
+
 		/// <summary>
 		/// Returns the database table name for the given model type, applying the schema name, if specified with the [Table] or [Schema] attribute
 		/// </summary>

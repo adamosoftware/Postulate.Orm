@@ -223,7 +223,7 @@ namespace Postulate.Orm.SqlServer
             }
 			else if (AddColumn.IsIdentityColumn(propertyInfo))
 			{
-				result = $"{IdentityColumnSql(propertyInfo.DeclaringType)} NOT NULL";
+				result = $"{IdentityColumnSql(propertyInfo.DeclaringType)} NOT NULL";				
 			}
             else
             {
@@ -490,6 +490,13 @@ namespace Postulate.Orm.SqlServer
 		public override string ForeignKeyAddStatement(PropertyInfo propertyInfo)
 		{
 			return $"ALTER TABLE {GetTableName(propertyInfo.DeclaringType)} ADD " + ForeignKeyConstraintSyntax(propertyInfo);
+		}
+
+		public override string UniqueKeyStatement(PropertyInfo propertyInfo)
+		{
+			string columnName = propertyInfo.SqlColumnName();
+			var tableInfo = GetTableInfoFromType(propertyInfo.DeclaringType);
+			return $"ALTER TABLE {ApplyDelimiter(tableInfo.ToString())} ADD CONSTRAINT [U_{GetConstraintBaseName(propertyInfo.DeclaringType)}_{columnName}] UNIQUE ([{columnName}])";
 		}
 	}
 }

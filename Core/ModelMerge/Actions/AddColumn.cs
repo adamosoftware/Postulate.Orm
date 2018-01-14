@@ -54,6 +54,11 @@ namespace Postulate.Orm.ModelMerge.Actions
             if (def?.IsConstant ?? true)
             {
                 yield return Syntax.ColumnAddStatement(_tableInfo, _propertyInfo);                
+
+				if (IsIdentityColumn(_propertyInfo))
+				{
+					yield return Syntax.UniqueKeyStatement(_propertyInfo);
+				}
             }
             else
             {

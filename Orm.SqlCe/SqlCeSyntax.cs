@@ -355,5 +355,10 @@ namespace Postulate.Orm.SqlCe
 		{
 			throw new NotImplementedException();
 		}
+
+		public override string UniqueKeyStatement(PropertyInfo propertyInfo)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
