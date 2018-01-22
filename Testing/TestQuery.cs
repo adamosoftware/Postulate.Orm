@@ -22,7 +22,7 @@ namespace Testing
     public class TestQuery
     {
         private static MySqlDb<int> _db = new MySqlDb<int>("MySql", "system");
-        private static SqlServerDb<int> _sqlDb = new SqlServerDb<int>("SchemaMergeTest", "traceUser");
+        private static SqlServerDb<int> _sqlDb = new SqlServerDb<int>("PostulateWebDemo", "traceUser");
 
         [TestMethod]
         public void AllCustomersNoParams()

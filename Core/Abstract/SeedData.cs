@@ -50,7 +50,14 @@ namespace Postulate.Orm.Abstract
 		/// </summary>
 		protected TKey FindId<TLookup>(string name) where TLookup : Record<TKey>, new()
 		{
-			return _db.FindWhere<TLookup>(_connection, FindIdExpression, new { name = name }).Id;
+			try
+			{
+				return _db.FindWhere<TLookup>(_connection, FindIdExpression, new { name = name }).Id;
+			}
+			catch 
+			{
+				throw new Exception($"Couldn't find {typeof(TLookup).Name} where {FindIdExpression} with name = {name}");
+			}			 				
 		}
 
 		public void Generate(SqlDb<TKey> db)

@@ -76,11 +76,10 @@ namespace Postulate.Orm
 
         public TResult ExecuteSingle(IDbConnection connection)
         {
-            List<QueryTrace.Parameter> parameters;
-            _resolvedSql = ResolveQuery(_sql, this, 0, out parameters);
+			_resolvedSql = ResolveQuery(_sql, this, 0, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
 
-            Stopwatch sw = Stopwatch.StartNew();
-            TResult result = connection.QueryFirstOrDefault<TResult>(_resolvedSql, this);
+			Stopwatch sw = Stopwatch.StartNew();
+            TResult result = connection.QueryFirstOrDefault<TResult>(_resolvedSql, queryParams);
             sw.Stop();
 
             InvokeTraceCallback(connection, parameters, sw);
@@ -104,11 +103,10 @@ namespace Postulate.Orm
 
         public async Task<TResult> ExecuteSingleAsync(IDbConnection connection)
         {
-            List<QueryTrace.Parameter> parameters;
-            _resolvedSql = ResolveQuery(_sql, this, -1, out parameters);
+			_resolvedSql = ResolveQuery(_sql, this, -1, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
 
-            Stopwatch sw = Stopwatch.StartNew();
-            TResult result = await connection.QueryFirstOrDefaultAsync<TResult>(_resolvedSql, this);
+			Stopwatch sw = Stopwatch.StartNew();
+            TResult result = await connection.QueryFirstOrDefaultAsync<TResult>(_resolvedSql, queryParams);
             sw.Stop();
 
             InvokeTraceCallback(connection, parameters, sw);
@@ -134,11 +132,10 @@ namespace Postulate.Orm
         {
             IEnumerable<TResult> results = null;
 
-            List<QueryTrace.Parameter> parameters;
-            _resolvedSql = ResolveQuery(_sql, this, pageNumber, out parameters);
+			_resolvedSql = ResolveQuery(_sql, this, pageNumber, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
 
-            Stopwatch sw = Stopwatch.StartNew();
-            results = connection.Query<TResult>(_resolvedSql, this);
+			Stopwatch sw = Stopwatch.StartNew();
+            results = connection.Query<TResult>(_resolvedSql, queryParams);
             sw.Stop();
 
             InvokeTraceCallback(connection, parameters, sw);
@@ -150,11 +147,10 @@ namespace Postulate.Orm
         {
             IEnumerable<TResult> results = null;
 
-            List<QueryTrace.Parameter> parameters;
-            _resolvedSql = ResolveQuery(_sql, this, pageNumber, out parameters);
+			_resolvedSql = ResolveQuery(_sql, this, pageNumber, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
 
-            Stopwatch sw = Stopwatch.StartNew();
-            results = await connection.QueryAsync<TResult>(_resolvedSql, this);
+			Stopwatch sw = Stopwatch.StartNew();
+            results = await connection.QueryAsync<TResult>(_resolvedSql, queryParams);
             sw.Stop();
 
             InvokeTraceCallback(connection, parameters, sw);
@@ -162,7 +158,7 @@ namespace Postulate.Orm
             return results;
         }
 
-        private static string ResolveQuery(string sql, Query<TResult> query, int pageNumber, out List<QueryTrace.Parameter> parameters)
+        private static string ResolveQuery(string sql, Query<TResult> query, int pageNumber, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams)
         {
             string result = sql;
             List<string> terms = new List<string>();
@@ -176,6 +172,13 @@ namespace Postulate.Orm
 
             // these are the properties of the Query that are explicitly defined and may impact the WHERE clause
             var queryProps = query.GetType().GetProperties().Where(pi => !baseProps.Contains(pi.Name));
+
+			queryParams = new DynamicParameters();
+			foreach (var prop in queryProps)
+			{
+				var value = prop.GetValue(query);
+				if (value != null) queryParams.Add(prop.Name, value);
+			}
 
             Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
             {
