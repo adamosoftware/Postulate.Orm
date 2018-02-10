@@ -22,7 +22,7 @@ namespace Postulate.Orm.ModelMerge.Actions
             string constrainName;
             bool clustered;
             bool inPK = Syntax.IsColumnInPrimaryKey(connection, _columnInfo, out clustered, out constrainName);
-            var foreignKeys = Syntax.GetDependentForeignKeys(connection, _columnInfo.GetTableInfo()); ;
+            var foreignKeys = Syntax.GetDependentForeignKeys(connection, _columnInfo.GetTableInfo());
 
             if (inPK)
             {                
@@ -30,6 +30,11 @@ namespace Postulate.Orm.ModelMerge.Actions
 				
                 yield return Syntax.PrimaryKeyDropStatement(_columnInfo.GetTableInfo(), constrainName);
             }
+			
+			if (_columnInfo.IsForeignKey)
+			{				
+				yield return Syntax.ForeignKeyDropStatement(_columnInfo.ToForeignKeyInfo());
+			}
 
             yield return Syntax.ColumnDropStatement(_columnInfo);            
 
