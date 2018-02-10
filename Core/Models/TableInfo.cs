@@ -7,17 +7,19 @@ namespace Postulate.Orm.Models
 {
     public class TableInfo
     {        
-        public TableInfo(string name, string schema = "")
+        public TableInfo(string name, string schema = "", Type modelType = null)
         {
             Schema = schema;
             Name = name;
+			ModelType = modelType;
         }
 
-        public TableInfo(string name, string schema, int objectId)
+        public TableInfo(string name, string schema, int objectId, Type modelType = null)
         {
             Schema = schema;
             Name = name;
             ObjectId = objectId;
+			ModelType = modelType;
         }        
 
         public static TableInfo FromModelType(Type type, string defaultSchema = "")

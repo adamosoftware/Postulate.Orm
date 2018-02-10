@@ -290,7 +290,7 @@ namespace Postulate.Orm.ModelMerge
                                 // when we aren't allow to create/drop the table, then I don't allow column alter or dropping either
                                 // this is a hack for interacting with AspNetUsers table
                                 results.AddRange(modifiedColumns);
-                                results.AddRange(deletedColumns.Select(c => new DropColumn(_syntax, c)));
+                                results.AddRange(deletedColumns.Select(c => new DropColumn(_syntax, c, type)));
                             }
                             foreignKeys.AddRange(addedColumns.Where(pi => pi.IsForeignKey() && _modelTypes.Contains(pi.GetForeignKeyParentType())));
                         }

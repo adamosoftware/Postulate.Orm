@@ -16,15 +16,16 @@ namespace Postulate.Orm.Models
         public static ColumnInfo FromPropertyInfo(PropertyInfo propertyInfo, SqlSyntax syntax)
         {
             var tbl = syntax.GetTableInfoFromType(propertyInfo.ReflectedType);
-            ColumnInfo result = new ColumnInfo()
-            {
-                Schema = tbl.Schema,
-                TableName = tbl.Name,
-                ColumnName = propertyInfo.SqlColumnName(),
-                PropertyInfo = propertyInfo,
-                DataType = syntax.SqlDataType(propertyInfo),
-                IsNullable = propertyInfo.AllowSqlNull(),
-                IsCalculated = propertyInfo.HasAttribute<CalculatedAttribute>(),
+			ColumnInfo result = new ColumnInfo()
+			{
+				Schema = tbl.Schema,
+				TableName = tbl.Name,
+				ColumnName = propertyInfo.SqlColumnName(),
+				PropertyInfo = propertyInfo,
+				DataType = syntax.SqlDataType(propertyInfo),
+				IsNullable = propertyInfo.AllowSqlNull(),
+				IsCalculated = propertyInfo.HasAttribute<CalculatedAttribute>(),
+				ModelType = propertyInfo.ReflectedType
             };
 
             DecimalPrecisionAttribute precisionAttr;
@@ -55,13 +56,14 @@ namespace Postulate.Orm.Models
 
         public TableInfo GetTableInfo()
         {
-            return new TableInfo(this.TableName, this.Schema) { ObjectId = this.ObjectId };
+			return new TableInfo(this.TableName, this.Schema, this.ModelType) { ObjectId = this.ObjectId };			          
         }
 
         public string Schema { get; set; }
         public string TableName { get; set; }
         public string ColumnName { get; set; }
         public int ObjectId { get; set; }
+		public Type ModelType { get; set; }
 
         public string DataType { get; set; }
         public string Collation { get; set; }

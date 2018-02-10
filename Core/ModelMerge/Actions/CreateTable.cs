@@ -88,6 +88,5 @@ namespace Postulate.Orm.ModelMerge.Actions
             if (Syntax.SqlDataType(propertyInfo).ToLower().Contains("char(max)")) yield return $"Primary key column [{propertyInfo.Name}] may not use MAX size.";
             if (propertyInfo.PropertyType.IsNullableGeneric()) yield return $"Primary key column [{propertyInfo.Name}] may not be nullable.";
         }
-
     }
 }

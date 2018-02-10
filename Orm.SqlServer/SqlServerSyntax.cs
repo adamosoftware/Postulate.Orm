@@ -395,12 +395,13 @@ namespace Postulate.Orm.SqlServer
 
         public override string PrimaryKeyAddStatement(TableInfo affectedTable)
         {
-            throw new NotImplementedException();
-        }
+			ClusterAttribute clusterAttribute = GetClusterAttribute(affectedTable.ModelType);
+			return $"ALTER TABLE [{affectedTable.Schema}].[{affectedTable.Name}] ADD CONSTRAINT {CreateTablePrimaryKey(affectedTable.ModelType, clusterAttribute)}";
+		}
 
         public override string PrimaryKeyDropStatement(TableInfo affectedTable, string pkName)
         {
-            throw new NotImplementedException();
+			return $"ALTER TABLE [{affectedTable.Schema}].[{affectedTable.Name}] DROP CONSTRAINT [{pkName}]";
         }
 
         public override bool IsColumnInPrimaryKey(IDbConnection connection, ColumnInfo columnInfo, out bool clustered, out string constraintName)

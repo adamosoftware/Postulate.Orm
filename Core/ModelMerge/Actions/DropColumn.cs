@@ -1,5 +1,6 @@
 ﻿using Postulate.Orm.Abstract;
 using Postulate.Orm.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -8,10 +9,12 @@ namespace Postulate.Orm.ModelMerge.Actions
     public class DropColumn : MergeAction
     {
         private readonly ColumnInfo _columnInfo;
+		private readonly Type _modelType;
 
-        public DropColumn(SqlSyntax syntax, ColumnInfo columnInfo) : base(syntax, ObjectType.Column, ActionType.Drop, $"{columnInfo}")
+        public DropColumn(SqlSyntax syntax, ColumnInfo columnInfo, Type modelType) : base(syntax, ObjectType.Column, ActionType.Drop, $"{columnInfo}")
         {
             _columnInfo = columnInfo;
+			_columnInfo.ModelType = modelType;
         }
 
         public override IEnumerable<string> SqlCommands(IDbConnection connection)
@@ -24,7 +27,7 @@ namespace Postulate.Orm.ModelMerge.Actions
             if (inPK)
             {                
                 foreach (var fk in foreignKeys) yield return Syntax.ForeignKeyDropStatement(fk);
-
+				
                 yield return Syntax.PrimaryKeyDropStatement(_columnInfo.GetTableInfo(), constrainName);
             }
 
