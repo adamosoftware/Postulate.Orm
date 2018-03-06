@@ -28,6 +28,14 @@ namespace Postulate.Orm
 		/// </summary>
 		public Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
 
+		/// <summary>
+		/// Constructor without the ISqlDb argument requires open connection when executing
+		/// </summary>		
+		public Query(string sql)
+		{
+			_sql = sql;
+		}
+
 		public Query(string sql, ISqlDb db)
 		{
 			_sql = sql;
