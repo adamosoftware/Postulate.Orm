@@ -30,7 +30,7 @@ namespace Postulate.Orm
 
 		/// <summary>
 		/// Constructor without the ISqlDb argument requires open connection when executing
-		/// </summary>		
+		/// </summary>
 		public Query(string sql)
 		{
 			_sql = sql;
@@ -85,6 +85,7 @@ namespace Postulate.Orm
 		public TResult ExecuteSingle(IDbConnection connection)
 		{
 			_resolvedSql = ResolveQuery(_sql, this, 0, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
+			_resolvedSql = OnQueryResolved(connection, _resolvedSql);
 
 			Stopwatch sw = Stopwatch.StartNew();
 			TResult result = connection.QueryFirstOrDefault<TResult>(_resolvedSql, queryParams);
@@ -112,6 +113,7 @@ namespace Postulate.Orm
 		public async Task<TResult> ExecuteSingleAsync(IDbConnection connection)
 		{
 			_resolvedSql = ResolveQuery(_sql, this, -1, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
+			_resolvedSql = OnQueryResolved(connection, _resolvedSql);
 
 			Stopwatch sw = Stopwatch.StartNew();
 			TResult result = await connection.QueryFirstOrDefaultAsync<TResult>(_resolvedSql, queryParams);
@@ -141,6 +143,7 @@ namespace Postulate.Orm
 			IEnumerable<TResult> results = null;
 
 			_resolvedSql = ResolveQuery(_sql, this, pageNumber, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
+			_resolvedSql = OnQueryResolved(connection, _resolvedSql);
 
 			Stopwatch sw = Stopwatch.StartNew();
 			results = connection.Query<TResult>(_resolvedSql, queryParams);
@@ -156,6 +159,7 @@ namespace Postulate.Orm
 			IEnumerable<TResult> results = null;
 
 			_resolvedSql = ResolveQuery(_sql, this, pageNumber, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
+			_resolvedSql = OnQueryResolved(connection, _resolvedSql);
 
 			Stopwatch sw = Stopwatch.StartNew();
 			results = await connection.QueryAsync<TResult>(_resolvedSql, queryParams);
@@ -242,6 +246,15 @@ namespace Postulate.Orm
 			}
 
 			return result;
+		}
+
+		/// <summary>
+		/// Override this to make any changes to the query after it's been resolved,
+		/// such as replacing macros or injecting environment-specific content based on the connection
+		/// </summary>
+		protected virtual string OnQueryResolved(IDbConnection connection, string query)
+		{
+			return query;
 		}
 	}
 }
