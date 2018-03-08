@@ -195,7 +195,7 @@ namespace Postulate.Orm
 			Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
 			{
 				{ InternalStringExtensions.WhereToken, "WHERE" }, // query has no where clause, so it needs the word WHERE inserted
-                { InternalStringExtensions.AndWhereToken, "AND" } // query already contains a WHERE clause, we're just adding to it
+				{ InternalStringExtensions.AndWhereToken, "AND" } // query already contains a WHERE clause, we're just adding to it
             };
 			string token;
 			if (result.ContainsAny(new string[] { InternalStringExtensions.WhereToken, InternalStringExtensions.AndWhereToken }, out token))
@@ -206,7 +206,7 @@ namespace Postulate.Orm
 				foreach (var pi in queryProps)
 				{
 					object value = pi.GetValue(query);
-					if (value != null)
+					if (value != null && !string.IsNullOrEmpty(value as string))
 					{
 						parameters.Add(new QueryTrace.Parameter() { Name = pi.Name, Value = value });
 
