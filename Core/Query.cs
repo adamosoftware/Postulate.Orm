@@ -85,7 +85,7 @@ namespace Postulate.Orm
 		public TResult ExecuteSingle(IDbConnection connection)
 		{
 			_resolvedSql = ResolveQuery(_sql, this, 0, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
-			_resolvedSql = OnQueryResolved(connection, _resolvedSql);
+			_resolvedSql = OnQueryResolved(connection, _resolvedSql, queryParams);
 
 			Stopwatch sw = Stopwatch.StartNew();
 			TResult result = connection.QueryFirstOrDefault<TResult>(_resolvedSql, queryParams);
@@ -113,7 +113,7 @@ namespace Postulate.Orm
 		public async Task<TResult> ExecuteSingleAsync(IDbConnection connection)
 		{
 			_resolvedSql = ResolveQuery(_sql, this, -1, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
-			_resolvedSql = OnQueryResolved(connection, _resolvedSql);
+			_resolvedSql = OnQueryResolved(connection, _resolvedSql, queryParams);
 
 			Stopwatch sw = Stopwatch.StartNew();
 			TResult result = await connection.QueryFirstOrDefaultAsync<TResult>(_resolvedSql, queryParams);
@@ -143,10 +143,10 @@ namespace Postulate.Orm
 			IEnumerable<TResult> results = null;
 
 			_resolvedSql = ResolveQuery(_sql, this, pageNumber, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
-			_resolvedSql = OnQueryResolved(connection, _resolvedSql);
+			_resolvedSql = OnQueryResolved(connection, _resolvedSql, queryParams);
 
 			Stopwatch sw = Stopwatch.StartNew();
-			results = connection.Query<TResult>(_resolvedSql, queryParams);
+			results = connection.Query<TResult>(_resolvedSql, queryParams, commandTimeout: CommandTimeout);
 			sw.Stop();
 
 			InvokeTraceCallback(connection, parameters, sw);
@@ -159,10 +159,10 @@ namespace Postulate.Orm
 			IEnumerable<TResult> results = null;
 
 			_resolvedSql = ResolveQuery(_sql, this, pageNumber, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams);
-			_resolvedSql = OnQueryResolved(connection, _resolvedSql);
+			_resolvedSql = OnQueryResolved(connection, _resolvedSql, queryParams);
 
 			Stopwatch sw = Stopwatch.StartNew();
-			results = await connection.QueryAsync<TResult>(_resolvedSql, queryParams);
+			results = await connection.QueryAsync<TResult>(_resolvedSql, queryParams, commandTimeout: CommandTimeout);
 			sw.Stop();
 
 			InvokeTraceCallback(connection, parameters, sw);
@@ -206,7 +206,7 @@ namespace Postulate.Orm
 				foreach (var pi in queryProps)
 				{
 					object value = pi.GetValue(query);
-					if (value != null && !string.IsNullOrEmpty(value as string))
+					if (HasValue(value))
 					{
 						parameters.Add(new QueryTrace.Parameter() { Name = pi.Name, Value = value });
 
@@ -248,11 +248,23 @@ namespace Postulate.Orm
 			return result;
 		}
 
-		/// <summary>
-		/// Override this to make any changes to the query after it's been resolved,
-		/// such as replacing macros or injecting environment-specific content based on the connection
-		/// </summary>
-		protected virtual string OnQueryResolved(IDbConnection connection, string query)
+        private static bool HasValue(object value)
+        {
+            if (value != null)
+            {
+                if (value.Equals(string.Empty)) return false;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Override this to make any changes to the query after it's been resolved,
+        /// such as replacing macros or injecting environment-specific content based on the connection.
+        /// You can also inspect parameeters that are passed
+        /// </summary>
+        protected virtual string OnQueryResolved(IDbConnection connection, string query, DynamicParameters parameters)
 		{
 			return query;
 		}
