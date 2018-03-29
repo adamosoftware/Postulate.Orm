@@ -1,4 +1,6 @@
 ﻿using Postulate.Orm.Abstract;
+using Postulate.Orm.Models;
+using System;
 using System.Data;
 
 namespace Postulate.Orm.Interfaces
@@ -15,5 +17,7 @@ namespace Postulate.Orm.Interfaces
 
         string ConnectionName { get; }
         string UserName { get; }
-    }
+
+		Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
+	}
 }

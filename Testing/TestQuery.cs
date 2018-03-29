@@ -21,20 +21,26 @@ namespace Testing
     [TestClass]
     public class TestQuery
     {
-        private static MySqlDb<int> _db = new MySqlDb<int>("MySql", "system");
-        private static SqlServerDb<int> _sqlDb = new SqlServerDb<int>("PostulateWebDemo", "traceUser");
+        private MySqlDb<int> _mysqlDb = new MySqlDb<int>("MySql", "system");
+        private SqlServerDb<int> _sqlDb = new SqlServerDb<int>("PostulateWebDemo", "traceUser");
+
+		[TestInitialize]
+		public void Initialize()
+		{
+			_sqlDb.TraceCallback = ShowQueryInfo;
+		}
 
         [TestMethod]
         public void AllCustomersNoParams()
         {
-            var results = new AllCustomers(_db).Execute();
+            var results = new AllCustomers(_mysqlDb).Execute();
             Assert.IsTrue(results.Any());
         }
 
         [TestMethod]
         public void AllCustomersForEmail()
         {
-            var results = new AllCustomers(_db) { Email = "nowhere.org", TraceCallback = ShowQueryInfo }.Execute();
+            var results = new AllCustomers(_mysqlDb) { Email = "nowhere.org" }.Execute();
 
             foreach (var row in results) Debug.WriteLine(row.Email);
 
@@ -44,7 +50,7 @@ namespace Testing
         [TestMethod]
         public void AllCustomersCase()
         {
-            var results = new AllCustomers(_db) { HasPhone = false, TraceCallback = ShowQueryInfo }.Execute();
+            var results = new AllCustomers(_mysqlDb) { HasPhone = false }.Execute();
             Assert.IsTrue(results.All(row => string.IsNullOrEmpty(row.Phone)));
         }
 
@@ -59,7 +65,7 @@ namespace Testing
             do
             {
                 id++;
-                c = new SingleCustomer(_db) { Id = id, TraceCallback = ShowQueryInfo }.ExecuteSingle();
+                c = new SingleCustomer(_mysqlDb) { Id = id }.ExecuteSingle();
             } while (c == null);
 
             Assert.IsTrue(c != null);
@@ -73,7 +79,7 @@ namespace Testing
             do
             {
                 id++;
-                c = new SingleCustomer(_db) { Id = id, TraceCallback = ShowQueryInfo }.ExecuteSingleAsync().Result;
+                c = new SingleCustomer(_mysqlDb) { Id = id }.ExecuteSingleAsync().Result;
             } while (c == null);
 
             Assert.IsTrue(c != null);
@@ -83,7 +89,7 @@ namespace Testing
         [TestMethod]
         public void SaveTrace()
         {            
-            var results = new AllOrgs(_sqlDb) { TraceCallback = TestSaveTrace }.Execute();            
+            var results = new AllOrgs(_sqlDb).Execute();            
         }
 
         [TestMethod]
