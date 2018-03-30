@@ -131,7 +131,7 @@ A very simple Save action (for both inserts and updates):
         return RedirectToAction("Edit", new { id = customer.Id });
     }
     
-If you need to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/SqlServerDb.cs#L41) method:
+If you need to open a connection manually somewhere, use the [GetConnection](https://github.com/adamosoftware/Postulate.Orm/blob/master/Core/Abstract/SqlDb.cs#L111) method:
 
     using (var cn = _db.GetConnection())
     {

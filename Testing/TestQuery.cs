@@ -122,6 +122,22 @@ namespace Testing
             }         
         }
 
+        /*
+        [TestMethod]
+        public void QueryArrayParams()
+        {
+            var qry = new ProductAttributesDownload();
+            qry.AttributeId = new int[] { 1844, 1843, 3, 18 };
+
+            using (var cn = _db.GetConnection())
+            {
+                qry.CommandTimeout = 120;
+                var results = qry.Execute(cn);
+                Assert.IsTrue(results.Any());
+            }
+        }
+        */
+
         private void TestSaveTrace(IDbConnection cn, QueryTrace trace)
         {
             Query.SaveTrace(cn, trace, _sqlDb);
