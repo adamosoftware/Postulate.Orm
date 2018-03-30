@@ -52,6 +52,12 @@ namespace Postulate.Orm
 		/// Lets you specify where in the application a query is called so that trace information is potentially more useful
 		/// </summary>
 		public string TraceContext { get; set; }
+		
+		public IEnumerable<TResult> Execute(ISqlDb db, int pageNumber = 0)
+		{
+			Db = db;
+			return Execute(pageNumber);
+		}
 
 		public IEnumerable<TResult> Execute(int pageNumber = 0)
 		{
@@ -88,6 +94,12 @@ namespace Postulate.Orm
 			InvokeTraceCallback(connection, parameters, sw);
 
 			return result;
+		}
+
+		public TResult ExecuteSingle(ISqlDb db)
+		{
+			Db = db;
+			return ExecuteSingle();
 		}
 
 		private void InvokeTraceCallback(IDbConnection connection, List<QueryTrace.Parameter> parameters, Stopwatch sw)
@@ -175,11 +187,18 @@ namespace Postulate.Orm
 			// this gets the param names within the query based on words with leading '@'
 			var builtInParams = sql.GetParameterNames(true).Select(p => p.ToLower());
 
-			// these are properties of the Query base type that we ignore because they are never part of WHERE clause (things like CommandType and CommandTimeout)
-			var baseProps = query.GetType().BaseType.GetProperties().Select(pi => pi.Name);
+			// these are properties of the Query base type that we ignore because they are never part of WHERE clause (things like Db, CommandType and CommandTimeout)
+			var ignoreProps = query.GetType().BaseType.GetProperties().Select(pi => pi.Name);				
+
+			if (!ignoreProps.Any())
+			{
+				// this means the query type is not a base class (had no BaseType), so we have to ignore all of this query type's properties.
+				// since it has no base type, it won't have any properties except the built-in ones, and they shouldn't be used as query params
+				ignoreProps = query.GetType().GetProperties().Select(pi => pi.Name);
+			}
 
 			// these are the properties of the Query that are explicitly defined and may impact the WHERE clause
-			var queryProps = query.GetType().GetProperties().Where(pi => !baseProps.Contains(pi.Name));
+			var queryProps = query.GetType().GetProperties().Where(pi => !ignoreProps.Contains(pi.Name));
 
 			queryParams = new DynamicParameters();
 			foreach (var prop in queryProps)
@@ -238,6 +257,7 @@ namespace Postulate.Orm
 
 			if (pageNumber > 0)
 			{
+				if (query.Db == null) throw new NullReferenceException("If you use a page number argument with Query, the Db property must be set.");
 				result = query.Db.Syntax.ApplyPaging(result, pageNumber, query.RowsPerPage);
 			}
 

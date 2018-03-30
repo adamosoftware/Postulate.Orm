@@ -8,6 +8,7 @@ using Postulate.Orm.ModelMerge;
 using Postulate.Orm.Enums;
 using System.Linq;
 using Postulate.Orm.Util;
+using Postulate.Orm;
 
 namespace Testing
 {
@@ -146,21 +147,42 @@ namespace Testing
         public void CopyOrg()
         {
             var db = new PostulateDb();
-            var newOrg = db.Copy<Organization>(1, new { name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" });
+			var srcOrg = FirstRandomOrg(db);			
+            var newOrg = db.Copy<Organization>(srcOrg.Id, new { name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" });
             Assert.IsTrue(newOrg.Description.Equals("copied record"));
         }
 
         [TestMethod]
         public void CopyOrgOmitColumns()
-        {
-            var db = new PostulateDb();
-            var newOrg = db.Copy<Organization>(1, 
-                new { createdBy = "/system", dateCreated = DateTime.Now, name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" }, 
-                "ModifiedBy", "DateModified");
-            Assert.IsTrue(newOrg.Description.Equals("copied record"));
-        }
+		{
+			var db = new PostulateDb();
 
-        [TestMethod]
+			Organization srcOrg = FirstRandomOrg(db);
+
+			var newOrg = db.Copy<Organization>(srcOrg.Id,
+				new { createdBy = "/system", dateCreated = DateTime.Now, name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" },
+				"ModifiedBy", "DateModified");
+
+			Assert.IsTrue(newOrg.Description.Equals("copied record"));
+		}
+
+		private static Organization FirstRandomOrg(PostulateDb db)
+		{
+			Organization srcOrg = null;
+			var qry = new Query<Organization>("SELECT TOP (1) * FROM [dbo].[Organization]");
+
+			while (srcOrg == null)
+			{
+				srcOrg = qry.ExecuteSingle(db);
+				if (srcOrg != null) break;
+				srcOrg = new Organization() { Name = "Sample", BillingRate = 10 };
+				db.Save(srcOrg);
+			}
+
+			return srcOrg;
+		}
+
+		[TestMethod]
         public void DeleteWhere()
         {
             var db = new PostulateDb();

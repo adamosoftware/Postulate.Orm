@@ -28,7 +28,23 @@ namespace Testing
 		[TestMethod]
 		public void SaveTrace()
 		{
-			var results = new AllOrgs(_sqlDb).Execute();
+			var results = new AllOrgsWithDb(_sqlDb).Execute();
+		}
+
+		[TestMethod]
+		public void AllOrgsWithoutDb()
+		{
+			var qry = new AllOrgs();
+			var data = qry.Execute(_sqlDb);
+			Assert.IsTrue(data.Any());
+		}
+
+		[TestMethod]
+		public void AllOrgsOneParam()
+		{
+			var qry = new AllOrgsOneParam() { Name = "fred" };
+			var data = qry.Execute(_sqlDb);
+			Assert.IsTrue(qry.ResolvedSql.Equals("SELECT * FROM [dbo].[Organization] WHERE 1=1 AND [Name] LIKE '%'+@name+'@'"));			
 		}
 
 		[TestMethod]

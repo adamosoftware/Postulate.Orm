@@ -1,13 +1,31 @@
 ﻿using Postulate.Orm;
 using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
 using Testing.Models;
 
 namespace Testing.Queries.SqlServer
 {
-    public class AllOrgs : Query<Organization>
+    public class AllOrgsWithDb : Query<Organization>
     {
-        public AllOrgs(SqlDb<int> db) : base("SELECT * FROM [dbo].[Organization]", db)
+        public AllOrgsWithDb(SqlDb<int> db) : base("SELECT * FROM [dbo].[Organization]", db)
         {
         }
     }
+
+	public class AllOrgs : Query<Organization>
+	{
+		public AllOrgs() : base("SELECT * FROM [dbo].[Organization]")
+		{
+		}		
+	}
+
+	public class AllOrgsOneParam : Query<Organization>
+	{
+		public AllOrgsOneParam() : base("SELECT * FROM [dbo].[Organization] WHERE 1=1 {andWhere}")
+		{
+		}
+
+		[Where("[Name] LIKE '%'+@name+'@'")]
+		public string Name { get; set; }
+	}
 }
