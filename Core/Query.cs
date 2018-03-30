@@ -187,18 +187,11 @@ namespace Postulate.Orm
 			// this gets the param names within the query based on words with leading '@'
 			var builtInParams = sql.GetParameterNames(true).Select(p => p.ToLower());
 
-			// these are properties of the Query base type that we ignore because they are never part of WHERE clause (things like Db, CommandType and CommandTimeout)
-			var ignoreProps = query.GetType().BaseType.GetProperties().Select(pi => pi.Name);				
-
-			if (!ignoreProps.Any())
-			{
-				// this means the query type is not a base class (had no BaseType), so we have to ignore all of this query type's properties.
-				// since it has no base type, it won't have any properties except the built-in ones, and they shouldn't be used as query params
-				ignoreProps = query.GetType().GetProperties().Select(pi => pi.Name);
-			}
-
 			// these are the properties of the Query that are explicitly defined and may impact the WHERE clause
-			var queryProps = query.GetType().GetProperties().Where(pi => !ignoreProps.Contains(pi.Name));
+			var queryProps = query.GetType().GetProperties().Where(pi => 
+				pi.HasAttribute<WhereAttribute>() || 
+				pi.HasAttribute<CaseAttribute>() || 
+				builtInParams.Contains(pi.Name.ToLower()));
 
 			queryParams = new DynamicParameters();
 			foreach (var prop in queryProps)
