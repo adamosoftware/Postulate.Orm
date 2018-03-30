@@ -2,10 +2,10 @@
 
 namespace Postulate.Orm.Interfaces
 {
-    public interface IUserProfile
-    {
-        string UserName { get; set; }
+	public interface IUserProfile
+	{
+		string UserName { get; set; }
 
-        DateTime GetLocalTime();
-    }
+		DateTime GetLocalTime();
+	}
 }

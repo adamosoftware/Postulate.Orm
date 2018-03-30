@@ -1,8 +1,8 @@
 ﻿using Dapper;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Exceptions;
+using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
-using ReflectionHelper;
 using System.Data;
 
 namespace Postulate.Orm.Abstract

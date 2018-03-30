@@ -2,8 +2,8 @@
 
 namespace Postulate.Orm.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class TrackDeletionsAttribute : Attribute
-    {
-    }
+	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+	public class TrackDeletionsAttribute : Attribute
+	{
+	}
 }

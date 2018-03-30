@@ -102,9 +102,6 @@
     <PackageReference Include="AoAzureDeployClient">
       <Version>1.0.1</Version>
     </PackageReference>
-    <PackageReference Include="AoReflectionHelper">
-      <Version>1.0.1</Version>
-    </PackageReference>
     <PackageReference Include="AoWinFormsExt">
       <Version>1.0.11</Version>
     </PackageReference>

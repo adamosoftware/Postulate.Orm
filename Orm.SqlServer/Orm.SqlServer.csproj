@@ -55,9 +55,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AoReflectionHelper">
-      <Version>1.0.1</Version>
-    </PackageReference>
     <PackageReference Include="Dapper">
       <Version>1.50.4</Version>
     </PackageReference>
