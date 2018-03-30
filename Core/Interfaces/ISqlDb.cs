@@ -21,7 +21,7 @@ namespace Postulate.Orm.Interfaces
 		string UserName { get; }
 
 		Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
-		bool DebugQueries { get; set; }
+		bool TraceQueries { get; set; }
 		List<QueryTrace> QueryTraces { get; }
 	}
 }

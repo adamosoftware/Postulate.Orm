@@ -71,7 +71,7 @@ namespace Testing
 
 			db.TraceCallback = (cn, trace) => { Debug.WriteLine(trace.Sql); };
 
-            TableB b = new TableB() { OrganizationId = 1, Description = "Whatever" };
+            TableB b = new TableB() { OrganizationId = orgIds[0], Description = "Whatever" };
             db.Save(b);
 
             b.OrganizationId = orgIds[1];

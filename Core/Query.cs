@@ -3,6 +3,7 @@ using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Models;
+using Postulate.Orm.Util;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -106,7 +107,7 @@ namespace Postulate.Orm
 		{
 			var trace = new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext);
 			_db?.TraceCallback?.Invoke(connection, trace);
-			if (_db.DebugQueries) _db.QueryTraces.Add(trace);
+			if (_db.TraceQueries) _db.QueryTraces.Add(trace);
 		}
 
 		public async Task<TResult> ExecuteSingleAsync()
@@ -184,14 +185,7 @@ namespace Postulate.Orm
 			List<string> terms = new List<string>();
 			parameters = new List<QueryTrace.Parameter>();
 
-			// this gets the param names within the query based on words with leading '@'
-			var builtInParams = sql.GetParameterNames(true).Select(p => p.ToLower());
-
-			// these are the properties of the Query that are explicitly defined and may impact the WHERE clause
-			var queryProps = query.GetType().GetProperties().Where(pi => 
-				pi.HasAttribute<WhereAttribute>() || 
-				pi.HasAttribute<CaseAttribute>() || 
-				builtInParams.Contains(pi.Name.ToLower()));
+			var queryProps = QueryUtil.GetProperties(query, sql, out IEnumerable<string> builtInParams);
 
 			queryParams = new DynamicParameters();
 			foreach (var prop in queryProps)
@@ -202,11 +196,11 @@ namespace Postulate.Orm
 
 			Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
 			{
-				{ InternalStringExtensions.WhereToken, "WHERE" }, // query has no where clause, so it needs the word WHERE inserted
+				{ InternalStringExtensions.WhereToken, "WHERE" }, // query has no WHERE clause, so it will be added
 				{ InternalStringExtensions.AndWhereToken, "AND" } // query already contains a WHERE clause, we're just adding to it
             };
 			string token;
-			if (result.ContainsAny(new string[] { InternalStringExtensions.WhereToken, InternalStringExtensions.AndWhereToken }, out token))
+			if (result.ContainsAny(whereBuilder.Select(kp => kp.Key), out token))
 			{
 				bool anyCriteria = false;
 

@@ -1,12 +1,18 @@
 ﻿using Dapper;
 using Postulate.Orm.Abstract;
+using Postulate.Orm.Attributes;
+using Postulate.Orm.Extensions;
 using Postulate.Orm.ModelMerge.Actions;
 using Postulate.Orm.Models;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Reflection;
 
 namespace Postulate.Orm.Util
 {
-	public static class Query
+	public static class QueryUtil
 	{
 		/// <summary>
 		/// Provides a general-purpose way to save QueryTraces. Use this in <see cref="Query{TResult}.TraceCallback"/> or
@@ -35,6 +41,25 @@ namespace Postulate.Orm.Util
 
 			// restore original callback
 			db.TraceCallback = callback;
+		}
+
+		/// <summary>
+		/// Returns the properties of a query object based on parameters defined in a 
+		/// SQL statement as well as properties with Where and Case attributes
+		/// </summary>
+		public static IEnumerable<PropertyInfo> GetProperties(object query, string sql, out IEnumerable<string> builtInParams)
+		{
+			// this gets the param names within the query based on words with leading '@'
+			builtInParams = sql.GetParameterNames(true).Select(p => p.ToLower());
+			var builtInParamsArray = builtInParams.ToArray();
+
+			// these are the properties of the Query that are explicitly defined and may impact the WHERE clause
+			var queryProps = query.GetType().GetProperties().Where(pi =>
+				pi.HasAttribute<WhereAttribute>() ||
+				pi.HasAttribute<CaseAttribute>() ||
+				builtInParamsArray.Contains(pi.Name.ToLower()));
+
+			return queryProps;
 		}
 	}
 }

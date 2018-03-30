@@ -17,10 +17,10 @@ namespace Testing
         {
             // we're checking to see that OrganizationId is not part of the update list
             var db = new PostulateDbNested();
-            TableB b = new TableB() { Id = 232, OrganizationId = 1, Description = "whatever" };
+            TableB b = new TableB() { Id = 232, OrganizationId = 1, Description = "whatever", InsertOnly = 34343 };
             string cmd = db.GetUpdateStatement(b);
             Assert.IsTrue(cmd.Equals(@"UPDATE [dbo].[TableB] SET
-                    [Description] = @Description, [DateModified] = @DateModified, [ModifiedBy] = @ModifiedBy
+                    [OrganizationId]=@OrganizationId, [Description]=@Description, [EffectiveDate]=@EffectiveDate, [DateModified]=@DateModified, [ModifiedBy]=@ModifiedBy
                 WHERE
                     [Id]=@id"));
         }

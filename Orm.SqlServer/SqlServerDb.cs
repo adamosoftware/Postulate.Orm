@@ -53,7 +53,7 @@ namespace Postulate.Orm.SqlServer
 	    				WHERE [{fk.PrimaryTableType.IdentityColumnName()}]=@id";
 				try
 				{
-					result = connection.QueryFirst<string>(derefQuery, new { id = result });
+					result = connection.QueryFirstOrDefault<string>(derefQuery, new { id = result }) ?? result.ToString();
 				}
 				catch (Exception exc)
 				{

@@ -21,7 +21,7 @@ namespace Testing.Queries.SqlServer
 
 	public class AllOrgsOneParam : Query<Organization>
 	{
-		public AllOrgsOneParam() : base("SELECT * FROM [dbo].[Organization] WHERE 1=1 {andWhere}")
+		public AllOrgsOneParam() : base("SELECT * FROM [dbo].[Organization] {where}")
 		{
 		}
 

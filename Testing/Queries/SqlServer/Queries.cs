@@ -44,7 +44,7 @@ namespace Testing
 		{
 			var qry = new AllOrgsOneParam() { Name = "fred" };
 			var data = qry.Execute(_sqlDb);
-			Assert.IsTrue(qry.ResolvedSql.Equals("SELECT * FROM [dbo].[Organization] WHERE 1=1 AND [Name] LIKE '%'+@name+'@'"));			
+			Assert.IsTrue(qry.ResolvedSql.Equals("SELECT * FROM [dbo].[Organization] WHERE [Name] LIKE '%'+@name+'@'"));			
 		}
 
 		[TestMethod]
@@ -101,7 +101,7 @@ namespace Testing
 
 		private void TestSaveTrace(IDbConnection cn, QueryTrace trace)
 		{
-			Query.SaveTrace(cn, trace, _sqlDb);
+			QueryUtil.SaveTrace(cn, trace, _sqlDb);
 		}
 
 		private void ShowQueryInfo(IDbConnection cn, QueryTrace trace)

@@ -124,7 +124,7 @@ namespace Postulate.Orm.Abstract
 		/// <summary>
 		/// Indicates whether QueryTraces are captured on the SqlDb object for reporting later
 		/// </summary>
-		public bool DebugQueries { get; set; }
+		public bool TraceQueries { get; set; }
 
 		public List<QueryTrace> QueryTraces { get; private set; } = new List<QueryTrace>();
 

@@ -32,7 +32,7 @@ namespace Testing
 			org.BillingRate = 10;
 
 			PostulateDb db = new PostulateDb();
-			db.TraceCallback = (cn, qt) => { Query.SaveTrace(cn, qt, db); };
+			db.TraceCallback = (cn, qt) => { QueryUtil.SaveTrace(cn, qt, db); };
 
 			using (IDbConnection cn = db.GetConnection())
 			{

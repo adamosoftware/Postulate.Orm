@@ -36,7 +36,7 @@ namespace Testing
                 typeof(SampleModel)
             });
 
-            using (var cn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
+            using (var cn = new SqlConnection(ConfigurationManager.ConnectionStrings["PostulateWebDemo"].ConnectionString))
             {
                 try
                 {                    
@@ -50,23 +50,28 @@ namespace Testing
                 string script = engine.GetScript(cn, actions).ToString();
 
                 Assert.IsTrue(script.Equals(
-                    @"--  Enum table SampleEnumFK
+					@"--  enum
+CREATE SCHEMA [enum]
+
+GO
+
+--  Enum table SampleEnumFK
 CREATE TABLE [enum].[SampleLookupTable] (
 	[Name] nvarchar(50) NOT NULL,
-	[Value] int identity (1,1) NOT NULL PRIMARY KEY
+	[Value] int NOT NULL PRIMARY KEY
 )
 
 GO
 
-INSERT INTO [enum].[SampleLookupTable] ([Name]) VALUES ('Hello')
+INSERT INTO [enum].[SampleLookupTable] ([Name], [Value]) VALUES ('Hello', 0)
 
 GO
 
-INSERT INTO [enum].[SampleLookupTable] ([Name]) VALUES ('Goodbye')
+INSERT INTO [enum].[SampleLookupTable] ([Name], [Value]) VALUES ('Goodbye', 1)
 
 GO
 
-INSERT INTO [enum].[SampleLookupTable] ([Name]) VALUES ('Whatever')
+INSERT INTO [enum].[SampleLookupTable] ([Name], [Value]) VALUES ('Whatever', 2)
 
 GO
 
@@ -87,6 +92,60 @@ ALTER TABLE [dbo].[SampleModel] ADD CONSTRAINT [FK_SampleModel_Greeting] FOREIGN
 ) REFERENCES [enum].[SampleLookupTable] (
 	[Value]
 )
+
+GO
+
+--  dbo.CustomerType
+ALTER TABLE [dbo].[Customer] DROP CONSTRAINT [FK_Customer_TypeId]
+
+GO
+
+DROP TABLE [dbo].[CustomerType]
+
+GO
+
+--  dbo.Organization
+ALTER TABLE [dbo].[CustomerType] DROP CONSTRAINT [FK_CustomerType_OrganizationId]
+
+GO
+
+ALTER TABLE [dbo].[UserProfile] DROP CONSTRAINT [FK_UserProfile_OrganizationId]
+
+GO
+
+ALTER TABLE [dbo].[Customer] DROP CONSTRAINT [FK_Customer_OrganizationId]
+
+GO
+
+DROP TABLE [dbo].[Organization]
+
+GO
+
+--  dbo.Region
+ALTER TABLE [dbo].[Customer] DROP CONSTRAINT [FK_Customer_RegionId]
+
+GO
+
+ALTER TABLE [dbo].[Customer] DROP CONSTRAINT [FK_Customer_OtherRegionId]
+
+GO
+
+DROP TABLE [dbo].[Region]
+
+GO
+
+--  dbo.UserProfile
+DROP TABLE [dbo].[UserProfile]
+
+GO
+
+--  log.QueryTrace
+DROP TABLE [log].[QueryTrace]
+
+GO
+
+--  dbo.Customer
+DROP TABLE [dbo].[Customer]
 
 GO
 
