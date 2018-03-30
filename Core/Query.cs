@@ -18,8 +18,8 @@ namespace Postulate.Orm
 	/// <typeparam name="TResult">Type with properties that map to columns returned by the query</typeparam>
 	public class Query<TResult>
 	{
-		private readonly string _sql;
-		private readonly ISqlDb _db;
+		private ISqlDb _db;
+		private readonly string _sql;		
 		private string _resolvedSql;
 
 		/// <summary>
@@ -36,7 +36,7 @@ namespace Postulate.Orm
 			_db = db;
 		}
 
-		protected ISqlDb Db { get { return _db; } }
+		public ISqlDb Db { get { return _db; } set { _db = value; } }
 
 		public int RowsPerPage { get; set; } = 50;
 
