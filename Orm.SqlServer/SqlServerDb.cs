@@ -48,16 +48,16 @@ namespace Postulate.Orm.SqlServer
 			DereferenceExpression dr;
 			if (result != null && propertyInfo.HasAttribute(out fk) && fk.PrimaryTableType.HasAttribute(out dr))
 			{
-				TableInfo obj = TableInfo.FromModelType(fk.PrimaryTableType);
+				TableInfo obj = TableInfo.FromModelType(fk.PrimaryTableType, "dbo");
+				string derefQuery = $@"SELECT {dr.Expression} FROM [{obj.Schema}].[{obj.Name}]
+	    				WHERE [{fk.PrimaryTableType.IdentityColumnName()}]=@id";
 				try
 				{
-					result = connection.QueryFirst<string>(
-						$@"SELECT {dr.Expression} FROM [{obj.Schema}].[{obj.Name}]
-	    				WHERE [{fk.PrimaryTableType.IdentityColumnName()}]=@id", new { id = result });
+					result = connection.QueryFirst<string>(derefQuery, new { id = result });
 				}
-				catch
+				catch (Exception exc)
 				{
-					result = "<null>";
+					result = $"Error executing dererence query: {derefQuery}: {exc.Message}";
 				}
 			}
 

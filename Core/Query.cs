@@ -23,11 +23,6 @@ namespace Postulate.Orm
 		private string _resolvedSql;
 
 		/// <summary>
-		/// Set this to receive metrics about the last query executed, including the user name, full SQL, parameter info, and duration
-		/// </summary>
-		public Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
-
-		/// <summary>
 		/// Constructor without the ISqlDb argument requires open connection when executing
 		/// </summary>
 		public Query(string sql)
@@ -97,7 +92,9 @@ namespace Postulate.Orm
 
 		private void InvokeTraceCallback(IDbConnection connection, List<QueryTrace.Parameter> parameters, Stopwatch sw)
 		{
-			TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+			var trace = new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext);
+			_db?.TraceCallback?.Invoke(connection, trace);
+			if (_db.DebugQueries) _db.QueryTraces.Add(trace);
 		}
 
 		public async Task<TResult> ExecuteSingleAsync()
@@ -148,7 +145,7 @@ namespace Postulate.Orm
 			results = connection.Query<TResult>(_resolvedSql, queryParams, commandTimeout: CommandTimeout);
 			sw.Stop();
 
-			InvokeTraceCallback(connection, parameters, sw);
+			InvokeTraceCallback(connection, parameters, sw);			
 
 			return results;
 		}

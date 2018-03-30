@@ -121,6 +121,13 @@ namespace Postulate.Orm.Abstract
 
 		public Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
 
+		/// <summary>
+		/// Indicates whether QueryTraces are captured on the SqlDb object for reporting later
+		/// </summary>
+		public bool DebugQueries { get; set; }
+
+		public List<QueryTrace> QueryTraces { get; private set; } = new List<QueryTrace>();
+
 		protected virtual string GetTableName<TRecord>() where TRecord : Record<TKey>
 		{
 			var obj = Syntax.GetTableInfoFromType(typeof(TRecord));
