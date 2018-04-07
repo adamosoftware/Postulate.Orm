@@ -28,13 +28,21 @@ namespace Postulate.Orm.Extensions
 			EnumTableAttribute enumTableAttribute1 = null;
 			EnumTableAttribute enumTableAttribute2 = null;
 
-			bool result =
-				(propertyInfo.PropertyType.IsEnum || propertyInfo.PropertyType.IsNullableEnum()) &&
-				(propertyInfo.PropertyType.HasAttribute(out enumTableAttribute1) || Nullable.GetUnderlyingType(propertyInfo.PropertyType).HasAttribute(out enumTableAttribute2));
+			try
+			{
+				bool result =
+					(propertyInfo.PropertyType.IsEnum || propertyInfo.PropertyType.IsNullableEnum()) &&
+					(propertyInfo.PropertyType.HasAttribute(out enumTableAttribute1) || Nullable.GetUnderlyingType(propertyInfo.PropertyType).HasAttribute(out enumTableAttribute2));
 
-			enumTableAttribute = enumTableAttribute1 ?? enumTableAttribute2;
+				enumTableAttribute = enumTableAttribute1 ?? enumTableAttribute2;
 
-			return result;
+				return result;
+			}
+			catch 
+			{
+				enumTableAttribute = null;
+				return false;
+			}
 		}
 
 		public static bool IsEnumForeignKey(this PropertyInfo propertyInfo)
