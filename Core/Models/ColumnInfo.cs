@@ -2,6 +2,7 @@
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Postulate.Orm.Models
@@ -24,6 +25,7 @@ namespace Postulate.Orm.Models
 				DataType = syntax.SqlDataType(propertyInfo),
 				IsNullable = propertyInfo.AllowSqlNull(),
 				IsCalculated = propertyInfo.HasAttribute<CalculatedAttribute>(),
+				Expression = propertyInfo.GetCustomAttribute<CalculatedAttribute>()?.Expression,
 				ModelType = propertyInfo.ReflectedType
 			};
 
@@ -71,6 +73,7 @@ namespace Postulate.Orm.Models
 		public int Scale { get; set; }
 		public bool IsNullable { get; set; }
 		public bool IsCalculated { get; set; }
+		public string Expression { get; set; }
 		public string ReferencedSchema { get; set; }
 		public string ReferencedTable { get; set; }
 		public string ReferencedColumn { get; set; }
@@ -138,6 +141,12 @@ namespace Postulate.Orm.Models
 			// if schema + table + name are the same....
 			if (this.Equals(columnInfo))
 			{
+				if (columnInfo.IsCalculated && IsCalculated)
+				{
+					if ($"({Expression})".Equals(columnInfo.Expression)) return false;
+					return !columnInfo.Expression.Equals(Expression);
+				}
+
 				// alter the columnInfo.DataType to reflect the size so it's comparable to how data type is reported by PropertyInfo
 				if (columnInfo.DataType.Contains("var") && !columnInfo.DataType.Contains("("))
 				{
@@ -162,7 +171,7 @@ namespace Postulate.Orm.Models
 				}
 
 				// then any other property diff is considered an alter
-				if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;
+				if (!DataType?.Replace(" ", string.Empty).Equals(columnInfo.DataType.Replace(" ", string.Empty)) ?? true) return true;
 				if (IsNullable != columnInfo.IsNullable) return true;
 				if (IsCalculated != columnInfo.IsCalculated) return true;
 

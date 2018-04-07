@@ -165,13 +165,14 @@ namespace Postulate.Orm.SqlServer
 	                [c].[max_length] AS [ByteLength], [c].[is_nullable] AS [IsNullable],
 	                [c].[precision] AS [Precision], [c].[scale] as [Scale], [c].[collation_name] AS [Collation], [c].[is_computed] AS [IsCalculated],
 	                SCHEMA_NAME([parentTbl].[schema_id]) AS [ReferencedSchema], [parentTbl].[name] AS [ReferencedTable], [parentCol].[name] AS [ReferencedColumn],
-	                [fk].[name] AS [ForeignKeyConstraint]
+	                [fk].[name] AS [ForeignKeyConstraint], [ccol].[definition] AS [Expression]
                 FROM
 	                [sys].[tables] [t] INNER JOIN [sys].[columns] [c] ON [t].[object_id]=[c].[object_id]
 	                LEFT JOIN [sys].[foreign_key_columns] [fkcol] ON
 		                [c].[object_id]=[fkcol].[parent_object_id] AND
 		                [c].[column_id]=[fkcol].[parent_column_id]
                     LEFT JOIN [sys].[foreign_keys] [fk] ON [fkcol].[constraint_object_id]=[fk].[object_id]
+					LEFT JOIN [sys].[computed_columns] [ccol] ON [c].[object_id]=[ccol].[object_id] AND [c].[name]=[ccol].[name]
 	                LEFT JOIN [sys].[columns] [parentCol] ON
 		                [fkcol].[referenced_object_id]=[parentCol].[object_id] AND
 		                [fkcol].[referenced_column_id]=[parentCol].[column_id]
