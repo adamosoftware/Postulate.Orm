@@ -156,6 +156,11 @@ namespace Postulate.Orm.Models
 					columnInfo.DataType = "nvarchar(max)";
 				}
 
+				if (columnInfo.Length.Equals("max") && columnInfo.DataType.Equals("varbinary(-1)"))
+				{
+					columnInfo.DataType = "varbinary(max)";
+				}
+
 				// then any other property diff is considered an alter
 				if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;
 				if (IsNullable != columnInfo.IsNullable) return true;
