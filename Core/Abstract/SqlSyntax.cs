@@ -292,7 +292,15 @@ namespace Postulate.Orm.Abstract
 		{
 			Type keyType = FindKeyType(type);
 
-			return $"{ApplyDelimiter(type.IdentityColumnName())} {KeyTypeMap()[keyType]}";
+			bool withDefaults = true;
+			string append = string.Empty;
+			if (type.HasAttribute<NoIdentityAttribute>())
+			{
+				withDefaults = false;
+				append = " NOT NULL";
+			}
+
+			return $"{ApplyDelimiter(type.IdentityColumnName())} {KeyTypeMap(withDefaults)[keyType]}{append}";
 		}
 
 		protected Type FindKeyType(Type modelType)

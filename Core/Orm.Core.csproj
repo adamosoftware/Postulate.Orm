@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\EnumTableAttribute.cs" />
+    <Compile Include="Attributes\NoIdentityAttribute.cs" />
     <Compile Include="ModelMerge\Actions\CreateSchema.cs" />
     <Compile Include="ModelMerge\Actions\DropForeignKey.cs" />
     <Compile Include="ModelMerge\Actions\CreateEnumTable.cs" />
