@@ -2,12 +2,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Postulate.Orm;
 using Postulate.Orm.Enums;
+using Postulate.Orm.ModelMerge.Actions;
+using Postulate.Orm.Models;
 using Postulate.Orm.Util;
 using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Testing.Models;
+using TestModels.Models;
 
 namespace Testing
 {
@@ -22,6 +25,26 @@ namespace Testing
 				result = cn.QuerySingleOrDefault<int?>("SELECT MAX([Id]) FROM [Organization]") ?? 0;
 			}
 			return result;
+		}
+
+		[TestMethod]
+		public void TableDInsertStatement_ShouldIncludeIdentity()
+		{
+			var tableD = new TableD() { FieldOne = "whatever", Id = 0 };			
+
+			var db = new PostulateDb();
+
+			using (var cn = db.GetConnection())
+			{
+				if (!db.Syntax.TableExists(cn, typeof(TableD)))
+				{
+					var ct = new CreateTable(db.Syntax, new TableInfo("TableD", "dbo", typeof(TableD)));
+					foreach (var cmd in ct.SqlCommands(cn)) cn.Execute(cmd);
+				}
+
+				db.TraceCallback = (cn1, qt) => { Assert.IsTrue(qt.Sql.Equals("hello")); };
+				db.Save(tableD);
+			}							
 		}
 
 		[TestMethod]
