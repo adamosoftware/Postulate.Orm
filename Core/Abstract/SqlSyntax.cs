@@ -3,7 +3,6 @@ using Postulate.Orm.Attributes;
 using Postulate.Orm.Exceptions;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Models;
-using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -20,7 +19,7 @@ namespace Postulate.Orm.Abstract
 	/// </summary>
 	public abstract class SqlSyntax
 	{
-		public abstract IDbConnection GetConnection(string connectionString);		
+		public abstract IDbConnection GetConnection(string connectionString);
 
 		/// <summary>
 		/// Indicates whether schema objects (in the SQL Server sense) are supported
@@ -215,7 +214,7 @@ namespace Postulate.Orm.Abstract
 		public abstract string GetCopyStatement<TRecord, TKey>(IEnumerable<string> paramColumns, IEnumerable<string> columns) where TRecord : Record<TKey>;
 
 		public abstract bool ForeignKeyExists(IDbConnection connection, PropertyInfo propertyInfo);
-		
+
 		public abstract string ForeignKeyAddStatement(ForeignKeyInfo foreignKeyInfo);
 
 		public abstract string ForeignKeyAddStatement(PropertyInfo propertyInfo);
@@ -228,7 +227,7 @@ namespace Postulate.Orm.Abstract
 
 			EnumTableAttribute enumTable;
 			if (propertyInfo.IsEnumForeignKey(out enumTable))
-			{				
+			{
 				return
 					firstLine +
 						$"\t{ApplyDelimiter(propertyInfo.SqlColumnName())}\r\n" +
@@ -293,7 +292,15 @@ namespace Postulate.Orm.Abstract
 		{
 			Type keyType = FindKeyType(type);
 
-			return $"{ApplyDelimiter(type.IdentityColumnName())} {KeyTypeMap()[keyType]}";
+			bool withDefaults = true;
+			string append = string.Empty;
+			if (type.HasAttribute<NoIdentityAttribute>())
+			{
+				withDefaults = false;
+				append = " NOT NULL";
+			}
+
+			return $"{ApplyDelimiter(type.IdentityColumnName())} {KeyTypeMap(withDefaults)[keyType]}{append}";
 		}
 
 		protected Type FindKeyType(Type modelType)
@@ -311,7 +318,7 @@ namespace Postulate.Orm.Abstract
 				.Where(p =>
 					p.CanWrite &&
 					!p.Name.ToLower().Equals(type.IdentityColumnName().ToLower()) &&
-					IsSupportedType(p.PropertyType) &&					
+					IsSupportedType(p.PropertyType) &&
 					!p.HasAttribute<NotMappedAttribute>());
 		}
 	}

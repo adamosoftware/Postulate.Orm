@@ -54,10 +54,10 @@ namespace Postulate.Orm.Abstract
 			{
 				return _db.FindWhere<TLookup>(_connection, FindIdExpression, new { name = name }).Id;
 			}
-			catch 
+			catch
 			{
 				throw new Exception($"Couldn't find {typeof(TLookup).Name} where {FindIdExpression} with name = {name}");
-			}			 				
+			}
 		}
 
 		public void Generate(SqlDb<TKey> db)

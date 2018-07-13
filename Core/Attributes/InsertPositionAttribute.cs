@@ -3,19 +3,19 @@ using System;
 
 namespace Postulate.Orm.Attributes
 {
-    /// <summary>
-    /// Indicates where in the target table inherited columns are added
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false)]
-    public class InsertPositionAttribute : Attribute
-    {
-        private readonly Position _insertPosition;
+	/// <summary>
+	/// Indicates where in the target table inherited columns are added
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false)]
+	public class InsertPositionAttribute : Attribute
+	{
+		private readonly Position _insertPosition;
 
-        public InsertPositionAttribute(Position insertPosition)
-        {
-            _insertPosition = insertPosition;
-        }
+		public InsertPositionAttribute(Position insertPosition)
+		{
+			_insertPosition = insertPosition;
+		}
 
-        public Position Position { get { return _insertPosition; } }
-    }
+		public Position Position { get { return _insertPosition; } }
+	}
 }

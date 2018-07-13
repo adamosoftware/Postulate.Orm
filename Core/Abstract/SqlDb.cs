@@ -2,7 +2,6 @@
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Models;
-using ReflectionHelper;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -121,6 +120,13 @@ namespace Postulate.Orm.Abstract
 		public SqlSyntax Syntax { get { return _syntax; } }
 
 		public Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
+
+		/// <summary>
+		/// Indicates whether QueryTraces are captured on the SqlDb object for reporting later
+		/// </summary>
+		public bool TraceQueries { get; set; }
+
+		public List<QueryTrace> QueryTraces { get; private set; } = new List<QueryTrace>();
 
 		protected virtual string GetTableName<TRecord>() where TRecord : Record<TKey>
 		{

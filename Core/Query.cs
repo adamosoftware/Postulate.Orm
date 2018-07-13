@@ -3,7 +3,7 @@ using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
 using Postulate.Orm.Models;
-using ReflectionHelper;
+using Postulate.Orm.Util;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,14 +19,9 @@ namespace Postulate.Orm
 	/// <typeparam name="TResult">Type with properties that map to columns returned by the query</typeparam>
 	public class Query<TResult>
 	{
-		private readonly string _sql;
-		private readonly ISqlDb _db;
+		private ISqlDb _db;
+		private readonly string _sql;		
 		private string _resolvedSql;
-
-		/// <summary>
-		/// Set this to receive metrics about the last query executed, including the user name, full SQL, parameter info, and duration
-		/// </summary>
-		public Action<IDbConnection, QueryTrace> TraceCallback { get; set; }
 
 		/// <summary>
 		/// Constructor without the ISqlDb argument requires open connection when executing
@@ -42,7 +37,7 @@ namespace Postulate.Orm
 			_db = db;
 		}
 
-		protected ISqlDb Db { get { return _db; } }
+		public ISqlDb Db { get { return _db; } set { _db = value; } }
 
 		public int RowsPerPage { get; set; } = 50;
 
@@ -58,6 +53,12 @@ namespace Postulate.Orm
 		/// Lets you specify where in the application a query is called so that trace information is potentially more useful
 		/// </summary>
 		public string TraceContext { get; set; }
+		
+		public IEnumerable<TResult> Execute(ISqlDb db, int pageNumber = 0)
+		{
+			Db = db;
+			return Execute(pageNumber);
+		}
 
 		public IEnumerable<TResult> Execute(int pageNumber = 0)
 		{
@@ -96,9 +97,17 @@ namespace Postulate.Orm
 			return result;
 		}
 
+		public TResult ExecuteSingle(ISqlDb db)
+		{
+			Db = db;
+			return ExecuteSingle();
+		}
+
 		private void InvokeTraceCallback(IDbConnection connection, List<QueryTrace.Parameter> parameters, Stopwatch sw)
 		{
-			TraceCallback?.Invoke(connection, new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext));
+			var trace = new QueryTrace(GetType().FullName, _db.UserName, _resolvedSql, parameters, sw.ElapsedMilliseconds, TraceContext);
+			_db?.TraceCallback?.Invoke(connection, trace);
+			if (_db.TraceQueries) _db.QueryTraces.Add(trace);
 		}
 
 		public async Task<TResult> ExecuteSingleAsync()
@@ -149,7 +158,7 @@ namespace Postulate.Orm
 			results = connection.Query<TResult>(_resolvedSql, queryParams, commandTimeout: CommandTimeout);
 			sw.Stop();
 
-			InvokeTraceCallback(connection, parameters, sw);
+			InvokeTraceCallback(connection, parameters, sw);			
 
 			return results;
 		}
@@ -176,14 +185,7 @@ namespace Postulate.Orm
 			List<string> terms = new List<string>();
 			parameters = new List<QueryTrace.Parameter>();
 
-			// this gets the param names within the query based on words with leading '@'
-			var builtInParams = sql.GetParameterNames(true).Select(p => p.ToLower());
-
-			// these are properties of the Query base type that we ignore because they are never part of WHERE clause (things like CommandType and CommandTimeout)
-			var baseProps = query.GetType().BaseType.GetProperties().Select(pi => pi.Name);
-
-			// these are the properties of the Query that are explicitly defined and may impact the WHERE clause
-			var queryProps = query.GetType().GetProperties().Where(pi => !baseProps.Contains(pi.Name));
+			var queryProps = QueryUtil.GetProperties(query, sql, out IEnumerable<string> builtInParams);
 
 			queryParams = new DynamicParameters();
 			foreach (var prop in queryProps)
@@ -194,11 +196,11 @@ namespace Postulate.Orm
 
 			Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
 			{
-				{ InternalStringExtensions.WhereToken, "WHERE" }, // query has no where clause, so it needs the word WHERE inserted
+				{ InternalStringExtensions.WhereToken, "WHERE" }, // query has no WHERE clause, so it will be added
 				{ InternalStringExtensions.AndWhereToken, "AND" } // query already contains a WHERE clause, we're just adding to it
             };
 			string token;
-			if (result.ContainsAny(new string[] { InternalStringExtensions.WhereToken, InternalStringExtensions.AndWhereToken }, out token))
+			if (result.ContainsAny(whereBuilder.Select(kp => kp.Key), out token))
 			{
 				bool anyCriteria = false;
 
@@ -242,6 +244,7 @@ namespace Postulate.Orm
 
 			if (pageNumber > 0)
 			{
+				if (query.Db == null) throw new NullReferenceException("If you use a page number argument with Query, the Db property must be set.");
 				result = query.Db.Syntax.ApplyPaging(result, pageNumber, query.RowsPerPage);
 			}
 

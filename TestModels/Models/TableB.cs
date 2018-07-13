@@ -15,5 +15,8 @@ namespace Testing.Models
         public string Description { get; set; }
 
         public DateTime? EffectiveDate { get; set; }
+
+		[ColumnAccess(Access.InsertOnly)]
+		public int? InsertOnly { get; set; }
     }
 }

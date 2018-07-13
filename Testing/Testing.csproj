@@ -74,9 +74,10 @@
     <Compile Include="TestDeleteTracking.cs" />
     <Compile Include="TestFind.cs" />
     <Compile Include="TestConnectionStringRef.cs" />
-    <Compile Include="TestQuery.cs" />
+    <Compile Include="Queries\SqlServer\Queries.cs" />
     <Compile Include="TestSchemaMerge.cs" />
     <Compile Include="EnumForeignKeys.cs" />
+    <Compile Include="Queries\MySql\Queries.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -1,13 +1,13 @@
 ﻿using Postulate.Orm.Abstract;
 using Postulate.Orm.ModelMerge;
+using Postulate.Orm.Models;
+using Postulate.Orm.SchemaMerge.Actions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
-using Postulate.Orm.SchemaMerge.Actions;
-using Postulate.Orm.Models;
+using System.Threading.Tasks;
 
 namespace Postulate.Orm.SchemaMerge
 {
@@ -41,14 +41,14 @@ namespace Postulate.Orm.SchemaMerge
 		public Stopwatch Stopwatch { get { return _stopwatch; } }
 
 		public async Task<IEnumerable<MergeAction>> CompareAsync()
-		{			
+		{
 			using (var fromConnection = _syntax.GetConnection(_fromConnection))
 			{
 				using (var toConnection = _syntax.GetConnection(_toConnection))
 				{
 					return await CompareAsync(fromConnection, toConnection);
 				}
-			}			
+			}
 		}
 
 		public async Task<IEnumerable<MergeAction>> CompareAsync(IDbConnection fromConnection, IDbConnection toConnection)
@@ -93,7 +93,6 @@ namespace Postulate.Orm.SchemaMerge
 				// dropped indexes
 
 				// dropped foreign keys
-
 			});
 
 			_stopwatch.Stop();
@@ -103,14 +102,12 @@ namespace Postulate.Orm.SchemaMerge
 
 		private IEnumerable<MergeAction> CreateColumns(
 			IEnumerable<TableInfo> fromTables, IDbConnection fromConnection,
-			IEnumerable<TableInfo> toTables,  IDbConnection toConnection,
+			IEnumerable<TableInfo> toTables, IDbConnection toConnection,
 			IEnumerable<MergeAction> existingActions)
 		{
 			_progress?.Report(new MergeProgress() { Description = "Finding new columns..." });
 
 			var excludeNewTables = existingActions.OfType<CreateTable>().Select(a => a.TableInfo);
-
-			
 
 			throw new NotImplementedException();
 		}

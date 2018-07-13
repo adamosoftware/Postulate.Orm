@@ -1,8 +1,8 @@
 ﻿namespace Postulate.Orm.Enums
 {
-    public enum Position
-    {
-        StartOfTable,
-        EndOfTable
-    }
+	public enum Position
+	{
+		StartOfTable,
+		EndOfTable
+	}
 }

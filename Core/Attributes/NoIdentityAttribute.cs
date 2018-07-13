@@ -3,7 +3,7 @@
 namespace Postulate.Orm.Attributes
 {
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-	public class TrackDeletionsAttribute : Attribute
+	public class NoIdentityAttribute : Attribute
 	{
 	}
 }

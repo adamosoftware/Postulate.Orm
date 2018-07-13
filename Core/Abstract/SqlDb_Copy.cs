@@ -2,7 +2,6 @@
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
 using Postulate.Orm.Interfaces;
-using ReflectionHelper;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -29,7 +28,13 @@ namespace Postulate.Orm.Abstract
 		private TKey ExecuteCopy<TRecord>(IDbConnection connection, TKey id, object setProperties, IEnumerable<string> omitColumns) where TRecord : Record<TKey>
 		{
 			string cmd = GetCopyStatement<TRecord>(setProperties, omitColumns);
-			DynamicParameters dp = new DynamicParameters(setProperties);
+
+			Dictionary<string, string> setColumns = setProperties.GetType().GetProperties()
+				.Where(pi => pi.GetValue(setProperties) != null)
+				.ToDictionary(pi => pi.Name, pi => pi.GetValue(setProperties).ToString());
+
+			DynamicParameters dp = new DynamicParameters();
+			foreach (var col in setColumns) dp.Add(col.Key, col.Value);
 			dp.Add(typeof(TRecord).IdentityColumnName(), id);
 			return connection.QuerySingle<TKey>(cmd, dp);
 		}

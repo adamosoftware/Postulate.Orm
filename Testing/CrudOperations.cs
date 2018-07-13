@@ -1,190 +1,236 @@
-﻿using System;
+﻿using Dapper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Testing.Models;
-using System.Data;
-using Dapper;
-using System.Threading.Tasks;
-using Postulate.Orm.ModelMerge;
+using Postulate.Orm;
 using Postulate.Orm.Enums;
-using System.Linq;
+using Postulate.Orm.ModelMerge.Actions;
+using Postulate.Orm.Models;
 using Postulate.Orm.Util;
+using System;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using Testing.Models;
+using TestModels.Models;
 
 namespace Testing
 {
-    [TestClass]
-    public class CrudOperations
-    {
-        private int MaxOrgId()
-        {
-            int result = 0;
-            using (IDbConnection cn = new PostulateDb().GetConnection())
-            {
-                result = cn.QuerySingleOrDefault<int?>("SELECT MAX([Id]) FROM [Organization]") ?? 0;
-            }
-            return result;
-        }
+	[TestClass]
+	public class CrudOperations
+	{
+		private int MaxOrgId()
+		{
+			int result = 0;
+			using (IDbConnection cn = new PostulateDb().GetConnection())
+			{
+				result = cn.QuerySingleOrDefault<int?>("SELECT MAX([Id]) FROM [Organization]") ?? 0;
+			}
+			return result;
+		}
 
-        [TestMethod]
-        public void CreateDeleteOrg()
-        {
-            Organization org = new Organization();
-            org.Name = DefaultOrgName();
-            org.BillingRate = 10;
+		[TestMethod]
+		public void TableDInsertStatement_ShouldIncludeIdentity()
+		{
+			var tableD = new TableD() { FieldOne = "whatever", Id = 0 };			
 
-            PostulateDb db = new PostulateDb();
-            db.TraceCallback = (cn, qt) => { Query.SaveTrace(cn, qt, db); };
+			var db = new PostulateDb();
 
-            using (IDbConnection cn = db.GetConnection())
-            {
-                cn.Open();
-                db.Save(cn, org);
-                db.DeleteOne(cn, org);
-            }
-        }
+			using (var cn = db.GetConnection())
+			{
+				if (!db.Syntax.TableExists(cn, typeof(TableD)))
+				{
+					var ct = new CreateTable(db.Syntax, new TableInfo("TableD", "dbo", typeof(TableD)));
+					foreach (var cmd in ct.SqlCommands(cn)) cn.Execute(cmd);
+				}
 
-        [TestMethod]
-        public async Task CreateOrgAsync()
-        {
-            var org = new Organization() { Name = "Async Org", BillingRate = 1 };
-            PostulateDb db = new PostulateDb();
-            await db.SaveAsync(org);
-            Assert.IsTrue(org.Id != 0);
-            db.DeleteOne(org);
-        }
+				db.TraceCallback = (cn1, qt) => { Assert.IsTrue(qt.Sql.Equals("hello")); };
+				db.Save(tableD);
+			}							
+		}
 
-        private string DefaultOrgName()
-        {
-            return $"Sample Org {DateTime.Now} {MaxOrgId()}";
-        }
+		[TestMethod]
+		public void CreateDeleteOrg()
+		{
+			Organization org = new Organization();
+			org.Name = DefaultOrgName();
+			org.BillingRate = 10;
 
-        [TestMethod]
-        public void FindAndUpdateOrg()
-        {
-            Organization org = new Organization();
-            org.Name = DefaultOrgName();
-            org.BillingRate = 10;
+			PostulateDb db = new PostulateDb();
+			db.TraceCallback = (cn, qt) => { QueryUtil.SaveTrace(cn, qt, db); };
 
-            PostulateDb db = new PostulateDb();
-            using (IDbConnection cn = db.GetConnection())
-            {
-                cn.Open();
-                db.Save(cn, org);
+			using (IDbConnection cn = db.GetConnection())
+			{
+				cn.Open();
+				db.Save(cn, org);
+				db.DeleteOne(cn, org);
+			}
+		}
 
-                org = db.Find<Organization>(cn, org.Id);
-                org.Name = $"Another Sample {DateTime.Now}";
-                org.BillingRate = 11;
-                db.Save(cn, org);
-            }
-        }
+		[TestMethod]
+		public async Task CreateOrgAsync()
+		{
+			var org = new Organization() { Name = "Async Org", BillingRate = 1 };
+			PostulateDb db = new PostulateDb();
+			await db.SaveAsync(org);
+			Assert.IsTrue(org.Id != 0);
+			db.DeleteOne(org);
+		}
 
-        [TestMethod]
-        public void CreateDeleteOrgFromIdNoConnection()
-        {
-            Organization org = new Organization();
-            org.Name = DefaultOrgName();
-            org.BillingRate = 10;
+		private string DefaultOrgName()
+		{
+			return $"Sample Org {DateTime.Now} {MaxOrgId()}";
+		}
 
-            PostulateDb db = new PostulateDb();
-            db.Save(org);
-            db.DeleteOne<Organization>(org.Id);
-        }
+		[TestMethod]
+		public void FindAndUpdateOrg()
+		{
+			Organization org = new Organization();
+			org.Name = DefaultOrgName();
+			org.BillingRate = 10;
 
-        [TestMethod]
-        public void CreateDeleteOrgFromRecordNoConnection()
-        {
-            Organization org = new Organization();
-            org.Name = DefaultOrgName();
-            org.BillingRate = 10;
+			PostulateDb db = new PostulateDb();
+			using (IDbConnection cn = db.GetConnection())
+			{
+				cn.Open();
+				db.Save(cn, org);
 
-            PostulateDb db = new PostulateDb();
-            db.Save(org);
-            db.DeleteOne(org);
-        }
+				org = db.Find<Organization>(cn, org.Id);
+				org.Name = $"Another Sample {DateTime.Now}";
+				org.BillingRate = 11;
+				db.Save(cn, org);
+			}
+		}
 
-        [TestMethod]
-        public void Update()
-        {
-            Organization org = new Organization();
-            org.Name = DefaultOrgName();
-            org.BillingRate = 10;
+		[TestMethod]
+		public void CreateDeleteOrgFromIdNoConnection()
+		{
+			Organization org = new Organization();
+			org.Name = DefaultOrgName();
+			org.BillingRate = 10;
 
-            var db = new PostulateDb();
-            db.Save(org);
-            int orgId = org.Id;
+			PostulateDb db = new PostulateDb();
+			db.Save(org);
+			db.DeleteOne<Organization>(org.Id);
+		}
 
-            org.BillingRate = 11;
-            db.Update(org, r => r.BillingRate);
+		[TestMethod]
+		public void CreateDeleteOrgFromRecordNoConnection()
+		{
+			Organization org = new Organization();
+			org.Name = DefaultOrgName();
+			org.BillingRate = 10;
 
-            org = db.Find<Organization>(orgId);
-            db.DeleteOne<Organization>(orgId);
+			PostulateDb db = new PostulateDb();
+			db.Save(org);
+			db.DeleteOne(org);
+		}
 
-            Assert.IsTrue(org.BillingRate == 11);
-        }
+		[TestMethod]
+		public void Update()
+		{
+			Organization org = new Organization();
+			org.Name = DefaultOrgName();
+			org.BillingRate = 10;
 
-        [TestMethod]
-        public void UpdateSetDateModified()
-        {
-            Organization org = new Organization();
-            org.Name = DefaultOrgName();
-            org.BillingRate = 10;
+			var db = new PostulateDb();
+			db.Save(org);
+			int orgId = org.Id;
 
-            var db = new PostulateDb();
-            db.Save(org);
+			org.BillingRate = 11;
+			db.Update(org, r => r.BillingRate);
 
-            int orgId = org.Id;
+			org = db.Find<Organization>(orgId);
+			db.DeleteOne<Organization>(orgId);
 
-            org.BillingRate = 11;            
-            db.Update(org, r => r.BillingRate);
+			Assert.IsTrue(org.BillingRate == 11);
+		}
 
-            org = db.Find<Organization>(orgId);
-            db.DeleteOne<Organization>(orgId);
+		[TestMethod]
+		public void UpdateSetDateModified()
+		{
+			Organization org = new Organization();
+			org.Name = DefaultOrgName();
+			org.BillingRate = 10;
 
-            Assert.IsTrue(org.DateModified != null && org.ModifiedBy != null);
-        }
+			var db = new PostulateDb();
+			db.Save(org);
 
-        [TestMethod]
-        public void CopyOrg()
-        {
-            var db = new PostulateDb();
-            var newOrg = db.Copy<Organization>(1, new { name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" });
-            Assert.IsTrue(newOrg.Description.Equals("copied record"));
-        }
+			int orgId = org.Id;
 
-        [TestMethod]
-        public void CopyOrgOmitColumns()
-        {
-            var db = new PostulateDb();
-            var newOrg = db.Copy<Organization>(1, 
-                new { createdBy = "/system", dateCreated = DateTime.Now, name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" }, 
-                "ModifiedBy", "DateModified");
-            Assert.IsTrue(newOrg.Description.Equals("copied record"));
-        }
+			org.BillingRate = 11;
+			db.Update(org, r => r.BillingRate);
 
-        [TestMethod]
-        public void DeleteWhere()
-        {
-            var db = new PostulateDb();
-            db.DeleteAllWhere<Organization>("[Name] LIKE @name + '%'", new { name = "Org Copy" });
-        }
+			org = db.Find<Organization>(orgId);
+			db.DeleteOne<Organization>(orgId);
 
-        [TestMethod]
-        public void SchemaAttribute()
-        {
-            //string tableName = DbObject.SqlServerName(typeof(TableD));
-            //Assert.IsTrue(tableName.Equals("[app].[TableD]"));
-        }
+			Assert.IsTrue(org.DateModified != null && org.ModifiedBy != null);
+		}
 
-        [TestMethod]
-        public void ValidateMissingPKValue()
-        {
-            var a = new TableA();
-            a.FirstName = "whatever";
-            using (var cn = new PostulateDb().GetConnection())
-            {
-                cn.Open();
-                var errs = a.GetValidationErrors(cn, SaveAction.Insert);
-                Assert.IsTrue(errs.Any(item => item.Equals("Primary key field LastName requires a value.")));
-            }            
-        }
-    }
+		[TestMethod]
+		public void CopyOrg()
+		{
+			var db = new PostulateDb();
+			var srcOrg = FirstRandomOrg(db);
+			var newOrg = db.Copy<Organization>(srcOrg.Id, new { name = $"Org Copy {DateTime.Now.ToString()}", description = "copied record" });
+			Assert.IsTrue(newOrg.Description.Equals("copied record"));
+		}
+
+		[TestMethod]
+		public void CopyOrgOmitColumns()
+		{
+			var db = new PostulateDb();
+
+			Organization srcOrg = FirstRandomOrg(db);
+
+			Random rnd = new Random();
+
+			var newOrg = db.Copy<Organization>(srcOrg.Id,
+				new { createdBy = "/system", dateCreated = DateTime.Now, name = $"Org Copy {rnd.Next(1000)}", description = "copied record" },
+				"ModifiedBy", "DateModified");
+
+			Assert.IsTrue(newOrg.Description.Equals("copied record"));
+		}
+
+		private static Organization FirstRandomOrg(PostulateDb db)
+		{
+			Organization srcOrg = null;
+			var qry = new Query<Organization>("SELECT TOP (1) * FROM [dbo].[Organization]");
+
+			while (srcOrg == null)
+			{
+				srcOrg = qry.ExecuteSingle(db);
+				if (srcOrg != null) break;
+				srcOrg = new Organization() { Name = "Sample", BillingRate = 10 };
+				db.Save(srcOrg);
+			}
+
+			return srcOrg;
+		}
+
+		[TestMethod]
+		public void DeleteWhere()
+		{
+			var db = new PostulateDb();
+			db.DeleteAllWhere<Organization>("[Name] LIKE @name + '%'", new { name = "Org Copy" });
+		}
+
+		[TestMethod]
+		public void SchemaAttribute()
+		{
+			//string tableName = DbObject.SqlServerName(typeof(TableD));
+			//Assert.IsTrue(tableName.Equals("[app].[TableD]"));
+		}
+
+		[TestMethod]
+		public void ValidateMissingPKValue()
+		{
+			var a = new TableA();
+			a.FirstName = "whatever";
+			using (var cn = new PostulateDb().GetConnection())
+			{
+				cn.Open();
+				var errs = a.GetValidationErrors(cn, SaveAction.Insert);
+				Assert.IsTrue(errs.Any(item => item.Equals("Primary key field LastName requires a value.")));
+			}
+		}
+	}
 }

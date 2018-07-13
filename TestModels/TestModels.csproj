@@ -49,6 +49,7 @@
     <Compile Include="Models\TableA.cs" />
     <Compile Include="Models\TableB.cs" />
     <Compile Include="Models\TableC.cs" />
+    <Compile Include="Models\TableD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

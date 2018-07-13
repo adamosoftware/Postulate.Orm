@@ -10,7 +10,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Testing.Models;
+using TestModels.Models;
 
 namespace Testing
 {
@@ -81,7 +83,48 @@ namespace Testing
             sd.Generate(GetDb());
         }
 
-        private static Type[] GetModelClasses()
+		[TestMethod]
+		public void NoIdentityTable()
+		{
+			var ct = new CreateTable(new SqlServerSyntax(), new TableInfo("TableD", "dbo", typeof(TableD)));
+			using (var cn = GetDb().GetConnection())
+			{
+				StringBuilder sb = new StringBuilder();
+				foreach (string sql in ct.SqlCommands(cn)) sb.Append(sql);
+				Assert.IsTrue(sb.ToString().Equals(
+@"CREATE TABLE [dbo].[TableD] (
+	[Id] int NOT NULL,
+	[FieldOne] nvarchar(max) NULL,
+	CONSTRAINT [PK_TableD] PRIMARY KEY CLUSTERED ([Id])
+)"));
+			}			
+		}
+
+		[TestMethod]
+		public void IdentityTable()
+		{
+			var ct = new CreateTable(new SqlServerSyntax(), new TableInfo("TableC", "dbo", typeof(TableC)));
+			using (var cn = GetDb().GetConnection())
+			{
+				StringBuilder sb = new StringBuilder();
+				foreach (string sql in ct.SqlCommands(cn)) sb.Append(sql);
+				Assert.IsTrue(sb.ToString().Equals(
+@"CREATE TABLE [dbo].[TableC] (
+	[Id] int identity(1,1),
+	[SomeValue] bigint NOT NULL,
+	[SomeDate] datetime NOT NULL,
+	[SomeDouble] float NOT NULL,
+	[AnotherValue] int NOT NULL,
+	[DateCreated] datetime NOT NULL,
+	[CreatedBy] nvarchar(20) NOT NULL,
+	[DateModified] datetime NULL,
+	[ModifiedBy] nvarchar(20) NULL,
+	CONSTRAINT [PK_TableC] PRIMARY KEY CLUSTERED ([Id])
+)"));
+			}
+		}
+
+		private static Type[] GetModelClasses()
         {
             return new Type[]
             {
