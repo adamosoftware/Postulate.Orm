@@ -157,12 +157,16 @@ namespace Postulate.Orm.Models
                     columnInfo.DataType = "nvarchar(max)";
                 }
 
-                // then any other property diff is considered an alter
-                if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;
-                if (IsNullable != columnInfo.IsNullable) return true;
-                if (IsCalculated != columnInfo.IsCalculated) return true;
+                // then any other property diff is considered an alter (excluding calculated columns, which are a little wonky to compare directly)
+				if (!IsCalculated && !columnInfo.IsCalculated)
+				{
+					if (!DataType?.Equals(columnInfo.DataType) ?? true) return true;
+					if (IsNullable != columnInfo.IsNullable) return true;					
+				}
 
-                DecimalPrecisionAttribute scaleAttr = null;
+				if (IsCalculated != columnInfo.IsCalculated) return true;
+
+				DecimalPrecisionAttribute scaleAttr = null;
                 if (PropertyInfo?.HasAttribute(out scaleAttr) ?? false)
                 {
                     if (Precision != columnInfo.Precision) return true;
