@@ -151,6 +151,14 @@ namespace Postulate.Orm.Abstract
 		}
 
 		/// <summary>
+		/// Override this to perform an action before a record is deleted
+		/// </summary>
+		public virtual void BeforeDelete(IDbConnection connection, SqlDb<TKey> db)
+		{
+			// do nothing by default
+		}
+
+		/// <summary>
 		/// Override this to perform an action after a record is successfully deleted
 		/// </summary>
 		public virtual void AfterDelete(IDbConnection connection, SqlDb<TKey> db)

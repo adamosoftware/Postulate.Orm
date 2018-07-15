@@ -44,6 +44,8 @@ namespace Postulate.Orm.Abstract
 			string message;
 			if (record.AllowDelete(connection, this, out message))
 			{
+				record.BeforeDelete(connection, this);
+
 				if (TrackDeletions<TRecord>())
 				{
 					using (var txn = GetTransaction(connection))

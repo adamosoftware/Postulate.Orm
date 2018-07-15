@@ -81,6 +81,13 @@ namespace Testing
 					Assert.IsTrue(results.Count() == qry.RowsPerPage);
 				}
 			}
+		}		
+
+		[TestMethod]
+		public void LikeSearchParams()
+		{
+			var qry = new CustomerSearch(_sqlDb) { OrgId = 1 };
+			var results = qry.Execute();
 		}
 
 		/*
