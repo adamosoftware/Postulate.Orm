@@ -2,6 +2,8 @@
 
 Postulate is a lightweight code-first ORM made with [Dapper](https://github.com/StackExchange/Dapper) for .NET's `IDbConnection` interface. It offers simple, robust CRUD operations, some extras like [change](https://github.com/adamosoftware/Postulate.Orm/wiki/Change-Tracking) and [delete](https://github.com/adamosoftware/Postulate.Orm/wiki/Delete-Tracking) tracking, strong-typed queries, and uniquely (for SQL Server only at the moment) -- a very convenient way to synchronize your model classes to your database.
 
+**Note**, I'm in the middle of an update to this project here: [Postulate.Lite](https://github.com/adamosoftware/Postulate.Lite).
+
 Nuget package status:
 - **Postulate.Orm.Core** replaces Postulate.Orm. This package is installed automatically by [Postulate.Mvc](https://github.com/adamosoftware/Postulate.Mvc). Because this package has only abstract classes, you must in addition install either the **SqlServer** or **MySql** package, described below.
 - **Postulate.Orm.SqlServer** uses a new Model Merge architecture refactored to support MySql, and a new WinForms merge UI app is in progress that will eventually support both SQL Server and MySql.
