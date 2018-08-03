@@ -442,7 +442,17 @@ namespace Postulate.Orm.SqlServer
 		{
 			string result = sql;
 
-			result += $"\r\nOFFSET {rowsPerPage * (pageNumber - 1)} ROWS\r\nFETCH NEXT {rowsPerPage} ROWS ONLY";
+			const string token = "{paging}";
+			string syntax = $"OFFSET {rowsPerPage * (pageNumber - 1)} ROWS\r\nFETCH NEXT {rowsPerPage} ROWS ONLY";
+
+			if (result.Contains(token))
+			{
+				result = result.Replace(token, syntax);
+			}
+			else
+			{
+				result += $"\r\n{syntax}";
+			}			
 
 			return result;
 		}
