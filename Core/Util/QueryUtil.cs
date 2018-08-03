@@ -2,6 +2,7 @@
 using Postulate.Orm.Abstract;
 using Postulate.Orm.Attributes;
 using Postulate.Orm.Extensions;
+using Postulate.Orm.Interfaces;
 using Postulate.Orm.ModelMerge.Actions;
 using Postulate.Orm.Models;
 using System;
@@ -57,9 +58,74 @@ namespace Postulate.Orm.Util
 			var queryProps = query.GetType().GetProperties().Where(pi =>
 				pi.HasAttribute<WhereAttribute>() ||
 				pi.HasAttribute<CaseAttribute>() ||
+				pi.HasAttribute<AttachWhereAttribute>() ||
 				builtInParamsArray.Contains(pi.Name.ToLower()));
 
 			return queryProps;
+		}		
+
+		public static List<string> GetWhereClauseTerms(object criteria)
+		{
+			var props = GetProperties(criteria, string.Empty, out IEnumerable<string> builtInParams);
+			return GetWhereClauseTerms(criteria, props, builtInParams, new List<QueryTrace.Parameter>(), null);
+		}
+
+		public static List<string> GetWhereClauseTerms(object query, 
+			IEnumerable<PropertyInfo> queryProps, IEnumerable<string> builtInParams, List<QueryTrace.Parameter> traceParams,
+			Func<PropertyInfo, string> termBuilder)
+		{
+			List<string> results = new List<string>();
+
+			foreach (var pi in queryProps)
+			{
+				object value = pi.GetValue(query);
+				if (HasValue(value))
+				{
+					traceParams.Add(new QueryTrace.Parameter() { Name = pi.Name, Value = value });
+
+					// built-in params are not part of the generated WHERE clause, so they are excluded from added terms
+					if (!builtInParams.Contains(pi.Name.ToLower()))
+					{						
+						var cases = pi.GetCustomAttributes(typeof(CaseAttribute), false).OfType<CaseAttribute>();
+						var selectedCase = cases?.FirstOrDefault(c => c.Value.Equals(value));
+						if (selectedCase != null)
+						{
+							results.Add(selectedCase.Expression);
+						}
+						else
+						{
+							WhereAttribute whereAttr = pi.GetAttribute<WhereAttribute>();
+							AttachWhereAttribute attachWhere = pi.GetAttribute<AttachWhereAttribute>();
+
+							if (whereAttr != null)
+							{								
+								results.Add(whereAttr.Expression);
+							}
+							else if (attachWhere != null)
+							{
+								results.AddRange(GetWhereClauseTerms(value));
+							}														
+							else if (termBuilder != null)
+							{
+								results.Add(termBuilder.Invoke(pi));
+							}							
+						}
+					}
+				}
+			}
+
+			return results;
+		}
+
+		private static bool HasValue(object value)
+		{
+			if (value != null)
+			{
+				if (value.Equals(string.Empty)) return false;
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

@@ -20,7 +20,9 @@ namespace Postulate.Orm.Extensions
 		internal static IEnumerable<string> GetParameterNames(this string sql, bool cleaned = false)
 		{
 			var matches = Regex.Matches(sql, SqlParamRegex);
-			return matches.OfType<Match>().Select(m => (cleaned) ? m.Value.Substring(1) : m.Value);
+			return matches.OfType<Match>()
+				.Select(m => (cleaned) ? m.Value.Substring(1) : m.Value)
+				.GroupBy(s => s).Select(grp => grp.Key);
 		}
 
 		internal static bool ContainsAny(this string input, IEnumerable<string> substrings, out string substring)

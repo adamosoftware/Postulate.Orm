@@ -86,7 +86,7 @@ namespace Testing
 		[TestMethod]
 		public void LikeSearchParams()
 		{
-			var qry = new CustomerSearch(_sqlDb) { OrgId = 1 };
+			var qry = new CustomerSearch(_sqlDb) { OrgId = 1, Search = "hello" };
 			var results = qry.Execute();
 		}
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Postulate.Orm
@@ -182,57 +183,24 @@ namespace Postulate.Orm
 		private static string ResolveQuery(string sql, Query<TResult> query, int pageNumber, out List<QueryTrace.Parameter> parameters, out DynamicParameters queryParams)
 		{
 			string result = sql;
-			List<string> terms = new List<string>();
+			List<string> terms = null;
 			parameters = new List<QueryTrace.Parameter>();
 
 			var queryProps = QueryUtil.GetProperties(query, sql, out IEnumerable<string> builtInParams);
 
 			queryParams = new DynamicParameters();
-			foreach (var prop in queryProps)
-			{
-				var value = prop.GetValue(query);
-				if (value != null) queryParams.Add(prop.Name, value);
-			}
+			ResolveQueryParams(queryParams, query, queryProps);
 
 			Dictionary<string, string> whereBuilder = new Dictionary<string, string>()
 			{
 				{ InternalStringExtensions.WhereToken, "WHERE" }, // query has no WHERE clause, so it will be added
 				{ InternalStringExtensions.AndWhereToken, "AND" } // query already contains a WHERE clause, we're just adding to it
-            };
+			};
 			string token;
 			if (result.ContainsAny(whereBuilder.Select(kp => kp.Key), out token))
-			{
-				bool anyCriteria = false;
-
-				// loop through this query's properties, but ignore base properties (like ResolvedSql and TraceCallback) since they are never part of WHERE clause
-				foreach (var pi in queryProps)
-				{
-					object value = pi.GetValue(query);
-					if (HasValue(value))
-					{
-						parameters.Add(new QueryTrace.Parameter() { Name = pi.Name, Value = value });
-
-						// built-in params are not part of the WHERE clause, so they are excluded from added terms
-						if (!builtInParams.Contains(pi.Name.ToLower()))
-						{
-							anyCriteria = true;
-
-							var cases = pi.GetCustomAttributes(typeof(CaseAttribute), false).OfType<CaseAttribute>();
-							var selectedCase = cases?.FirstOrDefault(c => c.Value.Equals(value));
-							if (selectedCase != null)
-							{
-								terms.Add(selectedCase.Expression);
-							}
-							else
-							{
-								WhereAttribute whereAttr = pi.GetAttribute<WhereAttribute>();
-								string expression = (whereAttr != null) ? whereAttr.Expression : $"{query._db.Syntax.ApplyDelimiter(pi.Name)}=@{pi.Name}";
-								terms.Add(expression);
-							}
-						}
-					}
-				}
-				result = result.Replace(token, (anyCriteria) ? $"{whereBuilder[token]} {string.Join(" AND ", terms)}" : string.Empty);
+			{				
+				terms = QueryUtil.GetWhereClauseTerms(query, queryProps, builtInParams, parameters, (pi) => $"{query.Db.Syntax.ApplyDelimiter(pi.Name)}=@{pi.Name}");
+				result = result.Replace(token, (terms.Any()) ? $"{whereBuilder[token]} {string.Join(" AND ", terms)}" : string.Empty);
 			}
 
 			// need to add built in params explicitly to outgoing param list for the benefit of QueryTrace
@@ -244,30 +212,39 @@ namespace Postulate.Orm
 
 			if (pageNumber > 0)
 			{
-				if (query.Db == null) throw new NullReferenceException("If you use a page number argument with Query, the Db property must be set.");
+				if (query.Db == null) throw new NullReferenceException("If you use a page number argument with Query, the Db property must be set so that the paging syntax can be applied to the query.");
 				result = query.Db.Syntax.ApplyPaging(result, pageNumber, query.RowsPerPage);
 			}
 
 			return result;
 		}
 
-        private static bool HasValue(object value)
-        {
-            if (value != null)
-            {
-                if (value.Equals(string.Empty)) return false;
-                return true;
-            }
+		private static void ResolveQueryParams(DynamicParameters queryParams, object query, IEnumerable<PropertyInfo> queryProps)
+		{
+			foreach (var prop in queryProps)
+			{
+				var value = prop.GetValue(query);
+				if (value != null)
+				{
+					if (prop.HasAttribute<AttachWhereAttribute>())
+					{
+						var nestedProps = QueryUtil.GetProperties(value, string.Empty, out IEnumerable<string> builtInParams);
+						ResolveQueryParams(queryParams, value, nestedProps);
+					}
+					else
+					{
+						queryParams.Add(prop.Name, value);
+					}					
+				}
+			}
+		}
 
-            return false;
-        }
-
-        /// <summary>
-        /// Override this to make any changes to the query after it's been resolved,
-        /// such as replacing macros or injecting environment-specific content based on the connection.
-        /// You can also inspect parameeters that are passed
-        /// </summary>
-        protected virtual string OnQueryResolved(IDbConnection connection, string query, DynamicParameters parameters)
+		/// <summary>
+		/// Override this to make any changes to the query after it's been resolved,
+		/// such as replacing macros or injecting environment-specific content based on the connection.
+		/// You can also inspect parameters that are passed
+		/// </summary>
+		protected virtual string OnQueryResolved(IDbConnection connection, string query, DynamicParameters parameters)
 		{
 			return query;
 		}
