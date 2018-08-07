@@ -90,6 +90,22 @@ namespace Testing
 			var results = qry.Execute();
 		}
 
+		[TestMethod]
+		public void DynamicParamsSimple()
+		{
+			var query = new AllOrgsOneParam() { Name = "whatever" };
+			var result = QueryUtil.GetDynamicParameters(query);
+			Assert.IsTrue(result.ParameterNames.Count() == 1);			
+		}
+
+		[TestMethod]
+		public void DynamicParamsComplex()
+		{
+			var criteria = new { Name = "Adam", Address = "21 Brandt" };
+			var result = QueryUtil.GetDynamicParameters(criteria, "SELECT * FROM whatever WHERE Name LIKE @name AND Address LIKE @address");
+			Assert.IsTrue(result.ParameterNames.Count() == 2);
+		}
+
 		/*
         [TestMethod]
         public void QueryArrayParams()
@@ -104,7 +120,7 @@ namespace Testing
                 Assert.IsTrue(results.Any());
             }
         }
-        */
+        */		
 
 		private void TestSaveTrace(IDbConnection cn, QueryTrace trace)
 		{

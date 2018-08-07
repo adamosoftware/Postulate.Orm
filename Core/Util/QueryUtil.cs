@@ -64,10 +64,21 @@ namespace Postulate.Orm.Util
 			return queryProps;
 		}		
 
-		public static DynamicParameters GetDynamicParameters(object criteria)
+		/// <summary>
+		/// Derives a Dapper.DynamicParameters object from a POCO object. 
+		/// Properties must have [Where], [Case], or [AttachWhere] attributes,
+		/// or they must be referenced with @ in query argument
+		/// </summary>
+		public static DynamicParameters GetDynamicParameters(object criteria, string query = "")
 		{
 			DynamicParameters dp = new DynamicParameters();
-			var props = GetProperties(criteria, string.Empty, out IEnumerable<string> builtInParams);
+			GetDynamicParametersInner(dp, criteria, query);
+			return dp;
+		}
+
+		private static void GetDynamicParametersInner(DynamicParameters dp, object criteria, string query)
+		{
+			var props = GetProperties(criteria, query, out IEnumerable<string> builtInParams);
 			foreach (PropertyInfo pi in props)
 			{
 				object value = pi.GetValue(criteria);
@@ -75,15 +86,14 @@ namespace Postulate.Orm.Util
 				{
 					if (pi.HasAttribute<AttachWhereAttribute>())
 					{
-
+						GetDynamicParametersInner(dp, value, query);
 					}
 					else
 					{
 						dp.Add(pi.Name, value);
-					}					
+					}
 				}
 			}
-			return dp;
 		}
 
 		public static string GetWhereClause(object criteria)
