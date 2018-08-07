@@ -64,6 +64,11 @@ namespace Postulate.Orm.Util
 			return queryProps;
 		}		
 
+		public static string GetWhereClause(object criteria)
+		{
+			return string.Join(" AND ", GetWhereClauseTerms(criteria));
+		}
+
 		public static List<string> GetWhereClauseTerms(object criteria)
 		{
 			var props = GetProperties(criteria, string.Empty, out IEnumerable<string> builtInParams);
