@@ -64,6 +64,28 @@ namespace Postulate.Orm.Util
 			return queryProps;
 		}		
 
+		public static DynamicParameters GetDynamicParameters(object criteria)
+		{
+			DynamicParameters dp = new DynamicParameters();
+			var props = GetProperties(criteria, string.Empty, out IEnumerable<string> builtInParams);
+			foreach (PropertyInfo pi in props)
+			{
+				object value = pi.GetValue(criteria);
+				if (HasValue(value))
+				{
+					if (pi.HasAttribute<AttachWhereAttribute>())
+					{
+
+					}
+					else
+					{
+						dp.Add(pi.Name, value);
+					}					
+				}
+			}
+			return dp;
+		}
+
 		public static string GetWhereClause(object criteria)
 		{
 			return string.Join(" AND ", GetWhereClauseTerms(criteria));
