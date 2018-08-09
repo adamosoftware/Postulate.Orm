@@ -45,6 +45,14 @@ namespace Postulate.Orm.Util
 		}
 
 		/// <summary>
+		/// Returns the properties of a query object that have values
+		/// </summary>
+		public static IEnumerable<PropertyInfo> GetProperties(object query)
+		{
+			return GetProperties(query, string.Empty, out IEnumerable<string> builtInParams).Where(pi => HasValue(pi));
+		}
+
+		/// <summary>
 		/// Returns the properties of a query object based on parameters defined in a 
 		/// SQL statement as well as properties with Where and Case attributes
 		/// </summary>
