@@ -4,6 +4,7 @@ using Postulate.Orm.Interfaces;
 using Postulate.Orm.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -23,6 +24,7 @@ namespace Postulate.Orm.Abstract
 
 			return typeof(TRecord).GetProperties().Where(pi =>
 				pi.HasColumnAccess(Access.UpdateOnly) &&
+				!pi.HasAttribute<NotMappedAttribute>() &&
 				!ignorePropsArray.Contains(pi.Name) &&
 				pi.IsSupportedType(_syntax)).Select(pi =>
 			{
