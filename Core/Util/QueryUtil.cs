@@ -49,7 +49,11 @@ namespace Postulate.Orm.Util
 		/// </summary>
 		public static IEnumerable<PropertyInfo> GetProperties(object query)
 		{
-			return GetProperties(query, string.Empty, out IEnumerable<string> builtInParams).Where(pi => HasValue(pi));
+			return GetProperties(query, string.Empty, out IEnumerable<string> builtInParams).Where(pi =>
+			{
+				var value = pi.GetValue(query);
+				return HasValue(value);
+			});
 		}
 
 		/// <summary>
