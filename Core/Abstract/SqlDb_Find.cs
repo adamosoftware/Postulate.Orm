@@ -3,6 +3,7 @@ using Postulate.Orm.Exceptions;
 using Postulate.Orm.Interfaces;
 using System.Data;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using static Dapper.SqlMapper;
 
 namespace Postulate.Orm.Abstract
@@ -14,6 +15,12 @@ namespace Postulate.Orm.Abstract
 			var row = ExecuteFind<TRecord>(connection, id);
 			return FindInner(connection, row);
 		}
+
+        public async Task<TRecord> FindAsync<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>, new()
+        {
+            var row = await ExecuteFindAsync<TRecord>(connection, id);
+            return FindInner(connection, row);
+        }
 
 		public TRecord Find<TRecord>(IDbConnection connection, TKey id, out int version) where TRecord : Record<TKey>, new()
 		{
@@ -114,6 +121,12 @@ namespace Postulate.Orm.Abstract
 			return ExecuteFindMethod<TRecord>(connection, id, cmd);
 		}
 
+        private async Task<TRecord> ExecuteFindAsync<TRecord>(IDbConnection connection, TKey id) where TRecord : Record<TKey>, new()
+        {
+            string cmd = GetCommand<TRecord>(_findCommands, () => GetFindStatement<TRecord>());
+            return await ExecuteFindMethodAsync<TRecord>(connection, id, cmd);
+        }
+
 		protected virtual TRecord ExecuteFindMethod<TRecord>(IDbConnection connection, TKey id, string cmd) where TRecord : Record<TKey>
 		{
 			Stopwatch sw = Stopwatch.StartNew();
@@ -122,6 +135,15 @@ namespace Postulate.Orm.Abstract
 			InvokeTraceCallback(connection, "Find", cmd, new { id = id }, sw);
 			return result;
 		}
+
+        protected virtual async Task<TRecord> ExecuteFindMethodAsync<TRecord>(IDbConnection connection, TKey id, string cmd) where TRecord : Record<TKey>
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            TRecord result = await connection.QueryFirstOrDefaultAsync<TRecord>(cmd, new { id });
+            sw.Stop();
+            InvokeTraceCallback(connection, "FindAsync", cmd, new { id }, sw);
+            return result;
+        }
 
 		private TRecord ExecuteFindWhere<TRecord>(IDbConnection connection, string criteria, object parameters) where TRecord : Record<TKey>, new()
 		{
